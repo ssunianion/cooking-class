@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>로제떡볶이 만들기 — 기술·가정 조리실습 사전 연습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ===== 색 토큰 (화면 바깥 영역만 라이트/다크 전환, 주방 장면은 실제 색 유지) ===== */
+:root{
+  --page:#dfe4e2; --ink:#20262b; --muted:#5b666e;
+  --steel:#c9ced3; --wood:#b8854f; --glass:#1c1f22; --rose:#e0796b; --teal:#1f6f7d; --tile:#f3f4f1;
+  --ok:#2e7d4f; --warn:#b5541c; --err:#b3261e;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --page:#14181b; color-scheme: dark; }
+}
+:root[data-theme="dark"]{ --page:#14181b; color-scheme: dark; }
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{background:var(--page);overflow:hidden;font-family:"Gowun Dodum","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink)}
+*,*::before,*::after{box-sizing:border-box}
+#viewport{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;overflow:hidden;
+  background:
+   linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px) 0 0/56px 56px,
+   linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px) 0 0/56px 56px,
+   #eceeea;
+  user-select:none;-webkit-user-select:none;touch-action:none;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+h1,h2,h3,.disp{font-family:"Do Hyeon","Noto Sans KR","Malgun Gothic",sans-serif;font-weight:400;letter-spacing:.01em}
+button{font:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid #f0b429;outline-offset:2px}
+
+/* ===== 상단 ===== */
+#top{position:absolute;left:0;top:0;right:0;height:62px;display:flex;align-items:center;gap:18px;padding:0 18px;
+  background:#2b3238;color:#fff}
+#top h1{margin:0;font-size:30px;line-height:1}
+#top .sub{font-size:14px;color:#c7d0d6;margin-top:4px}
+#steps{display:flex;gap:4px;margin-left:12px}
+.sdot{min-width:76px;height:38px;border-radius:8px;background:#3d464e;color:#aeb8bf;font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;padding:0 6px}
+.sdot b{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:15px}
+.sdot.now{background:#f0b429;color:#2b2200}
+.sdot.done{background:#3f6b55;color:#e5f3ea}
+#topbtns{margin-left:auto;display:flex;gap:6px}
+.tbtn{background:#46505a;color:#fff;border:0;border-radius:8px;padding:8px 12px;font-size:14px}
+.tbtn:hover{background:#56616c}
+.modebadge{font-size:13px;padding:4px 10px;border-radius:20px;background:#1f6f7d;color:#fff;white-space:nowrap}
+.modebadge.ch{background:#8a3b52}
+
+/* ===== 왼쪽 보관대 ===== */
+#pantry{position:absolute;left:10px;top:72px;width:292px;bottom:10px;background:#d8cdb8;border-radius:10px;padding:10px 10px 8px;
+  box-shadow:inset 0 0 0 4px #c2b496, inset 0 6px 14px rgba(0,0,0,.12)}
+#pantry h2{margin:0 4px 4px;font-size:19px;color:#4a3b22}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px}
+.card{position:relative;background:#fbf8f2;border-radius:8px;height:74px;padding:2px 4px 4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  box-shadow:0 2px 0 #b9ab8e;cursor:grab;transition:transform .12s, box-shadow .12s}
+.card .pic{width:100%;height:50px;display:flex;align-items:center;justify-content:center}
+.card .pic svg,.card .pic img{max-width:100%;max-height:50px}
+.card span{font-size:14px;line-height:1.1}
+.card:hover{transform:translateY(-2px)}
+.card.used{opacity:.42;cursor:default;filter:grayscale(.6)}
+.card.used:hover{transform:none}
+.card em{position:absolute;top:4px;right:6px;font-style:normal;font-size:11px;background:#6c757d;color:#fff;border-radius:6px;padding:1px 5px}
+.need{box-shadow:0 0 0 3px #f0b429, 0 0 16px rgba(240,180,41,.8)!important;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 3px #f0b429, 0 0 4px rgba(240,180,41,.3)}}
+.sel{box-shadow:0 0 0 4px #1f6f7d, 0 0 18px rgba(31,111,125,.7)!important;transform:translateY(-3px)}
+.missing{width:100%;height:100%;border:2px dashed #b3261e;border-radius:6px;color:#b3261e;font-size:10px;line-height:1.2;display:flex;align-items:center;justify-content:center;text-align:center;padding:2px;background:#fff1f0}
+
+/* ===== 가운데 작업대 ===== */
+#counter{position:absolute;left:312px;top:72px;width:900px;height:818px;border-radius:12px;
+  background:linear-gradient(135deg,#dfe3e6 0%,#c4cad0 45%,#d9dde1 100%);box-shadow:inset 0 0 0 3px #aab1b8, inset 0 0 40px rgba(0,0,0,.12)}
+#counter::before{content:"";position:absolute;inset:0;border-radius:12px;opacity:.35;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.5) 0 1px,transparent 1px 3px)}
+.fx{position:absolute;border-radius:12px}
+.fx .lab{position:absolute;left:10px;top:6px;font-size:14px;color:#33393e;background:rgba(255,255,255,.75);padding:1px 8px;border-radius:10px;pointer-events:none;z-index:3}
+.fx.drop-on{outline:3px dashed rgba(31,111,125,.75);outline-offset:-3px}
+.fx.drop-hot{outline:4px solid #1f6f7d;outline-offset:-4px;background-color:rgba(31,111,125,.08)}
+.fx svg.art{position:absolute;inset:0;width:100%;height:100%}
+.tap{position:absolute;top:8px;width:86px;height:34px;border:0;border-radius:17px;font-size:14px;color:#fff;z-index:4;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.tap.cold{right:104px;background:#2b6fa8}
+.tap.hot{right:10px;background:#b2432f}
+.tap.on{outline:3px solid #f0b429}
+.inner{position:absolute}
+.gesture{cursor:crosshair}
+.bar{position:absolute;left:20px;right:20px;bottom:12px;height:12px;background:rgba(0,0,0,.25);border-radius:6px;overflow:hidden;z-index:4}
+.bar i{display:block;height:100%;width:0;background:#4fb37a;border-radius:6px}
+.mini{font-size:13px;background:#fff;border:1px solid #9aa3ab;border-radius:7px;padding:5px 8px;color:#20262b}
+.mini:active{background:#e8eef2}
+.holdbtn{background:#2b6fa8;color:#fff;border:0;border-radius:8px;padding:9px 8px;font-size:14px;box-shadow:0 3px 0 #1c4e78}
+.holdbtn:active,.holdbtn.on{transform:translateY(2px);box-shadow:0 1px 0 #1c4e78}
+#ctrl{position:absolute;left:250px;top:712px;width:400px;height:92px;border-radius:12px;background:linear-gradient(#24282c,#121417);display:flex;align-items:center;gap:8px;padding:0 14px;box-shadow:0 3px 0 #000}
+.cbtn{width:62px;height:62px;border-radius:50%;border:2px solid #4a5056;background:#1b1e21;color:#cfd6dc;font-size:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.cbtn small{font-size:10px;color:#8b949b}
+.cbtn.pw{border-color:#5d6b74}
+.cbtn.pw.on{color:#7ef0a8;border-color:#3aa86a;box-shadow:0 0 12px rgba(58,168,106,.6)}
+.cbtn.lv.on{color:#ffb38a;border-color:#ff7a3d;box-shadow:0 0 14px rgba(255,122,61,.65)}
+.cbtn.flash{animation:flash .5s 2}
+@keyframes flash{50%{background:#7a1f1a;border-color:#ff5a4f}}
+.cbtn[disabled]{opacity:.35;cursor:not-allowed}
+#ctrlinfo{margin-left:auto;color:#cfd6dc;font-size:13px;text-align:right;line-height:1.35}
+#ctrlinfo b{display:block;font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:22px;color:#ff9d6b}
+
+/* 조리 애니메이션 */
+@keyframes bub{0%{transform:scale(.2);opacity:0}30%{opacity:.9}100%{transform:scale(1.2);opacity:0}}
+.bub{transform-box:fill-box;transform-origin:center;animation:bub 1.1s ease-out infinite;opacity:0}
+.boil-off .bub{animation:none;opacity:0}
+.boil-slow .bub{animation-duration:1.9s}
+@keyframes steam{0%{transform:translateY(10px);opacity:0}40%{opacity:.5}100%{transform:translateY(-40px);opacity:0}}
+.steam{animation:steam 2.6s ease-out infinite;transform-box:fill-box}
+@keyframes drip{0%{transform:translateY(-30px);opacity:0}20%{opacity:1}100%{transform:translateY(150px);opacity:.2}}
+.stream{animation:drip .5s linear infinite}
+@keyframes slash{0%{opacity:1;stroke-dashoffset:200}100%{opacity:0;stroke-dashoffset:0}}
+.slash{stroke-dasharray:200;animation:slash .45s ease-out forwards}
+@keyframes dropin{0%{transform:translateY(-60px) scale(1.1);opacity:0}100%{transform:none;opacity:1}}
+.dropin{animation:dropin .45s ease-out}
+@keyframes shimmer{0%,100%{opacity:.15}50%{opacity:.45}}
+.shim{animation:shimmer 1.2s ease-in-out infinite}
+
+/* ===== 오른쪽 안내 ===== */
+#panel{position:absolute;left:1222px;top:72px;right:10px;bottom:10px;background:#fbfbf8;border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:inset 0 0 0 2px #d3d7d2}
+#panel h2{margin:0;font-size:28px;line-height:1.1}
+.stepno{font-size:15px;color:var(--teal)}
+.quote{background:#f3eee2;border-left:5px solid #b8854f;border-radius:6px;padding:10px 12px;font-size:16px;line-height:1.5}
+.quote small{display:block;color:#7a6a4a;font-size:12px;margin-bottom:2px}
+.chk{list-style:none;margin:0;padding:0;font-size:15px;line-height:1.35}
+.chk li{display:flex;gap:8px;align-items:flex-start;padding:3px 0}
+.chk li::before{content:"";flex:0 0 18px;height:18px;border-radius:5px;border:2px solid #9aa3ab;margin-top:1px}
+.chk li.ok{color:#5e6a63}
+.chk li.ok::before{background:#2e7d4f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10l4 4 8-8' stroke='white' stroke-width='3' fill='none'/%3E%3C/svg%3E") center/14px no-repeat;border-color:#2e7d4f}
+.timebox{display:flex;gap:12px;align-items:center;background:#20262b;color:#fff;border-radius:10px;padding:10px 12px}
+.ring{position:relative;width:78px;height:78px;flex:0 0 78px}
+.ring svg{width:78px;height:78px;transform:rotate(-90deg)}
+.ring div{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Do Hyeon",sans-serif;font-size:20px}
+.timebox p{margin:0;font-size:14px;line-height:1.5}
+.timebox b{color:#ffd27a;font-weight:400;font-family:"Do Hyeon",sans-serif;font-size:17px}
+.heatbox{font-size:15px;background:#fff4ec;border-radius:8px;padding:8px 12px;border:1px solid #f1d2bf}
+.next{font-size:16px;line-height:1.45;background:#e8f2f3;border-radius:8px;padding:10px 12px;border:1px solid #c3dde0}
+.next small{display:block;color:var(--teal);font-size:12px}
+#msg{margin-top:auto;min-height:70px;border-radius:8px;padding:10px 12px;font-size:16px;line-height:1.45;background:#eef0f2}
+#msg.ok{background:#e6f3ea;color:#1f5a38}
+#msg.err{background:#fdeceb;color:#8e1f19}
+#msg.hint{background:#fff6df;color:#6b4b00}
+#holding{font-size:14px;color:#1f6f7d;min-height:20px}
+
+/* ===== 드래그 고스트·토스트·오버레이 ===== */
+#ghost{position:absolute;left:0;top:0;width:110px;height:90px;pointer-events:none;z-index:50;display:none;filter:drop-shadow(0 10px 12px rgba(0,0,0,.35));transform-origin:center}
+#ghost svg,#ghost img{width:100%;height:100%}
+#toast{position:absolute;left:762px;top:420px;transform:translate(-50%,-50%) scale(.8);background:#2e7d4f;color:#fff;font-family:"Do Hyeon",sans-serif;font-size:40px;padding:18px 34px;border-radius:16px;opacity:0;pointer-events:none;z-index:40;transition:opacity .25s, transform .25s}
+#toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#overlay{position:absolute;inset:0;background:rgba(24,29,33,.72);z-index:60;display:none;align-items:center;justify-content:center}
+#overlay.show{display:flex}
+.sheet{background:#fbfbf8;border-radius:16px;padding:30px 36px;max-width:1100px;max-height:840px;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.sheet h2{margin:0 0 6px;font-size:46px}
+.sheet .lead{font-size:18px;color:#4c565e;margin:0 0 18px;line-height:1.5}
+.bigbtn{border:0;border-radius:12px;padding:16px 26px;font-family:"Do Hyeon",sans-serif;font-size:24px;color:#fff;background:#1f6f7d;box-shadow:0 4px 0 #134a54}
+.bigbtn.ch{background:#8a3b52;box-shadow:0 4px 0 #5c2236}
+.bigbtn.ghost{background:#e6e8e5;color:#20262b;box-shadow:0 4px 0 #b9bdb8}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mode{border-radius:12px;padding:18px 20px;background:#eef3f3;border:2px solid #c3dde0}
+.mode.ch{background:#f7eef1;border-color:#e2c3cd}
+.mode h3{margin:0 0 6px;font-size:26px}
+.mode ul{margin:0 0 14px;padding-left:20px;font-size:16px;line-height:1.6}
+.rtable{width:100%;border-collapse:collapse;font-size:16px}
+.rtable th,.rtable td{border-bottom:1px solid #dde0dc;padding:9px 10px;text-align:left;vertical-align:top}
+.rtable th{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:18px;color:#4c565e}
+.rtable td:first-child{font-family:"Do Hyeon",sans-serif;font-size:22px;color:#1f6f7d;width:44px}
+.result{display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:center}
+.stats{list-style:none;padding:0;margin:0;font-size:19px;line-height:1.4}
+.stats li{display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px solid #e2e5e1}
+.stats b{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:24px}
+.note{font-size:14px;color:#5b666e;margin-top:10px;line-height:1.5}
+#overlay.intro-bg{background:rgba(40,44,48,.38);backdrop-filter:blur(1.5px) grayscale(.3);-webkit-backdrop-filter:blur(1.5px) grayscale(.3)}
+.sheet.intro{background:#fff;width:730px;padding:28px 34px 28px;border-radius:18px;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.intro h2{font-family:"Black Han Sans","Do Hyeon","Malgun Gothic",sans-serif;color:#b52a1e;font-size:38px;line-height:1.15;margin:0 0 14px}
+.intro .desc{font-size:15.5px;color:#2b2b2b;margin:0 0 14px;line-height:1.5}
+.intro ol{margin:0 0 22px;padding-left:22px;font-size:15.5px;line-height:1.85;color:#2b2b2b}
+.introbtn{border:0;border-radius:10px;background:#b52a1e;color:#fff;font-family:"Noto Sans KR",sans-serif;font-weight:700;font-size:17px;padding:14px 26px;box-shadow:0 2px 0 #861c13}
+.introbtn:hover{background:#c33223}
+#missbar{position:absolute;left:312px;top:64px;width:900px;background:#b3261e;color:#fff;font-size:13px;padding:4px 10px;border-radius:6px;z-index:30;display:none}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="stage" aria-label="로제떡볶이 조리 시뮬레이션">
+    <header id="top">
+      <div><h1>로제떡볶이 만들기</h1><div class="sub">기술·가정 조리실습 사전 연습</div></div>
+      <div id="steps"></div>
+      <div id="topbtns">
+        <button class="tbtn" data-act="back">이전 단계로</button>
+        <button class="tbtn" data-act="restart">처음부터 다시</button>
+        <button class="tbtn" data-act="recipe">조리법 보기</button>
+        <button class="tbtn" data-act="home">처음 화면</button>
+      </div>
+    </header>
+    <aside id="pantry"></aside>
+    <main id="counter"></main>
+    <aside id="panel"></aside>
+    <div id="missbar"></div>
+    <div id="ghost"></div>
+    <div id="toast"></div>
+    <div id="overlay"></div>
+  </div>
+</div>
+
+<!-- 공용 그라데이션·질감 필터 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000" flood-opacity=".35"/></filter>
+  <filter id="shadowL" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000" flood-opacity=".35"/></filter>
+  <filter id="grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.32" numOctaves="3" seed="3" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 .38  0 0 0 0 .22  0 0 0 0 .08  1.3 0 0 0 -.5" result="t"/>
+    <feComposite in="t" in2="SourceGraphic" operator="in" result="c"/>
+    <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="c"/></feMerge>
+  </filter>
+  <filter id="speck" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.35" numOctaves="2" seed="8" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 .45  0 0 0 0 .25  0 0 0 0 .1  1.6 0 0 0 -.75" result="t"/>
+    <feComposite in="t" in2="SourceGraphic" operator="in" result="c"/>
+    <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="c"/></feMerge>
+  </filter>
+  <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
+  <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
+  <radialGradient id="gTteok" cx="50%" cy="30%" r="80%"><stop offset="0" stop-color="#fffef9"/><stop offset=".6" stop-color="#f4eedf"/><stop offset="1" stop-color="#d8ccb0"/></radialGradient>
+  <linearGradient id="gFish" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2b071"/><stop offset=".5" stop-color="#cf9452"/><stop offset="1" stop-color="#b07337"/></linearGradient>
+  <linearGradient id="gButter" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0a8"/><stop offset="1" stop-color="#efc64a"/></linearGradient>
+  <linearGradient id="gFoil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".5" stop-color="#b9c0c7"/><stop offset="1" stop-color="#e5e9ec"/></linearGradient>
+  <linearGradient id="gCheese" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd85c"/><stop offset="1" stop-color="#f0ad2d"/></linearGradient>
+  <linearGradient id="gSteel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1f3f5"/><stop offset=".5" stop-color="#b3bac1"/><stop offset="1" stop-color="#dde1e5"/></linearGradient>
+  <radialGradient id="gBasin" cx="50%" cy="45%" r="65%"><stop offset="0" stop-color="#d6dbe0"/><stop offset=".8" stop-color="#a7afb7"/><stop offset="1" stop-color="#8a939c"/></radialGradient>
+  <radialGradient id="gGlass" cx="35%" cy="25%" r="90%"><stop offset="0" stop-color="#3a3f45"/><stop offset=".5" stop-color="#1d2024"/><stop offset="1" stop-color="#0d0f11"/></radialGradient>
+  <radialGradient id="gPan" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#4a4f55"/><stop offset=".85" stop-color="#25282c"/><stop offset="1" stop-color="#151719"/></radialGradient>
+  <linearGradient id="gRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9aa0a6"/><stop offset=".5" stop-color="#3d4146"/><stop offset="1" stop-color="#7c8288"/></linearGradient>
+  <radialGradient id="gHeat" cx="50%" cy="50%" r="50%"><stop offset=".55" stop-color="#ff5a1f" stop-opacity="0"/><stop offset=".8" stop-color="#ff5a1f" stop-opacity=".9"/><stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gPot" cx="50%" cy="50%" r="50%"><stop offset=".86" stop-color="#c5ccd2"/><stop offset=".93" stop-color="#eef1f3"/><stop offset="1" stop-color="#8f979e"/></radialGradient>
+  <radialGradient id="gWater" cx="45%" cy="40%" r="60%"><stop offset="0" stop-color="#d9ecf5" stop-opacity=".85"/><stop offset="1" stop-color="#9cc3d6" stop-opacity=".9"/></radialGradient>
+  <radialGradient id="gBowl" cx="45%" cy="40%" r="60%"><stop offset="0" stop-color="#ffffff"/><stop offset=".8" stop-color="#efece6"/><stop offset="1" stop-color="#d4cfc6"/></radialGradient>
+  <linearGradient id="gKnife" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".6" stop-color="#b6bdc4"/><stop offset="1" stop-color="#8b939b"/></linearGradient>
+  <linearGradient id="gWoodT" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c79a62"/><stop offset="1" stop-color="#a87841"/></linearGradient>
+  <pattern id="mesh" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 0H6M0 0V6" stroke="#7d858c" stroke-width="1"/></pattern>
+ </defs>
+</svg>
+
+<script>
+"use strict";
+/* =====================================================================
+   이미지 에셋 설정
+   - 실제 밀키트 사진을 쓰려면 assets 폴더에 사진을 넣고 경로를 적어 주세요.
+     예) tteok: 'assets/tteok.png'
+   - null이면 게임에 내장된 그림을 씁니다.
+   - 경로를 적었는데 파일이 없으면 화면에 “이미지 누락: 경로”가 표시됩니다.
+   ===================================================================== */
+const ASSET_FILES = {
+  tteok:null, fishcake:null, noodles:null, butter:null, veg:null, water:null,
+  seasoning:null, tomato:null, cream:null, parmesan:null, slice:null,
+  pan:null, knife:null, tongs:null, cup:null, spatula:null
+};
+
+/* ===== 조리법 원문 (첨부 조리법 7단계, 순서·문구 변경 금지) ===== */
+const RECIPE = [
+  {n:1, title:'누들 떡 씻기', text:'누들 떡은 찬물에 씻어 준비하기'},
+  {n:2, title:'어묵 자르기', text:'어묵은 1cm 넓이로 자르기'},
+  {n:3, title:'납작 당면 삶기', text:'납작 당면은 끓는 물에 8분간 삶아 체에 받쳐 건져두기', real:'8분', realSec:480, game:12},
+  {n:4, title:'팬 예열하기', text:'팬을 중불로 1분간 예열하기', real:'1분', realSec:60, game:5, heat:'중불'},
+  {n:5, title:'버터와 채소 볶기', text:'팬에 버터와 모든 채소를 넣고 중불로 1분간 볶기', real:'1분', realSec:60, game:6, heat:'중불'},
+  {n:6, title:'물과 재료 넣고 끓이기', text:'물 300ml와 양념, 떡, 어묵, 토마토소스, 당면을 넣고 강불로 4분간 끓이기', real:'4분', realSec:240, game:10, heat:'강불'},
+  {n:7, title:'크림과 치즈 넣고 완성하기', text:'크림, 파마산 치즈, 슬라이스 치즈를 넣고 2분간 더 끓여 완성하기', real:'2분', realSec:120, game:7}
+];
+
+const ITEMS = {
+  tteok:{name:'누들 떡',step:1}, fishcake:{name:'어묵',step:2}, noodles:{name:'납작 당면',step:3},
+  butter:{name:'버터',step:5}, veg:{name:'채소',step:5}, water:{name:'물',step:6}, seasoning:{name:'양념',step:6},
+  tomato:{name:'토마토소스',step:6}, cream:{name:'크림',step:7}, parmesan:{name:'파마산 치즈',step:7}, slice:{name:'슬라이스 치즈',step:7}
+};
+const TOOLS = { pan:{name:'프라이팬',step:4}, knife:{name:'칼',step:2}, tongs:{name:'집게',step:3}, cup:{name:'계량컵',step:6}, spatula:{name:'주걱',step:5} };
+const DERIVED = {
+  'sink:tteok':['씻은 떡',1], 'board:fishcake':['자른 어묵',2], 'pot:noodles':['집게로 건진 당면',3],
+  'tray:tteok':['씻은 떡',6], 'tray:fishcake':['자른 어묵',6], 'strainer:noodles':['삶은 당면',6],
+  'sink:cup':['계량컵의 물',6], 'cooktop:pan':['프라이팬',7]
+};
+const DROPNAME = {sink:'싱크대', board:'도마', cooktop:'인덕션', strainer:'채반', tray:'준비 트레이', bowl:'그릇'};
+const GUIDES = 7;           // 8cm 어묵 → 1cm 간격 안내선 7개
+const CM = 30;              // 화면 1cm = 30px
+
+function srcName(src){ const [k,id]=src.split(':'); if(DERIVED[src]) return DERIVED[src][0]; return (ITEMS[id]||TOOLS[id]||{name:id}).name; }
+function srcStep(src){ const [k,id]=src.split(':'); if(DERIVED[src]) return DERIVED[src][1]; return (ITEMS[id]||TOOLS[id]||{step:0}).step; }
+function josa(w,a,b){ const c=w.charCodeAt(w.length-1); if(c<0xAC00||c>0xD7A3) return w+b; return w+(((c-0xAC00)%28)?a:b); }
+const clone = o => JSON.parse(JSON.stringify(o));
+const $ = s => document.querySelector(s);
+
+/* ===== 상태 ===== */
+let S, STATS, snapshots = {};
+const R = { selected:null, drag:null, gesture:null, pouring:false, lastStir:0, transition:false, started:false, missing:new Set(), msgShownHeat:false };
+
+function newState(mode){
+  return { mode, step:1, used:{}, tray:{tteok:false,fishcake:false}, strainer:false, cook:null, bowl:false,
+    heat:{power:false, level:null, locked:false},
+    pan:{butter:0,melt:0,veg:0,stir:0,water:0,seasoning:0,tteok:0,fishcake:0,tomato:0,noodles:0,boil:0,cream:0,creamMix:0,parmesan:0,slice:0,smelt:0,finish:0},
+    s1:{phase:'tteok', scrub:0}, s2:{onBoard:false, knife:false, width:null, cuts:[], done:false},
+    s3:{inPot:false, t:0, cooked:false, lifted:false}, s4:{t:0}, s5:{spatula:false, t:0},
+    s6:{cup:false, pitcher:false, ml:0, poured:false, t:0}, s7:{t:0, cooked:false},
+    stepErr:0, log:[] };
+}
+
+function startGame(mode){
+  S = newState(mode); STATS = {correct:0, wrong:0, retry:0, orderSlip:0}; snapshots = {};
+  R.selected=null; R.transition=false; R.started=true; R.pouring=false;
+  R.inGame=true; hideOverlay(); goStep(1);
+}
+
+function goStep(n){
+  S.step = n; S.stepErr = 0; S.log = []; R.selected = null; R.transition=false; R.completing=false; R.msgShownHeat=false;
+  if(n===3){ S.cook='pot'; S.heat={power:true, level:null, locked:true}; }
+  if(n===4){ S.cook=null; S.heat={power:false, level:null, locked:false}; }
+  snapshots[n] = clone(S);
+  render();
+  if(S.mode==='practice') setMsg('hint', `${n}단계예요. ${guide().text}`);
+  else setMsg('hint', `${n}단계예요. 조리법을 떠올려 필요한 재료와 도구를 직접 골라 보세요.`);
+}
+
+function completeStep(text){
+  R.transition = true; R.completing=true; R.selected=null;
+  setMsg('ok', text || `${S.step}단계 완료!`);
+  toast(`${S.step}단계 완료`);
+  render();
+  setTimeout(()=>{ if(S.step<7) goStep(S.step+1); else showResult(); }, 1500);
+}
+
+function ok(text){ STATS.correct++; S.log.push(text); setMsg('ok', text); }
+function wrong(kind, text){ if(kind==='retry') STATS.retry++; else STATS.wrong++; S.stepErr++; setMsg('err', text); }
+function guideMsg(text){ setMsg('hint', text); }
+
+/* 연습 모드: 구체적 힌트 / 도전 모드: 방향만 제시, 3번째 실수부터 조금 더 구체적으로 */
+function pick(practiceText, challengeText){ return S.mode==='practice' ? practiceText : (S.stepErr>=2 ? practiceText : challengeText); }
+
+/* ===== 다음 할 일 (연습 모드 안내·강조) ===== */
+function missing6(){ const a=S.pan, m=[]; if(!a.water)m.push('물 300ml'); if(!a.seasoning)m.push('양념'); if(!a.tteok)m.push('떡'); if(!a.fishcake)m.push('어묵'); if(!a.tomato)m.push('토마토소스'); if(!a.noodles)m.push('당면'); return m; }
+function missing7(){ const a=S.pan, m=[]; if(!a.cream)m.push('크림'); if(!a.parmesan)m.push('파마산 치즈'); if(!a.slice)m.push('슬라이스 치즈'); return m; }
+function guide(){
+  const st=S.step, g={text:'', srcs:[], drops:[], acts:[]};
+  if(st===1){ const p=S.s1.phase;
+    if(p==='tteok'){ g.text='‘누들 떡’을 싱크대로 옮겨요.'; g.srcs=['item:tteok']; g.drops=['sink']; }
+    else if(p==='water'){ g.text='수도꼭지에서 찬물을 틀어요.'; g.acts=['tap-cold']; }
+    else if(p==='scrub'){ g.text='싱크대 속 떡을 마우스로 누른 채 문질러 씻어요.'; }
+    else { g.text='씻은 떡을 ‘준비 트레이’로 옮겨요.'; g.srcs=['sink:tteok']; g.drops=['tray']; } }
+  if(st===2){ const s=S.s2;
+    if(!s.onBoard){ g.text='‘어묵’을 도마 위에 올려요.'; g.srcs=['item:fishcake']; g.drops=['board']; }
+    else if(!s.knife){ g.text='‘칼’을 도마로 가져와요.'; g.srcs=['tool:knife']; g.drops=['board']; }
+    else if(!s.width){ g.text='자를 너비를 골라요.'; }
+    else if(!s.done){ g.text=`1cm 안내선을 따라 칼을 위에서 아래로 그어 자르세요. (${s.cuts.length}/${GUIDES})`; }
+    else { g.text='자른 어묵을 ‘준비 트레이’로 옮겨요.'; g.srcs=['board:fishcake']; g.drops=['tray']; } }
+  if(st===3){ const s=S.s3;
+    if(!s.inPot){ g.text='‘납작 당면’을 끓는 물 냄비에 넣어요.'; g.srcs=['item:noodles']; g.drops=['cooktop']; }
+    else if(!s.cooked){ g.text='당면이 익는 동안 기다려요. (실제 8분)'; }
+    else if(!s.lifted){ g.text='‘집게’로 냄비 속 당면을 건져요.'; g.srcs=['tool:tongs']; g.drops=['cooktop']; }
+    else { g.text='건진 당면을 ‘채반’에 받쳐요.'; g.srcs=['pot:noodles']; g.drops=['strainer']; } }
+  if(st===4){
+    if(S.cook!=='pan'){ g.text='빈 ‘프라이팬’을 인덕션에 올려요.'; g.srcs=['tool:pan']; g.drops=['cooktop']; }
+    else if(!S.heat.power){ g.text='인덕션 전원을 켜요.'; g.acts=['power']; }
+    else if(S.heat.level!=='mid'){ g.text='불 세기를 중불로 맞춰요.'; g.acts=['heat-mid']; }
+    else g.text='팬이 예열되는 동안 기다려요. (실제 1분)'; }
+  if(st===5){ const a=S.pan, s=S.s5;
+    if(!a.butter||!a.veg){ const m=[]; if(!a.butter)m.push('item:butter'); if(!a.veg)m.push('item:veg');
+      g.text=`팬에 ${m.map(srcName).join(', ')}${a.butter||a.veg?'도':''} 넣어요.`; g.srcs=m; g.drops=['cooktop']; }
+    else if(S.heat.level!=='mid'||!S.heat.power){ g.text='중불인지 확인해요.'; g.acts=['heat-mid']; }
+    else if(!s.spatula){ g.text='‘주걱’을 팬으로 가져와요.'; g.srcs=['tool:spatula']; g.drops=['cooktop']; }
+    else g.text='주걱으로 팬 위를 누른 채 움직여 볶아요. (실제 1분)'; }
+  if(st===6){ const s=S.s6, a=S.pan;
+    if(!a.water){
+      if(!s.cup){ g.text='‘계량컵’을 싱크대 계량 자리에 놓아요.'; g.srcs=['tool:cup']; g.drops=['sink']; }
+      else if(!s.pitcher){ g.text='‘물’을 계량컵에 부어요.'; g.srcs=['item:water']; g.drops=['sink']; }
+      else if(s.ml!==300){ g.text=`계량컵 눈금을 300ml에 맞춰요. (지금 ${s.ml}ml)`; }
+      else { g.text='계량한 물 300ml를 팬에 부어요.'; g.srcs=['sink:cup']; g.drops=['cooktop']; }
+    }
+    const m=[]; if(!a.seasoning)m.push('item:seasoning'); if(!a.tteok)m.push('tray:tteok'); if(!a.fishcake)m.push('tray:fishcake'); if(!a.tomato)m.push('item:tomato'); if(!a.noodles)m.push('strainer:noodles');
+    if(a.water && m.length){ g.text=`남은 재료를 팬에 넣어요: ${m.map(x=>x==='tray:tteok'?'떡':x==='tray:fishcake'?'어묵':x==='strainer:noodles'?'당면':srcName(x)).join(', ')}`; g.drops=['cooktop']; }
+    g.srcs = g.srcs.concat(m);
+    if(!missing6().length){ if(S.heat.level!=='high'||!S.heat.power){ g.text='불 세기를 강불로 조절해요.'; g.acts=['heat-high']; } else g.text='강불로 끓는 동안 기다려요. (실제 4분)'; } }
+  if(st===7){ const m=[]; const a=S.pan; if(!a.cream)m.push('item:cream'); if(!a.parmesan)m.push('item:parmesan'); if(!a.slice)m.push('item:slice');
+    if(m.length){ g.text=`팬에 넣어요: ${m.map(srcName).join(', ')}`; g.srcs=m; g.drops=['cooktop']; }
+    else if(!S.s7.cooked){ g.text = S.heat.power ? '2분 더 끓는 동안 기다려요.' : '끓이려면 인덕션을 켜야 해요.'; }
+    else { g.text='완성! 팬을 ‘그릇’으로 옮겨 담아요.'; g.srcs=['cooktop:pan']; g.drops=['bowl']; } }
+  return g;
+}
+
+/* ===== 활동 체크리스트 ===== */
+function checklist(){
+  const st=S.step, s1=S.s1, s2=S.s2, s3=S.s3, a=S.pan;
+  const P=['tteok','water','scrub','tray','done'];
+  if(st===1){ const i=P.indexOf(s1.phase); return [['떡을 싱크대에 담기',i>0],['찬물 틀기',i>1],['문질러 씻기',i>2],['준비 트레이로 옮기기',S.tray.tteok]]; }
+  if(st===2) return [['어묵을 도마에 올리기',s2.onBoard],['칼 가져오기',s2.knife],[`1cm 간격으로 자르기 (${s2.cuts.length}/${GUIDES})`,s2.done],['준비 트레이로 옮기기',S.tray.fishcake]];
+  if(st===3) return [['당면을 끓는 물에 넣기',s3.inPot],['8분 삶기',s3.cooked],['집게로 건지기',s3.lifted],['채반에 받치기',S.strainer]];
+  if(st===4) return [['팬을 인덕션에 올리기',S.cook==='pan'],['전원 켜기',S.heat.power],['중불 선택',S.heat.level==='mid'],['1분 예열',S.s4.t>=RECIPE[3].game]];
+  if(st===5) return [['버터 넣기',!!a.butter],['채소 모두 넣기',!!a.veg],['주걱 가져오기',S.s5.spatula],['중불로 1분 볶기',S.s5.t>=RECIPE[4].game]];
+  if(st===6) return [['물 300ml 계량해 넣기',!!a.water],['양념',!!a.seasoning],['떡',!!a.tteok],['어묵',!!a.fishcake],['토마토소스',!!a.tomato],['당면',!!a.noodles],['강불로 4분 끓이기',S.s6.t>=RECIPE[5].game]];
+  if(st===7) return [['크림',!!a.cream],['파마산 치즈',!!a.parmesan],['슬라이스 치즈',!!a.slice],['2분 더 끓이기',S.s7.cooked],['그릇에 담기',S.bowl]];
+  return [];
+}
+
+/* ===== 그림 (내장 SVG) ===== */
+function rnd(seed){ let x=Math.sin(seed*9301+49297)*233280; return x-Math.floor(x); }
+const ICON = {
+  tteok:()=>`<svg viewBox="0 0 120 90"><ellipse cx="60" cy="70" rx="50" ry="10" fill="#000" opacity=".12"/>${
+    [0,1,2,3,4,5,6].map(i=>`<g transform="rotate(${-10+i*3.4} 60 45)"><rect x="${10+(i%2)*6}" y="${20+i*7}" width="${92-(i%3)*6}" height="10" rx="5" fill="url(#gTteok)" stroke="#d3c7a9" stroke-width=".8"/><rect x="${16+(i%2)*6}" y="${22+i*7}" width="${60-(i%3)*6}" height="2.2" rx="1.1" fill="#fff" opacity=".9"/></g>`).join('')}</svg>`,
+  fishcake:()=>`<svg viewBox="0 0 120 90"><ellipse cx="60" cy="72" rx="50" ry="8" fill="#000" opacity=".12"/><rect x="12" y="20" width="96" height="48" rx="5" fill="url(#gFish)" filter="url(#speck)"/><rect x="12" y="20" width="96" height="48" rx="5" fill="none" stroke="#9a6430" stroke-width="1.5"/><rect x="16" y="23" width="88" height="5" rx="2" fill="#f3d09c" opacity=".55"/></svg>`,
+  noodles:()=>`<svg viewBox="0 0 120 90"><ellipse cx="60" cy="74" rx="48" ry="8" fill="#000" opacity=".1"/>${
+    [0,1,2,3,4,5].map(i=>`<path d="M${14+i*3} ${24+i*7} C 40 ${12+i*7}, 70 ${36+i*7}, ${106-i*2} ${22+i*7} l0 8 C 70 ${44+i*7}, 40 ${20+i*7}, ${14+i*3} ${32+i*7}z" fill="#ece7da" fill-opacity=".92" stroke="#c9c1ac" stroke-width=".8"/>`).join('')}<rect x="52" y="18" width="12" height="54" rx="3" fill="#7a2f2a" opacity=".85"/></svg>`,
+  butter:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)"><path d="M18 34 L52 22 L104 36 L70 50z" fill="#fff7c9"/><path d="M18 34 L70 50 L70 72 L18 56z" fill="url(#gButter)"/><path d="M70 50 L104 36 L104 58 L70 72z" fill="#e6b93c"/><path d="M50 43 L86 55 L86 78 L50 66z" fill="url(#gFoil)" opacity=".95"/><path d="M86 55 L104 48 L104 70 L86 78z" fill="#9ea6ad"/></g></svg>`,
+  veg:()=>`<svg viewBox="0 0 120 90"><rect x="16" y="12" width="88" height="66" rx="10" fill="#fff" fill-opacity=".35" stroke="#9aa3ab" stroke-width="2" filter="url(#shadow)"/>${
+    [...Array(16)].map((_,i)=>{const x=24+rnd(i)*66,y=22+rnd(i+30)*46,c=['#5f9e3a','#87b84e','#eef0d8','#4f8a33','#dfe7c4'][i%5];return `<path d="M${x} ${y} q8 -6 14 2 q-4 8 -14 -2z" fill="${c}" transform="rotate(${rnd(i+9)*360} ${x+6} ${y})"/>`}).join('')}<rect x="38" y="62" width="44" height="14" rx="4" fill="#2f5d34"/><text x="60" y="73" text-anchor="middle" font-size="10" fill="#fff" font-family="Gowun Dodum,sans-serif">채소</text></svg>`,
+  water:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)"><rect x="48" y="4" width="24" height="10" rx="3" fill="#2a6fb0"/><path d="M44 16 h32 l6 12 v54 a6 6 0 0 1 -6 6 h-32 a6 6 0 0 1 -6 -6 v-54z" fill="#e9f5fb" fill-opacity=".6" stroke="#9cc3d6" stroke-width="2"/><path d="M40 40 h40 v42 a5 5 0 0 1 -5 5 h-30 a5 5 0 0 1 -5 -5z" fill="#8fc4e0" fill-opacity=".75"/><rect x="46" y="48" width="6" height="30" rx="3" fill="#fff" opacity=".6"/></g></svg>`,
+  seasoning:()=>pouch('#a4261c','#d24a32','양념'),
+  tomato:()=>pouch('#c0281f','#e2493a','토마토소스'),
+  cream:()=>pouch('#e9eef2','#ffffff','크림','#2b5b8a'),
+  parmesan:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)"><path d="M30 12 h60 l-4 64 a6 6 0 0 1 -6 6 h-40 a6 6 0 0 1 -6 -6z" fill="#f6efdc" stroke="#c8b98f" stroke-width="1.5"/><path d="M33 40 h54 l-2 34 a5 5 0 0 1 -5 5 h-40 a5 5 0 0 1 -5 -5z" fill="#efe3bd"/>${[...Array(26)].map((_,i)=>`<circle cx="${38+rnd(i)*44}" cy="${46+rnd(i+50)*30}" r="${1+rnd(i+5)*1.4}" fill="#d8c48b"/>`).join('')}<rect x="38" y="18" width="44" height="16" rx="3" fill="#355e3b"/><text x="60" y="30" text-anchor="middle" font-size="10" fill="#fff" font-family="Gowun Dodum,sans-serif">파마산</text></g></svg>`,
+  slice:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)"><rect x="26" y="12" width="68" height="68" rx="3" fill="url(#gCheese)"/><path d="M94 12 L94 40 L70 12z" fill="#fff" fill-opacity=".55" stroke="#ddd"/><rect x="26" y="12" width="68" height="68" rx="3" fill="none" stroke="#e8f0f5" stroke-width="2" opacity=".7"/></g></svg>`,
+  pan:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)"><rect x="76" y="40" width="42" height="10" rx="5" fill="#2a2c2f"/><circle cx="46" cy="45" r="36" fill="url(#gRim)"/><circle cx="46" cy="45" r="31" fill="url(#gPan)"/><ellipse cx="36" cy="34" rx="12" ry="6" fill="#fff" opacity=".08"/></g></svg>`,
+  knife:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)" transform="rotate(-20 60 45)"><path d="M8 40 L78 36 L78 50 L20 50 Q10 48 8 40z" fill="url(#gKnife)" stroke="#8b939b"/><path d="M8 40 L78 36 L78 39 L14 42z" fill="#fff" opacity=".7"/><rect x="78" y="35" width="36" height="16" rx="5" fill="#1f2326"/><circle cx="88" cy="43" r="2" fill="#c0c6cc"/><circle cx="102" cy="43" r="2" fill="#c0c6cc"/></g></svg>`,
+  tongs:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)" fill="none" stroke-linecap="round"><path d="M100 46 C70 44, 40 30, 14 26" stroke="#aab2b9" stroke-width="7"/><path d="M100 46 C70 48, 40 62, 14 66" stroke="#c7cdd2" stroke-width="7"/><path d="M14 26 l-4 6 M14 66 l-4 -6" stroke="#8e969d" stroke-width="5"/><circle cx="102" cy="46" r="7" fill="#7d858c" stroke="none"/></g></svg>`,
+  cup:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)"><path d="M34 10 h44 l-4 70 a4 4 0 0 1 -4 4 h-28 a4 4 0 0 1 -4 -4z" fill="#f4fbff" fill-opacity=".55" stroke="#8fa9b8" stroke-width="2"/><path d="M78 22 q18 2 16 22 q-2 14 -18 16" fill="none" stroke="#8fa9b8" stroke-width="5"/>${[0,1,2,3,4].map(i=>`<path d="M40 ${74-i*13} h${i%2?8:14}" stroke="#c0392b" stroke-width="1.6"/>`).join('')}<path d="M34 10 l-6 -4" stroke="#8fa9b8" stroke-width="3"/></g></svg>`,
+  spatula:()=>`<svg viewBox="0 0 120 90"><g filter="url(#shadow)" transform="rotate(-25 60 45)"><rect x="50" y="40" width="64" height="9" rx="4.5" fill="url(#gWoodT)"/><path d="M6 30 h46 a4 4 0 0 1 4 4 v20 a4 4 0 0 1 -4 4 h-46z" fill="#cf9e63" stroke="#a8783f"/><path d="M14 36 h34 M14 44 h34 M14 52 h34" stroke="#a8783f" stroke-width="1.5" opacity=".6"/></g></svg>`
+};
+function pouch(c1,c2,label,tc){
+  return `<svg viewBox="0 0 120 90"><g filter="url(#shadow)"><path d="M26 10 h68 v6 l-3 3 3 3 v52 a6 6 0 0 1 -6 6 h-56 a6 6 0 0 1 -6 -6 v-52 l3 -3 -3 -3z" fill="${c2}" stroke="${c1}" stroke-width="2"/><path d="M26 16 h68" stroke="${c1}" stroke-dasharray="3 2"/><rect x="34" y="40" width="52" height="22" rx="4" fill="${tc?'#fff':'#fff'}" fill-opacity=".9"/><text x="60" y="55" text-anchor="middle" font-size="${label.length>3?10:13}" fill="${tc||c1}" font-family="Gowun Dodum,sans-serif">${label}</text><rect x="32" y="22" width="8" height="50" rx="4" fill="#fff" opacity=".25"/></g></svg>`;
+}
+function pic(id){
+  const f = ASSET_FILES[id];
+  const name = (ITEMS[id]||TOOLS[id]||{}).name||id;
+  if(f) return `<img src="${f}" alt="${name}" data-asset="${id}" data-file="${f}" onerror="assetMissing(this)">`;
+  return ICON[id] ? ICON[id]() : `<div class="missing">이미지 누락<br>${id}</div>`;
+}
+function assetMissing(img){
+  const f=img.dataset.file; R.missing.add(f);
+  const d=document.createElement('div'); d.className='missing'; d.textContent='이미지 누락: '+f; img.replaceWith(d); showMissing();
+}
+function showMissing(){ const b=$('#missbar'); if(!R.missing.size){b.style.display='none';return;} b.style.display='block'; b.textContent='불러오지 못한 이미지: '+[...R.missing].join(', ')+' — assets 폴더의 파일 이름을 확인하세요. 그 자리에는 “이미지 누락”이 표시됩니다.'; }
+function preflight(){ Object.entries(ASSET_FILES).forEach(([id,f])=>{ if(!f) return; const im=new Image(); im.onerror=()=>{R.missing.add(f); showMissing();}; im.src=f; }); }
+
+/* ===== 그리기: 보관대 ===== */
+function renderPantry(){
+  const g = S.mode==='practice' ? guide() : {srcs:[]};
+  const toolBusy = id => (id==='pan' && S.cook==='pan') || (id==='cup' && S.s6.cup && !S.pan.water) ||
+    (id==='knife' && S.step===2 && S.s2.knife) || (id==='spatula' && S.step===5 && S.s5.spatula) || (id==='tongs' && S.step===3 && S.s3.lifted);
+  const card = (kind,id,meta) => {
+    const src = `${kind}:${id}`;
+    const used = kind==='item' ? !!S.used[id] : toolBusy(id);
+    const cls = ['card']; if(used) cls.push('used'); if(!used && g.srcs.includes(src)) cls.push('need'); if(R.selected===src) cls.push('sel');
+    return `<div class="${cls.join(' ')}" ${used?'':`data-src="${src}" tabindex="0" role="button"`} aria-label="${meta.name}">
+      ${used?`<em>${kind==='item'?'사용함':'사용 중'}</em>`:''}<div class="pic">${pic(id)}</div><span>${meta.name}</span></div>`;
+  };
+  $('#pantry').innerHTML = `<h2>식재료</h2><div class="grid">${Object.entries(ITEMS).map(([id,m])=>card('item',id,m)).join('')}</div>
+    <h2>조리도구</h2><div class="grid">${Object.entries(TOOLS).map(([id,m])=>card('tool',id,m)).join('')}</div>`;
+}
+
+/* ===== 그리기: 작업대 ===== */
+function fx(drop, l,t,w,h, label, inner){
+  return `<div class="fx" data-drop="${drop}" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px">${label?`<div class="lab">${label}</div>`:''}${inner}</div>`;
+}
+function needCls(src){ const g=S.mode==='practice'?guide():{srcs:[]}; return (g.srcs.includes(src)?' need':'')+(R.selected===src?' sel':''); }
+
+function sinkHTML(){
+  const s1=S.s1, st=S.step;
+  let inner = `<svg class="art" viewBox="0 0 300 250"><rect x="4" y="4" width="292" height="242" rx="14" fill="url(#gSteel)" stroke="#9aa3ab" stroke-width="2"/>
+    <rect x="22" y="52" width="256" height="180" rx="22" fill="url(#gBasin)" stroke="#8a939c" stroke-width="2"/>
+    <circle cx="150" cy="190" r="13" fill="#7a838c"/><circle cx="150" cy="190" r="9" fill="url(#mesh)"/>
+    <rect x="138" y="14" width="24" height="44" rx="8" fill="#c9cfd5" stroke="#8a939c"/><rect x="143" y="52" width="14" height="12" rx="3" fill="#9aa3ab"/>
+    ${st===1&&s1.water?`<rect x="146" y="64" width="8" height="${s1.phase==='scrub'?70:40}" fill="#bfe3f5" opacity=".8" class="stream"/>`:''}
+    ${st===1&&s1.water?`<ellipse cx="150" cy="150" rx="105" ry="68" fill="#a9d4ea" opacity=".45"/>`:''}
+    </svg>`;
+  if(st===1){
+    inner += `<button class="tap cold${s1.water?' on':''}" data-act="tap-cold">찬물</button><button class="tap hot" data-act="tap-hot">뜨거운 물</button>`;
+    if(s1.phase!=='tteok'){
+      const draggable = s1.phase==='tray';
+      inner += `<div class="inner ${draggable?'':'gesture'}${draggable?needCls('sink:tteok'):''}" ${draggable?'data-src="sink:tteok" tabindex="0" role="button"':'data-gesture="scrub"'} id="scrubZone" style="left:60px;top:84px;width:180px;height:130px;border-radius:14px">
+        <svg viewBox="0 0 180 130" width="180" height="130" id="tteokWash">${[...Array(9)].map((_,i)=>`<g transform="rotate(${-14+rnd(i)*28} 90 65)"><rect x="${18+rnd(i+3)*20}" y="${22+i*10}" width="${120+rnd(i+1)*14}" height="11" rx="5.5" fill="url(#gTteok)" stroke="#d3c7a9" stroke-width=".8"/></g>`).join('')}
+        <g id="foam" opacity="0">${[...Array(14)].map((_,i)=>`<circle cx="${20+rnd(i+70)*140}" cy="${18+rnd(i+90)*96}" r="${3+rnd(i)*5}" fill="#fff" fill-opacity=".85"/>`).join('')}</g>
+        ${s1.phase==='tray'?[...Array(10)].map((_,i)=>`<circle cx="${20+rnd(i+11)*140}" cy="${24+rnd(i+21)*86}" r="2.2" fill="#fff" opacity=".95"/>`).join(''):''}</svg></div>`;
+      if(s1.phase==='scrub') inner += `<div class="bar"><i id="scrubBar" style="width:${s1.scrub*100}%"></i></div>`;
+    }
+  }
+  if(st===6 && S.s6.cup && !S.pan.water) inner += cupHTML();
+  return fx('sink',20,20,300,250, st===6?'싱크대 (계량 자리)':'싱크대', inner);
+}
+
+function cupHTML(){
+  const s=S.s6, H=170, maxMl=500, h=H*s.ml/maxMl;
+  let ticks='';
+  for(let ml=50; ml<=500; ml+=50){ const y=190-H*ml/maxMl; ticks+=`<path d="M22 ${y} h${ml%100?10:18}" stroke="#c0392b" stroke-width="1.6"/>${ml%100?'':`<text x="44" y="${y+4}" font-size="11" fill="#c0392b" font-family="Gowun Dodum,sans-serif">${ml}</text>`}`; }
+  for(let ml=10; ml<500; ml+=10){ if(ml%50) { const y=190-H*ml/maxMl; ticks+=`<path d="M22 ${y} h5" stroke="#c0392b" stroke-width=".9"/>`; } }
+  const canDrag = s.pitcher && s.ml>0;
+  return `<div class="inner${canDrag?needCls('sink:cup'):''}" ${canDrag?'data-src="sink:cup" tabindex="0" role="button"':''} style="left:30px;top:30px;width:110px;height:205px;cursor:${canDrag?'grab':'default'}">
+    <svg viewBox="0 0 110 205" width="110" height="205"><path d="M14 14 h70 l-4 178 a4 4 0 0 1 -4 4 h-58 a4 4 0 0 1 -4 -4z" fill="#f4fbff" fill-opacity=".6" stroke="#7f9cae" stroke-width="2.5"/>
+    <rect id="cupWater" x="16" y="${190-h}" width="66" height="${h}" fill="#8fc4e0" fill-opacity=".75"/>${ticks}
+    <path d="M84 40 q22 4 20 40 q-2 26 -22 30" fill="none" stroke="#7f9cae" stroke-width="6"/></svg></div>
+    <div class="inner" style="left:150px;top:46px;width:140px;display:flex;flex-direction:column;gap:6px;z-index:4">
+      ${s.pitcher ? `${S.mode==='practice'?`<div style="font-size:14px;background:#fff;border-radius:6px;padding:3px 6px;text-align:center">눈금 <b id="mlRead" style="font-size:20px">${s.ml}</b> ml</div>`:`<div style="font-size:12px;background:#fff;border-radius:6px;padding:3px 6px">눈금을 직접 읽어 보세요</div>`}
+      <button class="holdbtn" data-hold="pour">누르고 있으면 물 붓기</button>
+      <div style="display:flex;gap:4px"><button class="mini" data-act="ml-plus">조금 더</button><button class="mini" data-act="ml-minus">조금 덜기</button></div>
+      <button class="mini" data-act="ml-empty">컵 비우기</button>` : `<div style="font-size:13px;background:#fff;border-radius:6px;padding:6px">계량컵이 준비됐어요.</div>`}
+    </div>`;
+}
+
+function boardHTML(){
+  const s=S.s2, st=S.step;
+  let inner = `<svg class="art" viewBox="0 0 530 250"><rect x="6" y="6" width="518" height="238" rx="18" fill="#c99760" filter="url(#grain)"/><rect x="6" y="6" width="518" height="238" rx="18" fill="none" stroke="#9a6c3a" stroke-width="3"/><circle cx="494" cy="36" r="10" fill="#9a6c3a" opacity=".7"/></svg>`;
+  if(st===2 && s.onBoard && !S.tray.fishcake){
+    const W=GUIDES+1, fx0=265-(W*CM)/2-(s.cuts.length*6)/2, fy=80, fh=100;
+    const sorted=[...s.cuts].sort((a,b)=>a-b);
+    let pieces='', x=fx0;
+    for(let j=0;j<W;j++){
+      if(j>0 && sorted.includes(j)) x+=6;
+      const cut = j>0 && sorted.includes(j);
+      pieces += `<rect x="${x}" y="${fy}" width="${CM}" height="${fh}" fill="url(#gFish)" filter="url(#speck)" ${cut?`stroke="#8a5526" stroke-width="1"`:''}/>`;
+      x+=CM;
+    }
+    let guidesSvg='', ruler='';
+    if(s.knife && (s.width||S.mode==='practice')){
+      let gx=fx0;
+      for(let j=1;j<=GUIDES;j++){ gx = fx0 + j*CM + sorted.filter(c=>c<j).length*6 + (sorted.includes(j)?3:0);
+        if(!sorted.includes(j)) guidesSvg += `<line x1="${gx}" y1="${fy-14}" x2="${gx}" y2="${fy+fh+14}" stroke="#1f6f7d" stroke-width="2" stroke-dasharray="5 4"/>`; }
+    }
+    for(let c=0;c<=W;c++){ const rx=265-(W*CM)/2+c*CM; ruler+=`<path d="M${rx} 206 v${c%5?8:14}" stroke="#2b2b2b" stroke-width="1.5"/><text x="${rx}" y="236" font-size="11" text-anchor="middle" fill="#2b2b2b" font-family="Gowun Dodum,sans-serif">${c}</text>`; }
+    const draggable = s.done;
+    inner += `<div class="inner ${draggable?'':'gesture'}${draggable?needCls('board:fishcake'):''}" ${draggable?'data-src="board:fishcake" tabindex="0" role="button"':'data-gesture="cut"'} id="cutZone" style="left:0;top:0;width:530px;height:250px;border-radius:18px">
+      <svg viewBox="0 0 530 250" width="530" height="250"><g filter="url(#shadow)">${pieces}</g>${guidesSvg}
+      <rect x="${265-(W*CM)/2}" y="200" width="${W*CM}" height="22" fill="#f6f1df" opacity=".85" rx="2"/>${ruler}<text x="${265+(W*CM)/2+8}" y="214" font-size="12" fill="#2b2b2b" font-family="Gowun Dodum,sans-serif">cm</text>
+      <g id="slashG"></g>${s.knife&&!s.done?`<g id="knifeCursor" style="pointer-events:none" transform="translate(-200 -200)"><g transform="rotate(-90)"><path d="M-70 -6 L0 -9 L0 6 L-58 6 Q-68 4 -70 -6z" fill="url(#gKnife)" stroke="#8b939b"/><rect x="0" y="-9" width="36" height="16" rx="5" fill="#1f2326"/></g></g>`:''}</svg></div>`;
+    if(s.knife && !s.width && S.mode==='challenge'){
+      inner += `<div class="inner" style="left:120px;top:14px;display:flex;gap:6px;align-items:center;z-index:5;background:rgba(255,255,255,.9);padding:6px 10px;border-radius:10px"><span style="font-size:14px">자를 너비</span>
+        <button class="mini" data-act="w-0.5">0.5cm</button><button class="mini" data-act="w-1">1cm</button><button class="mini" data-act="w-2">2cm</button></div>`;
+    }
+  }
+  return fx('board',350,20,530,250,'도마',inner);
+}
+
+function cooktopHTML(){
+  const lv=S.heat.level, on=S.heat.power;
+  const heatOp = !on ? 0 : lv==='low'?0.35: lv==='mid'?0.65: lv==='high'?1 : (S.heat.locked?0.8:0);
+  let art = `<svg class="art" viewBox="0 0 400 400"><rect x="4" y="4" width="392" height="392" rx="18" fill="url(#gGlass)"/><rect x="4" y="4" width="392" height="392" rx="18" fill="none" stroke="#000" stroke-width="3"/>
+    <path d="M30 30 L200 30 L60 220z" fill="#fff" opacity=".04"/>
+    <circle cx="200" cy="200" r="150" fill="none" stroke="#5c636a" stroke-width="2" stroke-dasharray="3 6"/>
+    <circle cx="200" cy="200" r="168" fill="url(#gHeat)" opacity="${heatOp}" class="${heatOp?'shim':''}"/>
+    </svg>`;
+  let inner = art;
+  if(S.cook==='pot') inner += potHTML();
+  if(S.cook==='pan') inner += panHTML();
+  return fx('cooktop',250,300,400,400,'인덕션',inner);
+}
+
+function potHTML(){
+  const s=S.s3;
+  const noodles = s.inPot && !s.lifted ? [...Array(9)].map((_,i)=>`<path d="M${110+rnd(i)*30} ${130+i*16} C ${170} ${110+i*16+rnd(i+4)*30}, ${230} ${160+i*14}, ${290-rnd(i+7)*30} ${130+i*16}" stroke="#ece7da" stroke-width="13" fill="none" stroke-linecap="round" class="ndl"/>`).join('') : '';
+  const lifted = s.lifted && !S.strainer;
+  return `<div class="inner" style="left:20px;top:20px;width:360px;height:360px">
+    <svg viewBox="0 0 400 400" width="360" height="360" id="potArt"><rect x="-6" y="182" width="40" height="36" rx="8" fill="#2a2c2f"/><rect x="366" y="182" width="40" height="36" rx="8" fill="#2a2c2f"/>
+    <circle cx="200" cy="200" r="175" fill="url(#gPot)" filter="url(#shadowL)"/><circle cx="200" cy="200" r="158" fill="url(#gWater)"/>
+    <g id="potNoodles">${noodles}</g>
+    <g>${[...Array(22)].map((_,i)=>`<circle class="bub" style="animation-delay:${(rnd(i)*1.1).toFixed(2)}s" cx="${80+rnd(i+1)*240}" cy="${80+rnd(i+2)*240}" r="${4+rnd(i+3)*8}" fill="none" stroke="#fff" stroke-width="2"/>`).join('')}</g>
+    ${[0,1,2].map(i=>`<ellipse class="steam" style="animation-delay:${i*.8}s" cx="${150+i*50}" cy="120" rx="40" ry="16" fill="#fff" opacity=".0" filter="url(#blur6)"/>`).join('')}
+    </svg></div>
+    ${lifted?`<div class="inner${needCls('pot:noodles')}" data-src="pot:noodles" tabindex="0" role="button" style="left:90px;top:40px;width:220px;height:150px;cursor:grab;border-radius:12px">${tongsWithNoodles()}</div>`:''}`;
+}
+function tongsWithNoodles(){
+  return `<svg viewBox="0 0 220 150" width="220" height="150"><g filter="url(#shadowL)">${[...Array(7)].map((_,i)=>`<path d="M${60+i*10} 70 C ${50+i*12} 110, ${90+i*8} 120, ${70+i*12} 146" stroke="#efeadf" stroke-opacity=".78" stroke-width="10" fill="none" stroke-linecap="round"/>`).join('')}
+    <path d="M210 30 C160 34, 110 48, 70 64" stroke="#aab2b9" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M210 30 C160 40, 120 70, 82 82" stroke="#c7cdd2" stroke-width="9" fill="none" stroke-linecap="round"/></g></svg>`;
+}
+
+function panHTML(){
+  const a=S.pan;
+  const draggable = S.step===7 && !S.bowl;
+  const tteok = a.tteok ? [...Array(12)].map((_,i)=>{const x=110+rnd(i+200)*150,y=110+rnd(i+300)*170;return `<g transform="rotate(${rnd(i+400)*180} ${x} ${y})"><rect x="${x-34}" y="${y-6}" width="68" height="12" rx="6" fill="url(#gTteok)" stroke="#d8cbb0" stroke-width=".8"/><rect x="${x-28}" y="${y-4}" width="40" height="2" rx="1" fill="#fff" opacity=".8"/></g>`}).join('') : '';
+  const fish = a.fishcake ? [...Array(8)].map((_,i)=>{const x=100+rnd(i+500)*180,y=100+rnd(i+600)*190;return `<rect x="${x-13}" y="${y-28}" width="26" height="56" rx="3" fill="url(#gFish)" filter="url(#speck)" transform="rotate(${rnd(i+700)*180} ${x} ${y})"/>`}).join('') : '';
+  const noodles = a.noodles ? [...Array(8)].map((_,i)=>`<path d="M${90+rnd(i+800)*40} ${120+i*20} C ${170} ${100+i*22}, ${230} ${170+i*12}, ${310-rnd(i+900)*40} ${130+i*18}" stroke="#f1ede4" stroke-opacity=".55" stroke-width="12" fill="none" stroke-linecap="round"/>`).join('') : '';
+  const veg = a.veg ? [...Array(26)].map((_,i)=>{const x=95+rnd(i+1000)*210,y=95+rnd(i+1100)*210,c=['#5f9e3a','#87b84e','#eef0d8','#4f8a33','#dfe7c4'][i%5];return `<path d="M${x} ${y} q12 -9 22 3 q-6 12 -22 -3z" fill="${c}" transform="rotate(${rnd(i+1200)*360} ${x+10} ${y})"/>`}).join('') : '';
+  const parm = a.parmesan ? [...Array(60)].map((_,i)=>`<circle cx="${100+rnd(i+1300)*200}" cy="${100+rnd(i+1400)*200}" r="${1.2+rnd(i)*1.6}" fill="#fbf3d6"/>`).join('') : '';
+  const slices = a.slice ? [0,1].map(i=>`<rect class="sliceC" x="${150+i*60}" y="${150+i*40}" width="70" height="70" rx="4" fill="url(#gCheese)" transform="rotate(${15+i*30} ${185+i*60} ${185+i*40})"/>`).join('') : '';
+  const boiling = (S.step===6 && a.water) || (S.step===7);
+  return `<div class="inner${draggable?needCls('cooktop:pan'):''}" ${draggable?'data-src="cooktop:pan" tabindex="0" role="button"':''} style="left:0;top:0;width:400px;height:400px;cursor:${draggable?'grab':'default'}">
+   <svg viewBox="0 0 400 400" width="400" height="400" id="panArt"><rect x="340" y="186" width="70" height="28" rx="12" fill="#232527" filter="url(#shadow)"/>
+   <circle cx="200" cy="200" r="168" fill="url(#gRim)" filter="url(#shadowL)"/><circle cx="200" cy="200" r="150" fill="url(#gPan)"/>
+   <circle id="panHeat" cx="200" cy="200" r="150" fill="#ff7a2f" opacity="0"/>
+   <g id="butterPool" opacity="0">${a.butter?`<ellipse cx="185" cy="205" rx="90" ry="70" fill="#f6d56b" opacity=".55" filter="url(#blur6)"/>`:''}</g>
+   <g id="butterBlock">${a.butter?`<g class="dropin"><path d="M160 180 l40 -12 l34 14 l-40 12z" fill="#fff3b8"/><path d="M160 180 l34 14 v22 l-34 -14z" fill="url(#gButter)"/><path d="M194 194 l40 -12 v22 l-40 12z" fill="#e3b53a"/></g>`:''}</g>
+   <circle id="broth" cx="200" cy="200" r="0" fill="#c9dfe9"/>
+   <g id="vegG">${veg}</g><g>${noodles}</g><g>${tteok}</g><g>${fish}</g>
+   <g id="creamG" opacity="0">${a.cream?`<path d="M140 200 C 160 140, 250 150, 255 205 C 260 250, 180 265, 165 225 C 150 190, 215 180, 220 210" stroke="#fff6ef" stroke-width="16" fill="none" stroke-linecap="round" opacity=".85"/>`:''}</g>
+   <g>${parm}</g><g id="sliceG">${slices}</g>
+   <g class="${boiling?(S.step===7?'boil-slow':''):'boil-off'}" id="bubG">${[...Array(18)].map((_,i)=>`<circle class="bub" style="animation-delay:${(rnd(i+1500)*1.1).toFixed(2)}s" cx="${90+rnd(i+1600)*220}" cy="${90+rnd(i+1700)*220}" r="${4+rnd(i+1800)*7}" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2"/>`).join('')}</g>
+   <ellipse cx="150" cy="120" rx="70" ry="22" fill="#fff" opacity=".05"/>
+   ${S.step===5&&S.s5.spatula?`<g id="spatCursor" style="pointer-events:none" transform="translate(-300 -300)"><rect x="-6" y="0" width="12" height="110" rx="6" fill="url(#gWoodT)"/><rect x="-28" y="-46" width="56" height="50" rx="6" fill="#cf9e63" stroke="#a8783f"/></g>`:''}
+   </svg>
+   ${S.step===5&&S.s5.spatula?`<div class="gesture" data-gesture="stir" style="position:absolute;left:40px;top:40px;width:320px;height:320px;border-radius:50%"></div>`:''}
+  </div>`;
+}
+
+function ctrlHTML(){
+  const h=S.heat, lock=h.locked;
+  const lvName={low:'약불',mid:'중불',high:'강불'};
+  return `<div id="ctrl">
+    <button class="cbtn pw${h.power?' on':''}" data-act="power" ${lock?'disabled':''} aria-label="전원">⏻<small>전원</small></button>
+    ${['low','mid','high'].map(l=>`<button class="cbtn lv${h.level===l&&h.power?' on':''}" data-act="heat-${l}" id="btn-${l}" ${lock?'disabled':''}>${lvName[l]}<small>${l==='low'?'1':l==='mid'?'5':'9'}</small></button>`).join('')}
+    <div id="ctrlinfo">${lock?'끓는 물 유지 중<b>가열</b>':h.power?`현재 불 세기<b>${h.level?lvName[h.level]:'선택 전'}</b>`:'전원 꺼짐<b>OFF</b>'}</div>
+  </div>`;
+}
+
+function strainerHTML(){
+  const has = S.strainer && !S.pan.noodles;
+  const inner = `<svg class="art" viewBox="0 0 200 180"><ellipse cx="100" cy="100" rx="86" ry="70" fill="#d3d8dc" stroke="#8f979e" stroke-width="4"/><ellipse cx="100" cy="100" rx="76" ry="61" fill="url(#mesh)"/><rect x="180" y="92" width="18" height="12" rx="4" fill="#8f979e"/><rect x="2" y="92" width="18" height="12" rx="4" fill="#8f979e"/></svg>
+    ${has?`<div class="inner${needCls('strainer:noodles')}" data-src="strainer:noodles" tabindex="0" role="button" style="left:30px;top:40px;width:140px;height:110px;cursor:grab;border-radius:50%"><svg viewBox="0 0 140 110" width="140" height="110">${[...Array(8)].map((_,i)=>`<path d="M${14+rnd(i)*10} ${18+i*10} C 50 ${8+i*11}, 90 ${30+i*9}, ${128-rnd(i+2)*10} ${16+i*11}" stroke="#f1ede4" stroke-opacity=".75" stroke-width="10" fill="none" stroke-linecap="round"/>`).join('')}</svg></div>`:''}`;
+  return fx('strainer',20,300,200,180,'채반',inner);
+}
+
+function trayHTML(){
+  let inner = `<svg class="art" viewBox="0 0 200 300"><rect x="6" y="6" width="188" height="288" rx="14" fill="#f7f7f5" stroke="#c9ccc8" stroke-width="3"/><rect x="16" y="16" width="168" height="268" rx="10" fill="#eef0ec"/></svg>`;
+  if(S.tray.tteok && !S.pan.tteok) inner += `<div class="inner${needCls('tray:tteok')}" data-src="tray:tteok" tabindex="0" role="button" style="left:20px;top:36px;width:160px;height:110px;cursor:grab;border-radius:10px"><svg viewBox="0 0 160 110" width="160" height="110">${[...Array(8)].map((_,i)=>`<g transform="rotate(${-10+rnd(i+40)*20} 80 55)"><rect x="${14+rnd(i+41)*10}" y="${14+i*10}" width="${120}" height="10" rx="5" fill="url(#gTteok)" stroke="#d3c7a9" stroke-width=".8"/></g>`).join('')}</svg></div>`;
+  if(S.tray.fishcake && !S.pan.fishcake) inner += `<div class="inner${needCls('tray:fishcake')}" data-src="tray:fishcake" tabindex="0" role="button" style="left:20px;top:160px;width:160px;height:120px;cursor:grab;border-radius:10px"><svg viewBox="0 0 160 120" width="160" height="120"><g filter="url(#shadow)">${[...Array(8)].map((_,i)=>`<rect x="${12+i*18}" y="${20+(i%2)*8}" width="15" height="80" rx="2" fill="url(#gFish)" filter="url(#speck)"/>`).join('')}</g></svg></div>`;
+  return fx('tray',20,500,200,300,'준비 트레이',inner);
+}
+
+function bowlHTML(){
+  const inner = `<svg class="art" viewBox="0 0 200 200"><circle cx="100" cy="104" r="92" fill="#000" opacity=".12" filter="url(#blur6)"/><circle cx="100" cy="100" r="92" fill="url(#gBowl)" stroke="#cfc9bf" stroke-width="2"/><circle cx="100" cy="100" r="70" fill="#f4f1ec" stroke="#e2ddd4"/></svg>
+    ${S.bowl?`<div class="inner dropin" style="left:20px;top:20px;width:160px;height:160px">${dishSVG(160)}</div>`:''}`;
+  return fx('bowl',680,540,200,200,'그릇',inner);
+}
+
+function dishSVG(size){
+  return `<svg viewBox="0 0 160 160" width="${size}" height="${size}"><circle cx="80" cy="80" r="62" fill="#e58f78"/><circle cx="80" cy="80" r="62" fill="#f2b7a1" opacity=".35"/>
+   ${[...Array(9)].map((_,i)=>{const x=40+rnd(i+20)*80,y=40+rnd(i+30)*80;return `<g transform="rotate(${rnd(i+40)*180} ${x} ${y})"><rect x="${x-24}" y="${y-5}" width="48" height="10" rx="5" fill="#fbf1e6" stroke="#e8c9b6" stroke-width=".8"/></g>`}).join('')}
+   ${[...Array(6)].map((_,i)=>{const x=40+rnd(i+50)*80,y=40+rnd(i+60)*80;return `<rect x="${x-9}" y="${y-20}" width="18" height="40" rx="2" fill="#d49a63" transform="rotate(${rnd(i+70)*180} ${x} ${y})"/>`}).join('')}
+   ${[...Array(5)].map((_,i)=>`<path d="M${36+rnd(i+80)*20} ${50+i*14} C 70 ${40+i*16}, 100 ${70+i*8}, ${124-rnd(i+90)*20} ${52+i*14}" stroke="#f6ece2" stroke-opacity=".7" stroke-width="7" fill="none" stroke-linecap="round"/>`).join('')}
+   ${[...Array(14)].map((_,i)=>{const x=40+rnd(i+100)*80,y=40+rnd(i+110)*80;return `<path d="M${x} ${y} q6 -5 12 2 q-3 6 -12 -2z" fill="${['#6aa244','#90bf58','#eef0d8'][i%3]}"/>`}).join('')}
+   <path d="M60 70 q20 -14 40 4 q10 16 -12 20 q-26 2 -28 -24z" fill="#ffd25c" opacity=".7" filter="url(#blur2)"/>
+   ${[...Array(40)].map((_,i)=>`<circle cx="${30+rnd(i+130)*100}" cy="${30+rnd(i+140)*100}" r="1.3" fill="#fff8df"/>`).join('')}</svg>`;
+}
+
+function renderCounter(){
+  $('#counter').innerHTML = sinkHTML()+boardHTML()+strainerHTML()+trayHTML()+cooktopHTML()+ctrlHTML()+bowlHTML();
+  if(S.mode==='practice'){ const g=guide(); g.acts.forEach(a=>{ const b=document.querySelector(`[data-act="${a}"]`); if(b) b.classList.add('need'); }); }
+  liveUpdate();
+}
+
+/* ===== 오른쪽 안내판 ===== */
+function fmt(sec){ const m=Math.floor(sec/60), s=Math.floor(sec%60); return m?`${m}분 ${s}초`:`${s}초`; }
+function timerFor(){ const st=S.step, r=RECIPE[st-1]; if(!r.game) return null;
+  const t = st===3?S.s3.t: st===4?S.s4.t: st===5?S.s5.t: st===6?S.s6.t: S.s7.t; return {t, game:r.game, real:r.real, realSec:r.realSec}; }
+function renderPanel(){
+  const r=RECIPE[S.step-1], pr=S.mode==='practice', tm=timerFor();
+  const list = checklist();
+  const started = tm && tm.t>0;
+  $('#panel').innerHTML = `
+    <div><div class="stepno">${S.step}/7단계</div><h2>${pr||S.log.length||R.transition?r.title:'무엇을 할 차례일까요?'}</h2></div>
+    ${pr?`<div class="quote"><small>원본 조리법</small>‘${r.text}’</div>`:''}
+    ${pr?`<ul class="chk">${list.map(([t,d])=>`<li class="${d?'ok':''}">${t}</li>`).join('')}</ul>`:
+      `<ul class="chk">${S.log.length?S.log.map(t=>`<li class="ok">${t}</li>`).join(''):'<li>아직 한 활동이 없어요.</li>'}</ul>`}
+    ${tm && (pr||started) ? `<div class="timebox"><div class="ring"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" stroke="#3d464e" stroke-width="8" fill="none"/><circle id="tRing" cx="40" cy="40" r="34" stroke="#ffb347" stroke-width="8" fill="none" stroke-dasharray="213.6" stroke-dashoffset="213.6" stroke-linecap="round"/></svg><div id="tText">0초</div></div>
+      <p>실제 조리 시간 <b>${tm.real}</b><br>게임에서는 <b>${tm.game}초</b>로 줄였어요<br>실제 시간으로 <span id="tReal">0초</span> 지남</p></div>`:''}
+    ${pr && r.heat ? `<div class="heatbox">불 세기: <b>${r.heat}</b></div>` : ''}
+    ${pr && S.step===7 ? `<div class="heatbox">불 세기: 원본 조리법에 따로 적혀 있지 않아요</div>` : ''}
+    ${pr && !R.transition ? `<div class="next"><small>다음 할 일</small>${guide().text}</div>` : ''}
+    <div id="holding">${R.selected?`들고 있는 것: <b>${srcName(R.selected)}</b> — 놓을 곳을 클릭하세요`:''}</div>
+    <div id="msg"></div>`;
+  if(R.lastMsg) setMsg(R.lastMsg[0], R.lastMsg[1]);
+  liveUpdate();
+}
+
+function renderTop(){
+  $('#steps').innerHTML = RECIPE.map(r=>{ const cls = r.n<S.step||(r.n===S.step&&R.transition)?'done':r.n===S.step?'now':'';
+    const show = S.mode==='practice' || r.n<S.step || (r.n===S.step&&R.transition);
+    return `<div class="sdot ${cls}"><b>${r.n}</b>${show?r.title.split(' ').slice(0,2).join(' '):'?'}</div>`; }).join('');
+}
+
+function render(){ if(!S) return; renderTop(); renderPantry(); renderCounter(); renderPanel(); }
+
+function setMsg(type, text){ R.lastMsg=[type,text]; const m=$('#msg'); if(!m) return; m.className=type; m.textContent=text; }
+let toastT; function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),1100); }
+
+/* ===== 매 프레임 갱신 (타이머·색 변화) ===== */
+function lerpC(a,b,t){ return a.map((v,i)=>Math.round(v+(b[i]-v)*t)); }
+function rgb(c,a){ return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+function brothColor(){
+  const a=S.pan; let c=[200,222,232], al=.55;
+  const red = (a.seasoning?0.5:0)+(a.tomato?0.5:0);
+  if(red){ c=lerpC(c,[196,58,38],Math.min(1,red)); al=.55+.35*red; }
+  c = lerpC(c,[178,44,30],a.boil*0.6*(red?1:0));
+  if(a.cream){ c=lerpC(c,[232,140,118],a.creamMix); al=Math.max(al,.92); }
+  if(a.slice||a.parmesan) c=lerpC(c,[236,160,128],a.finish*0.5);
+  return rgb(c,al);
+}
+function liveUpdate(){
+  const tm = S && timerFor();
+  if(tm){ const ring=$('#tRing'), tt=$('#tText'), tr=$('#tReal'); const p=Math.min(1,tm.t/tm.game);
+    if(ring) ring.style.strokeDashoffset = 213.6*(1-p);
+    if(tt) tt.textContent = `${Math.min(tm.t,tm.game).toFixed(1)}초`;
+    if(tr) tr.textContent = fmt(p*tm.realSec); }
+  const a=S&&S.pan; if(!a) return;
+  const bp=$('#butterPool'), bb=$('#butterBlock'); if(bp) bp.setAttribute('opacity', a.melt); if(bb){ bb.style.opacity = 1-a.melt; }
+  const br=$('#broth'); if(br){ const solids=['seasoning','tteok','fishcake','tomato','noodles','cream'].filter(k=>a[k]).length;
+    br.setAttribute('r', a.water? (118+solids*3-a.boil*6) : 0); br.style.fill = brothColor(); }
+  const vg=$('#vegG'); if(vg) vg.style.filter = `saturate(${1+a.stir*0.5}) brightness(${1-a.stir*0.15})`;
+  const cg=$('#creamG'); if(cg) cg.setAttribute('opacity', a.cream ? (1-a.creamMix)*0.9 : 0);
+  document.querySelectorAll('.sliceC').forEach(el=>{ el.style.opacity = 1-a.smelt*0.75; el.style.filter=`blur(${a.smelt*5}px)`; });
+  const ph=$('#panHeat'); if(ph){ const pre = S.step===4 ? Math.min(1,S.s4.t/RECIPE[3].game) : (S.step>=5?1:0); ph.setAttribute('opacity', a.water?0:pre*0.12); }
+  if(S.step===3){ const p=Math.min(1,S.s3.t/RECIPE[2].game); document.querySelectorAll('.ndl').forEach(n=>{ n.style.strokeOpacity = 1-p*0.45; n.style.stroke = `rgb(${236-p*6},${231-p*4},${218+p*14})`; }); }
+  const fm=$('#foam'); if(fm) fm.setAttribute('opacity', Math.min(1,S.s1.scrub*1.4)*(S.s1.phase==='scrub'?1:0));
+  const sb=$('#scrubBar'); if(sb) sb.style.width = (S.s1.scrub*100)+'%';
+  const cw=$('#cupWater'), mr=$('#mlRead'); if(cw){ const h=170*S.s6.ml/500; cw.setAttribute('y',190-h); cw.setAttribute('height',h); } if(mr) mr.textContent=S.s6.ml;
+}
+
+let last=performance.now();
+function tick(now){
+  const dt=Math.min(.1,(now-last)/1000); last=now;
+  if(S && R.started && !R.transition) update(dt);
+  requestAnimationFrame(tick);
+}
+function update(dt){
+  const st=S.step, a=S.pan, h=S.heat;
+  let rerender=false;
+  if(a.butter && a.melt<1){ a.melt=Math.min(1,a.melt+dt/2.2); }
+  if(a.cream && a.creamMix<1){ a.creamMix=Math.min(1,a.creamMix+dt/2.5); }
+  if(a.slice && a.smelt<1 && (st===7)){ a.smelt=Math.min(1,a.smelt+dt/4); }
+  if(st===3){ const s=S.s3; if(s.inPot && !s.cooked){ s.t+=dt; if(s.t>=RECIPE[2].game){ s.t=RECIPE[2].game; s.cooked=true; ok('당면이 다 삶아졌어요. (실제 8분)'); rerender=true; if(S.mode==='practice') guideMsg('당면이 다 삶아졌어요! 이제 집게로 건져요.'); } } }
+  if(st===4){ const s=S.s4; if(S.cook==='pan' && h.power && h.level==='mid'){ s.t+=dt; if(s.t>=RECIPE[3].game){ s.t=RECIPE[3].game; ok('중불로 1분 예열 완료'); completeStep('팬 예열 완료! 팬이 골고루 달궈졌어요.'); return; } } }
+  if(st===5){ const s=S.s5; const moving = performance.now()-R.lastStir < 280;
+    if(s.spatula && a.butter && a.veg && moving && h.power && h.level==='mid'){ s.t+=dt; a.stir=Math.min(1,s.t/RECIPE[4].game);
+      if(s.t>=RECIPE[4].game){ s.t=RECIPE[4].game; ok('중불로 1분 볶기 완료'); completeStep('볶기 완료! 채소의 색과 숨이 살짝 변했어요.'); return; } } }
+  if(st===6){ const s=S.s6;
+    if(R.pouring){ R.pourAcc=(R.pourAcc||0)+dt; while(R.pourAcc>=0.12){ R.pourAcc-=0.12; if(s.ml<500) s.ml+=10; } }
+    if(!missing6().length){
+      if(h.power && h.level==='high'){ s.t+=dt; a.boil=Math.min(1,s.t/RECIPE[5].game);
+        if(s.t>=RECIPE[5].game){ s.t=RECIPE[5].game; ok('강불로 4분 끓이기 완료'); completeStep('끓이기 완료! 국물이 진해지고 재료가 잘 어우러졌어요.'); return; } }
+      else if(!R.msgShownHeat){ R.msgShownHeat=true; guideMsg(pick('재료가 모두 들어갔어요. 이제 조리법의 불 세기로 맞춰 끓여요.','재료가 모두 들어갔어요. 이제 어떻게 끓일까요?')); }
+    } }
+  if(st===7){ const s=S.s7;
+    if(!missing7().length && !s.cooked && h.power){ s.t+=dt; a.finish=Math.min(1,s.t/RECIPE[6].game);
+      if(s.t>=RECIPE[6].game){ s.t=RECIPE[6].game; s.cooked=true; ok('2분 더 끓이기 완료'); guideMsg(pick('완성! 프라이팬을 그릇으로 옮겨 담아요.','다 끓었어요! 이제 마지막으로 무엇을 할까요?')); rerender=true; } } }
+  if(rerender) render(); else liveUpdate();
+}
+
+/* ===== 동작 처리 ===== */
+function wrongPick(src){
+  const name=srcName(src), sst=srcStep(src);
+  if(sst>S.step) STATS.orderSlip++;
+  const need = guide().srcs.map(srcName);
+  wrong('wrong', pick(`${josa(name,'은','는')} 지금 ${S.step}단계에서 쓰지 않아요. ${need.length?'필요한 것: '+need.join(', '):'원본 조리법을 다시 읽어 보세요.'}`,
+                      `${josa(name,'은','는')} 지금 단계가 아니에요. 조리 순서를 다시 떠올려 보세요.`));
+}
+function wrongPlace(src, dst, hint){ setMsg('hint', pick(hint, `${josa(srcName(src),'을','를')} ${dst?DROPNAME[dst]+'에':'그곳에'} 두는 게 맞을까요? 다시 생각해 보세요.`)); }
+
+function handleDrop(src, dst){
+  if(R.transition) return;
+  const st=S.step;
+  if(!dst){ setMsg('hint','놓을 곳 위에 정확히 내려놓아 주세요.'); return; }
+  // ---- 1단계
+  if(st===1){
+    if(src==='item:tteok'){ if(dst!=='sink') return wrongPlace(src,dst,'떡은 씻는 곳(싱크대)으로 옮겨요.');
+      S.used.tteok=true; S.s1.phase='water'; ok('떡을 싱크대에 담았어요'); render(); guideMsg(pick('떡을 담았어요. 수도꼭지에서 어떤 물을 틀까요? (조리법: 찬물)','떡을 담았어요. 어떤 물로 씻을까요?')); return; }
+    if(src==='sink:tteok'){ if(dst!=='tray') return wrongPlace(src,dst,'씻은 떡은 ‘준비 트레이’로 옮겨요.');
+      S.tray.tteok=true; S.s1.phase='done'; ok('씻은 떡을 준비 트레이로 옮겼어요'); completeStep('1단계 완료! 누들 떡을 찬물에 씻어 준비했어요.'); return; }
+    if(src==='item:water'){ STATS.wrong++; S.stepErr++; return setMsg('err', pick('떡은 싱크대 수도꼭지의 물로 씻어요. ‘물’ 재료는 나중에 쓰여요.','이 재료는 지금 쓰지 않아요. 씻는 물은 어디서 나올까요?')); }
+  }
+  // ---- 2단계
+  if(st===2){ const s=S.s2;
+    if(src==='item:fishcake'){ if(dst!=='board') return wrongPlace(src,dst,'어묵은 도마 위에 올려요.');
+      S.used.fishcake=true; s.onBoard=true; ok('어묵을 도마에 올렸어요'); render(); return; }
+    if(src==='tool:knife'){ if(dst!=='board') return wrongPlace(src,dst,'칼은 도마로 가져와요.');
+      if(!s.onBoard) return setMsg('hint', pick('먼저 어묵을 도마 위에 올려요.','도마 위에 자를 재료가 없어요.'));
+      s.knife=true; if(S.mode==='practice') s.width=1; ok('칼을 준비했어요'); render();
+      guideMsg(S.mode==='practice'?'파란 안내선이 1cm 간격이에요. 칼을 안내선 위에서 위→아래로 그어 자르세요.':'어묵을 몇 cm 너비로 자를지 골라요.'); return; }
+    if(src==='board:fishcake'){ if(dst!=='tray') return wrongPlace(src,dst,'자른 어묵은 ‘준비 트레이’로 옮겨요.');
+      S.tray.fishcake=true; ok('자른 어묵을 준비 트레이로 옮겼어요'); completeStep('2단계 완료! 어묵을 1cm 넓이로 잘랐어요.'); return; }
+  }
+  // ---- 3단계
+  if(st===3){ const s=S.s3;
+    if(src==='item:noodles'){ if(dst!=='cooktop') return wrongPlace(src,dst,'당면은 끓는 물 냄비(인덕션 위)에 넣어요.');
+      S.used.noodles=true; s.inPot=true; ok('당면을 끓는 물에 넣었어요'); render(); guideMsg(pick('타이머가 시작됐어요. 실제로는 8분, 게임에서는 12초예요.','타이머가 시작됐어요. 얼마나 삶아야 할까요?')); return; }
+    if(src==='tool:tongs'){ if(dst!=='cooktop') return wrongPlace(src,dst,'집게로 냄비 속 당면을 건져요.');
+      if(!s.inPot) return setMsg('hint','냄비에 아직 당면이 없어요.');
+      if(!s.cooked) return wrong('retry', pick(`아직 다 삶지 않았어요. 실제 8분(게임 12초)을 다 채워야 해요. 지금 ${fmt(s.t/RECIPE[2].game*480)} 지났어요.`,'아직 덜 익었어요. 조리법의 삶는 시간을 떠올려 보세요.'));
+      s.lifted=true; ok('집게로 당면을 건졌어요'); render(); guideMsg(pick('건진 당면을 채반에 받쳐요.','건진 당면을 어디에 둘까요?')); return; }
+    if(src==='pot:noodles'){ if(dst!=='strainer') return wrongPlace(src,dst,'당면은 ‘채반’에 받쳐 물기를 빼요.');
+      S.strainer=true; ok('당면을 채반에 받쳤어요'); completeStep('3단계 완료! 당면을 8분 삶아 채반에 건져 두었어요.'); return; }
+  }
+  // ---- 4단계
+  if(st===4){
+    if(src==='tool:pan'){ if(dst!=='cooktop') return wrongPlace(src,dst,'프라이팬은 인덕션 위에 올려요.');
+      S.cook='pan'; ok('빈 팬을 인덕션에 올렸어요'); render(); guideMsg(pick('인덕션 전원을 켜고 불 세기를 골라요.','이제 인덕션을 어떻게 할까요?')); return; }
+  }
+  // ---- 5단계
+  if(st===5){ const a=S.pan;
+    if(src==='item:butter'||src==='item:veg'){ if(dst!=='cooktop') return wrongPlace(src,dst,'팬에 넣어요.');
+      const id=src.split(':')[1]; S.used[id]=true; a[id]=1; ok(id==='butter'?'버터를 넣었어요':'채소를 모두 넣었어요'); render();
+      if(id==='butter') guideMsg('버터가 녹고 있어요.'); return; }
+    if(src==='tool:spatula'){ if(dst!=='cooktop') return wrongPlace(src,dst,'주걱은 팬으로 가져와요.');
+      if(!a.butter||!a.veg) return setMsg('hint', pick('볶기 전에 버터와 채소를 모두 넣어요.','팬에 아직 넣지 않은 재료가 있어요.'));
+      S.s5.spatula=true; ok('주걱을 준비했어요'); render(); guideMsg('주걱을 팬 위에서 누른 채 이리저리 움직여 볶아요. 멈추면 시간도 멈춰요.'); return; }
+  }
+  // ---- 6단계 (같은 단계 안의 투입 순서는 채점하지 않음)
+  if(st===6){ const a=S.pan, s=S.s6;
+    if(src==='tool:cup'){ if(a.water) return setMsg('hint','물은 이미 넣었어요.'); if(dst!=='sink') return wrongPlace(src,dst,'계량컵은 싱크대 계량 자리에 놓아요.');
+      s.cup=true; ok('계량컵을 준비했어요'); render(); return; }
+    if(src==='item:water'){
+      if(dst==='cooktop') { STATS.wrong++; S.stepErr++; return setMsg('err', pick('물은 계량컵으로 300ml를 정확히 계량해서 넣어요.','물을 바로 넣어도 될까요? 양을 정확히 재야 해요.')); }
+      if(dst!=='sink') return wrongPlace(src,dst,'물은 싱크대의 계량컵에 부어요.');
+      if(!s.cup) return setMsg('hint', pick('먼저 ‘계량컵’을 싱크대에 놓아요.','물을 담아 잴 도구가 필요해요.'));
+      s.pitcher=true; S.used.water=true; ok('계량컵에 물을 붓기 시작해요'); render(); guideMsg('버튼을 누르고 있으면 물이 부어져요. ‘조금 더/조금 덜기’로 10ml씩 맞출 수 있어요.'); return; }
+    if(src==='sink:cup'){ if(dst!=='cooktop') return wrongPlace(src,dst,'계량한 물은 팬에 부어요.');
+      if(s.ml!==300) return wrong('retry', pick(`지금 ${s.ml}ml예요. 조리법은 물 300ml예요. 눈금을 다시 맞춰요.`,'물 양이 조리법과 달라요. 계량컵 눈금을 다시 확인해요.'));
+      a.water=1; s.poured=true; ok('물 300ml를 정확히 넣었어요'); render(); return; }
+    const map={'item:seasoning':'seasoning','item:tomato':'tomato','tray:tteok':'tteok','tray:fishcake':'fishcake','strainer:noodles':'noodles'};
+    if(map[src]){ if(dst!=='cooktop') return wrongPlace(src,dst,'팬에 넣어요.');
+      const k=map[src]; a[k]=1; if(src.startsWith('item:')) S.used[k]=true;
+      const nm={seasoning:'양념',tomato:'토마토소스',tteok:'떡',fishcake:'어묵',noodles:'당면'}[k];
+      ok(`${josa(nm,'을','를')} 넣었어요`); render(); return; }
+  }
+  // ---- 7단계 (불 세기는 채점하지 않음)
+  if(st===7){ const a=S.pan, s=S.s7;
+    if(['item:cream','item:parmesan','item:slice'].includes(src)){ if(dst!=='cooktop') return wrongPlace(src,dst,'팬에 넣어요.');
+      const k=src.split(':')[1]; a[k]=1; S.used[k]=true; ok(`${josa(srcName(src),'을','를')} 넣었어요`); render();
+      if(k==='cream') guideMsg('국물이 부드러운 로제 색으로 변하고 있어요.'); if(k==='slice') guideMsg('치즈가 녹고 있어요.'); return; }
+    if(src==='cooktop:pan'){ if(dst!=='bowl') return wrongPlace(src,dst,'완성된 떡볶이는 그릇에 담아요.');
+      const m=missing7();
+      if(m.length) return wrong('retry', pick(`빠뜨린 재료가 있어요: ${m.join(', ')}`,'아직 넣지 않은 재료가 있어요. 조리법을 다시 떠올려 보세요.'));
+      if(!s.cooked) return wrong('retry', pick('아직 2분 더 끓이지 않았어요. 타이머가 끝날 때까지 기다려요.','아직 다 끓지 않았어요. 얼마나 더 끓여야 할까요?'));
+      S.bowl=true; S.cook=null; ok('그릇에 담았어요'); completeStep('완성! 로제떡볶이를 그릇에 담았어요.'); return; }
+    if(dst==='bowl' && src!=='cooktop:pan'){}
+  }
+  return wrongPick(src);
+}
+
+function handleAct(act){
+  if(R.transition && !['back','restart','recipe','home'].includes(act)) return;
+  const st=S?S.step:0, h=S?S.heat:null;
+  if(act==='back') return back();
+  if(act==='restart') return startGame(S?S.mode:'practice');
+  if(act==='recipe') return showRecipe();
+  if(act==='home') return showHome();
+  if(!S) return;
+  if(act==='tap-cold'||act==='tap-hot'){
+    if(st!==1) return setMsg('hint', st===6 ? pick('물은 식재료 칸의 ‘물’을 계량컵에 부어 계량해요.','물을 정확히 잴 방법을 생각해 보세요.') : '지금은 수도를 쓸 필요가 없어요.');
+    if(S.s1.phase==='tteok') return setMsg('hint','먼저 씻을 재료를 싱크대에 담아요.');
+    if(S.s1.phase!=='water') return;
+    if(act==='tap-hot') return wrong('wrong', pick('떡은 찬물에 씻어요. 다시 골라 보세요.','조리법에서 떡은 어떤 물에 씻었나요? 다시 골라 보세요.'));
+    S.s1.water='cold'; S.s1.phase='scrub'; ok('찬물을 틀었어요'); render(); guideMsg('떡을 마우스로 누른 채 문질러 씻어요.'); return;
+  }
+  if(act.startsWith('w-')){ const w=parseFloat(act.slice(2)); if(w!==1) return wrong('wrong', pick('조리법에서는 어묵을 1cm 넓이로 잘라요.','그 너비가 맞을까요? 조리법을 떠올려 보세요.'));
+    S.s2.width=1; ok('1cm 너비를 골랐어요'); render(); guideMsg('안내선을 따라 칼을 위→아래로 그어 자르세요.'); return; }
+  if(act==='ml-plus'){ if(S.s6.ml<500) S.s6.ml+=10; render(); return; }
+  if(act==='ml-minus'){ if(S.s6.ml>0) S.s6.ml-=10; render(); return; }
+  if(act==='ml-empty'){ S.s6.ml=0; render(); return; }
+  if(act==='power'){
+    if(h.locked) return;
+    h.power=!h.power; if(!h.power){ h.level=h.level; }
+    if(st===4 && h.power){ ok('인덕션 전원을 켰어요'); }
+    render(); if(st===4 && h.power) guideMsg(pick('불 세기를 골라요. (조리법: 중불)','불 세기를 골라요.'));
+    if(!h.power && st>=5) guideMsg('전원이 꺼져 있으면 가열되지 않아요.');
+    return;
+  }
+  if(act.startsWith('heat-')){
+    if(h.locked) return;
+    const l=act.slice(5), nm={low:'약불',mid:'중불',high:'강불'}[l];
+    if(!h.power) return setMsg('hint','인덕션 전원을 먼저 켜요.');
+    const correct = st===4||st===5 ? 'mid' : st===6 ? 'high' : null;
+    if(st===4 && S.cook!=='pan' && l==='mid'){ /* 팬 없이도 불 세기는 맞출 수 있음 */ }
+    if(correct && l!==correct){
+      flash(l);
+      return wrong('wrong', pick(`${nm}로는 안 돼요. 이 단계는 ${correct==='mid'?'중불':'강불'}이에요. 다시 골라 보세요.`,
+        `${nm}이 맞을까요? ${st===4?'팬을 예열할 때':st===5?'볶을 때':'끓일 때'}의 불 세기를 다시 생각해 보세요.`));
+    }
+    if(st<=3) return setMsg('hint','지금은 인덕션을 쓰지 않아요.');
+    if(h.level!==l){ h.level=l; if(correct) ok(`${nm}로 맞췄어요`); else S.log.push(`${nm}로 조절했어요`); }
+    render(); return;
+  }
+}
+function renderPanelLite(){ if(S.mode==='practice'){ const n=document.querySelector('.next'); if(n) n.innerHTML=`<small>다음 할 일</small>${guide().text}`; } renderPantryNeedOnly(); }
+function renderPantryNeedOnly(){ renderPantry(); }
+function flash(l){ const b=$('#btn-'+l); if(b){ b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash'); } }
+
+function back(){
+  if(!S) return;
+  const n = Math.max(1, S.step-1);
+  const snap = snapshots[n]; if(!snap) return;
+  S = clone(snap); STATS.retry++; R.selected=null; R.transition=false; R.pouring=false; R.lastMsg=null;
+  render(); setMsg('hint', `${n}단계 처음으로 돌아왔어요.`);
+}
+
+/* ===== 제스처: 문질러 씻기 / 칼질 / 볶기 ===== */
+function gestureStart(kind, p, el){ R.gesture={kind, el, x:p.x, y:p.y, sx:p.x, sy:p.y, dist:0, moved:false}; }
+function gestureMove(p){
+  const g=R.gesture; if(!g) return;
+  const d=Math.hypot(p.x-g.x,p.y-g.y); g.dist+=d; g.x=p.x; g.y=p.y; if(Math.hypot(p.x-g.sx,p.y-g.sy)>6) g.moved=true;
+  if(g.kind==='scrub' && S.step===1 && S.s1.phase==='scrub'){
+    S.s1.scrub=Math.min(1,S.s1.scrub+d/2600);
+    const w=$('#tteokWash'); if(w) w.style.transform=`translate(${Math.sin(g.dist/18)*4}px,${Math.cos(g.dist/22)*3}px)`;
+    if(S.s1.scrub>=1) finishScrub(); else liveUpdate();
+  }
+  if(g.kind==='stir' && S.step===5){ if(d>1.5) R.lastStir=performance.now();
+    const a=S.heat; if(!(a.power && a.level==='mid') && !R.stirWarned){ R.stirWarned=true; setMsg('hint', pick('불 세기가 중불이 아니에요. 중불로 맞춰야 볶아져요.','지금 불 세기로 볶아도 될까요?')); }
+  }
+}
+function gestureEnd(p){
+  const g=R.gesture; R.gesture=null; if(!g) return;
+  if(g.kind==='scrub' && !g.moved && S.step===1 && S.s1.phase==='scrub'){ S.s1.scrub=Math.min(1,S.s1.scrub+0.1); if(S.s1.scrub>=1) finishScrub(); else liveUpdate(); }
+  if(g.kind==='cut') doCut(g);
+  R.stirWarned=false;
+}
+function finishScrub(){ if(S.s1.phase!=='scrub') return; S.s1.phase='tray'; R.gesture=null; ok('떡을 찬물에 깨끗이 씻었어요'); render(); guideMsg(pick('다 씻었어요! 씻은 떡을 ‘준비 트레이’로 옮겨요.','다 씻었어요! 씻은 떡을 어디에 둘까요?')); }
+
+function localIn(el, p){ const r=el.getBoundingClientRect(), sr=$('#stage').getBoundingClientRect(), sc=R.scale; return {x:(p.cx-r.left)/sc, y:(p.cy-r.top)/sc}; }
+function doCut(g){
+  const s=S.s2; if(S.step!==2 || s.done || !s.onBoard) return;
+  if(!s.knife) return setMsg('hint', pick('먼저 ‘칼’을 도마로 가져와요.','자를 도구가 필요해요.'));
+  if(!s.width) return setMsg('hint','자를 너비를 먼저 골라요.');
+  const zone=$('#cutZone'); const a=localIn(zone,{cx:g.scx,cy:g.scy}), b=localIn(zone,{cx:g.ecx,cy:g.ecy});
+  const fy=80, fh=100;
+  const vertical = Math.abs(b.y-a.y);
+  const isClick = !g.moved;
+  if(!isClick && vertical < fh*0.6) return setMsg('hint','칼을 어묵 위에서 아래로 길게 그어야 잘려요.');
+  const x = isClick ? a.x : (a.x+b.x)/2;
+  const yTop=Math.min(a.y,b.y), yBot=Math.max(a.y,b.y);
+  if(isClick ? (a.y<fy-20||a.y>fy+fh+20) : (yBot<fy||yTop>fy+fh)) return;
+  const W=GUIDES+1, sorted=[...s.cuts].sort((p,q)=>p-q), fx0=265-(W*CM)/2-(s.cuts.length*6)/2;
+  let best=null, bd=1e9;
+  for(let j=1;j<=GUIDES;j++){ if(sorted.includes(j)) continue; const gx=fx0+j*CM+sorted.filter(c=>c<j).length*6; const dd=Math.abs(gx-x); if(dd<bd){bd=dd;best=j;} }
+  const left=fx0, right=fx0+W*CM+s.cuts.length*6;
+  if(x<left-6 || x>right+6) return;
+  const sl=$('#slashG');
+  if(best===null) return;
+  if(bd>9){
+    if(sl) sl.innerHTML=`<line class="slash" x1="${x}" y1="${fy-16}" x2="${x}" y2="${fy+fh+16}" stroke="#d93025" stroke-width="3"/>`;
+    return wrong('retry', pick('안내선에서 벗어났어요. 1cm 간격의 파란 안내선에 칼을 맞춰 다시 그어요.','너비가 고르지 않아요. 안내선에 맞춰 다시 잘라 보세요.'));
+  }
+  s.cuts.push(best);
+  if(s.cuts.length>=GUIDES){ s.done=true; ok('어묵을 1cm 넓이로 모두 잘랐어요'); render(); guideMsg(pick('다 잘랐어요! 자른 어묵을 ‘준비 트레이’로 옮겨요.','다 잘랐어요! 자른 어묵을 어디에 둘까요?')); }
+  else { render(); const sl2=$('#slashG'); const gx=fx0+best*CM+sorted.filter(c=>c<best).length*6; if(sl2) sl2.innerHTML=`<line class="slash" x1="${gx+3}" y1="${fy-16}" x2="${gx+3}" y2="${fy+fh+16}" stroke="#fff" stroke-width="3"/>`; setMsg('ok',`싹둑! (${s.cuts.length}/${GUIDES})`); }
+}
+
+/* ===== 포인터 입력: 드래그 앤 드롭 + 클릭 후 목적지 선택 ===== */
+let P=null;
+function stageP(e){ const r=$('#stage').getBoundingClientRect(); return {x:(e.clientX-r.left)/R.scale, y:(e.clientY-r.top)/R.scale, cx:e.clientX, cy:e.clientY}; }
+function clearHot(){ document.querySelectorAll('.drop-on,.drop-hot').forEach(el=>el.classList.remove('drop-on','drop-hot')); }
+function showTargets(){ document.querySelectorAll('[data-drop]').forEach(el=>el.classList.add('drop-on')); }
+function ghostHTML(src){ const [k,id]=src.split(':'); if(ITEMS[id]&&k==='item'||TOOLS[id]&&k==='tool') return pic(id);
+  const map={'sink:tteok':'tteok','tray:tteok':'tteok','board:fishcake':'fishcake','tray:fishcake':'fishcake','strainer:noodles':'noodles','sink:cup':'cup','cooktop:pan':'pan'};
+  if(src==='pot:noodles') return tongsWithNoodles();
+  return ICON[map[src]]?ICON[map[src]]():''; }
+
+document.addEventListener('pointerdown', e=>{
+  if(!R.started) return;
+  const t=e.target;
+  if(t.closest('#overlay')) return;
+  const hold=t.closest('[data-hold]');
+  if(hold){ if(S.step===6 && S.s6.pitcher){ R.pouring=true; hold.classList.add('on'); } e.preventDefault(); return; }
+  if(t.closest('[data-act]')) return;
+  if(R.transition) return;
+  const p=stageP(e);
+  const srcEl=t.closest('[data-src]'), gEl=t.closest('[data-gesture]');
+  P={x:p.x,y:p.y,cx:p.cx,cy:p.cy, src:srcEl?srcEl.dataset.src:null, target:t, moved:false};
+  if(!srcEl && gEl && !R.selected){ gestureStart(gEl.dataset.gesture,p,gEl); R.gesture.scx=p.cx; R.gesture.scy=p.cy; P.gesture=true; }
+  try{ $('#stage').setPointerCapture(e.pointerId); }catch(_){}
+  e.preventDefault();
+});
+document.addEventListener('pointermove', e=>{
+  const p=stageP(e);
+  // 칼·주걱 커서
+  const kc=$('#knifeCursor'); if(kc){ const z=$('#cutZone'); if(z){ const l=localIn(z,p); kc.setAttribute('transform',`translate(${l.x} ${l.y})`);} }
+  const sc=$('#spatCursor'); if(sc){ const pa=$('#panArt'); if(pa){ const r=pa.getBoundingClientRect(); const lx=(p.cx-r.left)/R.scale, ly=(p.cy-r.top)/R.scale; sc.setAttribute('transform',`translate(${lx} ${ly}) rotate(${Math.sin(lx/40)*25})`);} }
+  if(!P) return;
+  if(P.gesture){ gestureMove(p); if(R.gesture){ R.gesture.ecx=p.cx; R.gesture.ecy=p.cy; } return; }
+  if(!P.src) return;
+  if(!P.moved && Math.hypot(p.x-P.x,p.y-P.y)>6){ P.moved=true; const gh=$('#ghost'); gh.innerHTML=ghostHTML(P.src); gh.style.display='block'; showTargets(); R.selected=null; }
+  if(P.moved){ const gh=$('#ghost'); gh.style.transform=`translate(${p.x-55}px,${p.y-45}px) rotate(-4deg)`;
+    clearHot(); showTargets(); gh.style.display='none'; const el=document.elementFromPoint(p.cx,p.cy); gh.style.display='block';
+    const d=el&&el.closest('[data-drop]'); if(d) d.classList.add('drop-hot'); }
+});
+document.addEventListener('pointerup', e=>{
+  if(R.pouring){ R.pouring=false; render(); }
+  if(!P) return;
+  const p=stageP(e), cur=P; P=null;
+  if(cur.gesture){ if(R.gesture){ R.gesture.ecx=p.cx; R.gesture.ecy=p.cy; } gestureEnd(p); return; }
+  if(cur.moved){ const gh=$('#ghost'); gh.style.display='none'; clearHot();
+    const el=document.elementFromPoint(p.cx,p.cy); const d=el&&el.closest('[data-drop]');
+    handleDrop(cur.src, d?d.dataset.drop:null); return; }
+  // 클릭 방식
+  const t=cur.target, dEl=t.closest('[data-drop]');
+  if(R.selected){
+    if(cur.src===R.selected){ R.selected=null; render(); return; }
+    if(dEl){ const s=R.selected; R.selected=null; clearHot(); handleDrop(s, dEl.dataset.drop); if(R.selected===null) render(); return; }
+    if(cur.src){ R.selected=cur.src; render(); return; }
+    R.selected=null; render(); return;
+  }
+  if(cur.src){ R.selected=cur.src; render(); setMsg('hint', `${josa(srcName(cur.src),'을','를')} 들었어요. 놓을 곳을 클릭하세요.`); }
+});
+document.addEventListener('pointercancel', ()=>{ P=null; R.gesture=null; R.pouring=false; $('#ghost').style.display='none'; clearHot(); });
+document.addEventListener('click', e=>{ const a=e.target.closest('[data-act]'); if(a && !a.disabled) handleAct(a.dataset.act); });
+document.addEventListener('keydown', e=>{
+  if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('[data-src]')){ e.preventDefault(); R.selected=e.target.dataset.src; render(); setMsg('hint','들었어요. 놓을 곳을 마우스로 클릭하세요.'); }
+  if(e.key==='Escape' && R.selected){ R.selected=null; render(); }
+});
+
+/* ===== 화면: 시작·조리법·결과 ===== */
+function overlay(html, cls){ const o=$('#overlay'); o.innerHTML=`<div class="sheet ${cls||''}">${html}</div>`; o.classList.toggle('intro-bg', cls==='intro'); o.classList.add('show'); }
+function hideOverlay(){ $('#overlay').classList.remove('show'); }
+function showHome(){
+  R.transition=true; R.inGame=false;
+  overlay(`<h2>로제떡볶이 조리 시뮬레이션</h2>
+   <p class="desc">재료를 마우스로 직접 옮기고, 씻고, 자르고, 계량하고, 불을 조절해야 다음 단계로 넘어가요.</p>
+   <ol><li>누들 떡 찬물에 씻기</li><li>어묵 1cm 넓이로 자르기</li><li>납작 당면 삶아 체에 건지기 (8분)</li><li>팬 중불로 예열하기 (1분)</li><li>버터와 채소 중불로 볶기 (1분)</li><li>물 300ml와 재료 넣고 강불로 끓이기 (4분)</li><li>크림·치즈 넣고 2분 더 끓여 완성하기</li></ol>
+   <button class="introbtn" data-act2="practice">시작하기</button>`, 'intro');
+}
+function showRecipe(){
+  const wasT=R.transition; R.transition=true;
+  overlay(`<h2>로제떡볶이 조리법</h2><p class="lead">첨부 조리법의 7단계를 순서대로 정리했어요. 게임 속 시간은 연습을 위해 줄인 시간이에요.</p>
+   <table class="rtable"><tr><th></th><th>원본 조리법</th><th>실제 시간</th><th>게임 시간</th><th>불 세기</th></tr>
+   ${RECIPE.map(r=>`<tr><td>${r.n}</td><td>${r.text}</td><td>${r.real||'—'}</td><td>${r.game?r.game+'초':'—'}</td><td>${r.heat||(r.n===7?'원본에 표시 없음':'—')}</td></tr>`).join('')}</table>
+   <div class="btnrow">${R.inGame&&!R.finished?`<button class="bigbtn" data-act2="close" data-was="${wasT?1:0}">게임으로 돌아가기</button>`:''}<button class="bigbtn ghost" data-act2="practice">처음부터 연습하기</button></div>`);
+}
+function showResult(){
+  R.finished=true; R.transition=true;
+  overlay(`<div class="result"><div>${`<svg viewBox="0 0 200 200" width="360" height="360"><circle cx="100" cy="106" r="94" fill="#000" opacity=".15" filter="url(#blur6)"/><circle cx="100" cy="100" r="94" fill="url(#gBowl)" stroke="#cfc9bf" stroke-width="2"/><g transform="translate(20 20)">${dishSVG(160).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')}</g></svg>`}</div>
+   <div><h2>로제떡볶이 만들기 성공!</h2><p class="lead">7단계를 모두 마쳤어요.</p>
+   <ul class="stats"><li>완료한 조리 단계<b>7/7</b></li><li>정확하게 수행한 활동<b>${STATS.correct}개</b></li><li>잘못 선택한 횟수<b>${STATS.wrong}회</b></li><li>재시도 횟수<b>${STATS.retry}회</b></li>
+   <li>조리 순서 준수<b>${STATS.orderSlip?`다른 단계 재료를 먼저 쓰려 한 적 ${STATS.orderSlip}회`:'처음부터 끝까지 지켰어요'}</b></li></ul>
+   <p class="note">이 결과는 점수가 아니라 연습 기록이에요. 틀린 부분은 실제 실습 전에 다시 확인해 보세요.</p></div></div>
+   <div class="btnrow"><button class="bigbtn" data-act2="practice">다시 연습하기</button><button class="bigbtn ghost" data-act2="recipe">조리법 전체 복습하기</button></div>`);
+}
+document.addEventListener('click', e=>{ const b=e.target.closest('[data-act2]'); if(!b) return; const a=b.dataset.act2;
+  if(a==='practice'){ R.finished=false; startGame('practice'); }
+  if(a==='recipe') showRecipe();
+  if(a==='close'){ hideOverlay(); R.transition = !!R.completing; }
+});
+
+/* ===== 16:9 화면 맞춤 ===== */
+function fit(){ const vp=$('#viewport'), w=vp.clientWidth, h=vp.clientHeight; const sc=Math.min(w/1600,h/900); R.scale=sc;
+  const st=$('#stage'); st.style.transform=`scale(${sc})`; st.style.left=((w-1600*sc)/2)+'px'; st.style.top=((h-900*sc)/2)+'px'; }
+window.addEventListener('resize', fit);
+
+/* ===== 시작 ===== */
+S = newState('practice'); STATS={correct:0,wrong:0,retry:0,orderSlip:0};
+fit(); preflight(); R.started=true; render(); showHome();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
