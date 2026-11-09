@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIO TIME MACHINE — 생명 기술 시간 여행</title>
+<style>
+:root{--bg:#07111f;--panel:#10264a;--line:#264d80;--teal:#22d3c5;--cyan:#7ee8ff;--text:#eaf4ff;--muted:#a3b9d8;--gold:#ffc857;--red:#ff6b7a;--green:#5ee39a;--purple:#b58cff;--r:16px;
+--font:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:clamp(14px,1.08vw,18px);line-height:1.5;overflow:hidden;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;font-size:inherit}
+svg{display:block}
+#app{display:flex;flex-direction:column;height:100vh}
+.top{flex:none;height:58px;display:flex;align-items:center;gap:14px;padding:0 16px;background:linear-gradient(180deg,#0d2040,#091830);border-bottom:1px solid var(--line);box-shadow:0 4px 20px rgba(0,0,0,.35);z-index:5}
+.logo{display:flex;align-items:center;gap:8px;font-weight:900;letter-spacing:.05em;cursor:pointer;white-space:nowrap}
+.logo b{color:var(--teal)}
+.prog{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+.pbar{width:clamp(80px,14vw,240px);height:10px;border-radius:99px;background:#06152a;border:1px solid var(--line);overflow:hidden;flex:none}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--cyan));box-shadow:0 0 10px var(--teal);transition:width .6s}
+#ptext{font-weight:700;color:var(--cyan);white-space:nowrap;font-size:.9em}
+.where{color:var(--muted);font-size:.88em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tools{display:flex;gap:6px;flex:none}
+.ib{height:38px;padding:0 11px;border-radius:11px;border:1px solid var(--line);background:#0f2645;color:var(--text);cursor:pointer;font-size:.86em;white-space:nowrap}
+.ib:hover{border-color:var(--teal);background:#133056}
+#main{flex:1;overflow:auto;position:relative;background:radial-gradient(1100px 600px at 85% -10%,rgba(34,211,197,.13),transparent 60%),radial-gradient(900px 520px at -10% 110%,rgba(126,232,255,.08),transparent 60%),linear-gradient(rgba(126,232,255,.035) 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,rgba(126,232,255,.035) 1px,transparent 1px) 0 0/34px 34px,var(--bg)}
+.screen{min-height:100%;padding:12px 20px 16px;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1,h2,h3,h4,p{margin:0}
+h3{font-size:1.1em;margin-bottom:8px}
+h4{font-size:.95em;color:var(--cyan);margin:0 0 6px}
+.tiny{font-size:.8em;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.center{justify-content:center}
+.panel{background:linear-gradient(180deg,rgba(22,51,95,.9),rgba(13,32,61,.92));border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:99px;background:rgba(34,211,197,.14);color:var(--teal);font-weight:800;font-size:.85em;border:1px solid rgba(34,211,197,.45);white-space:nowrap}
+.chip.gold{background:rgba(255,200,87,.14);color:var(--gold);border-color:rgba(255,200,87,.45)}
+.btn{appearance:none;border:0;cursor:pointer;padding:9px 18px;border-radius:12px;font-weight:800;color:#03201d;background:linear-gradient(180deg,#45f2e0,#16b8aa);box-shadow:0 4px 0 #0b7a71,0 8px 18px rgba(34,211,197,.22);transition:transform .08s,filter .2s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #0b7a71}
+.btn:disabled{filter:grayscale(1) brightness(.55);cursor:not-allowed;box-shadow:none;transform:none}
+.btn.ghost{background:transparent;color:var(--text);border:1.5px solid var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:var(--teal)}
+.btn.big{padding:11px 24px;font-size:1.06em}
+.btn.pulse{animation:pulse 1.3s infinite}
+@keyframes pulse{50%{box-shadow:0 4px 0 #0b7a71,0 0 0 9px rgba(34,211,197,.22)}}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+/* feedback */
+.fb{margin-top:8px;border-radius:12px;font-size:.95em;padding:8px 12px}
+.fb:empty{display:none}
+.fb.ok{background:rgba(94,227,154,.12);border:1px solid rgba(94,227,154,.55);color:#d2ffe6}
+.fb.bad{background:rgba(255,107,122,.12);border:1px solid rgba(255,107,122,.55);color:#ffe1e5}
+.fb.info{background:rgba(126,232,255,.1);border:1px solid rgba(126,232,255,.45);color:#dff7ff}
+.fb.pop{animation:pop .3s}
+@keyframes pop{0%{transform:scale(.97)}60%{transform:scale(1.015)}100%{transform:none}}
+/* drag */
+.drag{cursor:grab;touch-action:none}
+.dragging{opacity:.3}
+.dghost{position:fixed!important;z-index:9999;pointer-events:none;margin:0!important;transform:rotate(-2deg) scale(1.05)!important;filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));transition:none}
+.can-drop{outline:2px dashed rgba(34,211,197,.6);outline-offset:3px}
+.over{outline:3px solid var(--gold)!important;outline-offset:3px}
+.locked{cursor:default}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,30px);opacity:0;background:#0f2a4f;border:1px solid var(--teal);color:var(--text);padding:10px 20px;border-radius:99px;font-weight:700;z-index:10000;transition:.3s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.modal-ov{position:fixed;inset:0;background:rgba(2,8,18,.7);display:grid;place-items:center;z-index:10001;animation:fade .2s}
+.modal{max-width:640px;width:92vw;max-height:86vh;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:22px}
+.modal ul{margin:0;padding-left:20px}.modal li{margin:4px 0}
+.cf{position:fixed;top:-20px;width:9px;height:14px;z-index:9998;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(112vh) rotate(760deg)}}
+/* title */
+.title-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.tring{width:min(300px,40vh);aspect-ratio:1;position:relative;display:grid;place-items:center}
+.tring .tm-rings{position:absolute;inset:0}
+.tring .core{position:relative;font-size:clamp(40px,6vh,64px)}
+.title-screen h1{font-size:clamp(34px,4.6vw,66px);letter-spacing:.06em;font-weight:900;background:linear-gradient(90deg,#7ee8ff,#22d3c5 50%,#ffc857);-webkit-background-clip:text;background-clip:text;color:transparent}
+.title-screen .sub{font-size:1.35em;font-weight:800;color:var(--cyan);margin-top:-6px}
+.title-screen .lead{max-width:640px;color:#cfe2fb}
+.spin{transform-origin:200px 200px;animation:spin 22s linear infinite}
+.spin.s2{animation-duration:12s;animation-direction:reverse}
+.spin.s3{animation-duration:34s}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* map */
+.map-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:14px}
+.map-head h2{font-size:1.5em}
+.tl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1120px;margin:0 auto}
+.tl-node{display:grid;grid-template-columns:62px 1fr;grid-template-rows:auto auto auto auto;column-gap:12px;text-align:left;padding:12px 14px;border-radius:16px;background:linear-gradient(180deg,#14305a,#0e2343);border:1.5px solid var(--line);color:var(--text);cursor:pointer;transition:transform .15s,border-color .15s;position:relative}
+.tl-node:hover{transform:translateY(-2px)}
+.tl-icon{grid-row:1/5;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:30px;background:#0a1b33;border:2px solid var(--line)}
+.tl-n{font-size:.78em;font-weight:900;color:var(--cyan);letter-spacing:.05em}
+.tl-era{font-size:.8em;color:var(--muted)}
+.tl-t{font-weight:800;line-height:1.3}
+.tl-s{font-size:.82em;font-weight:700;margin-top:2px}
+.tl-node.open{border-color:var(--teal);box-shadow:0 0 0 3px rgba(34,211,197,.15)}
+.tl-node.open .tl-icon{border-color:var(--teal);box-shadow:0 0 16px rgba(34,211,197,.45)}
+.tl-node.open .tl-s{color:var(--teal)}
+.tl-node.done{border-color:rgba(94,227,154,.7)}
+.tl-node.done .tl-s{color:var(--green)}
+.tl-node.locked{opacity:.5;filter:saturate(.3);cursor:not-allowed}
+.tl-node.final{background:linear-gradient(180deg,#3a2e12,#1e1a10);border-color:rgba(255,200,87,.6)}
+.tl-node.final.locked{border-color:var(--line)}
+/* intro */
+.intro{display:grid;grid-template-columns:minmax(240px,36%) 1fr;gap:28px;align-items:center;max-width:1200px;margin:0 auto;min-height:calc(100vh - 100px)}
+.tm{width:min(100%,62vh);aspect-ratio:1;position:relative;display:grid;place-items:center;margin:0 auto}
+.tm .tm-rings{position:absolute;inset:0}
+.yr{position:relative;font-size:clamp(20px,2.3vw,36px);font-weight:900;color:var(--cyan);text-shadow:0 0 22px rgba(126,232,255,.6);font-variant-numeric:tabular-nums;text-align:center;padding:0 10px}
+.tm-era{position:absolute;bottom:24%;left:0;right:0;text-align:center;color:var(--gold);font-weight:700;font-size:.9em;padding:0 22%}
+.intro-info{display:flex;flex-direction:column;gap:12px;transition:.6s}
+.intro-info.hidden{opacity:0;transform:translateY(12px);pointer-events:none}
+.intro-info h2{font-size:clamp(22px,2.3vw,34px);line-height:1.25}
+.story p,.goal p{font-size:1.02em}
+.story{border-left:4px solid var(--gold)}
+.goal{border-left:4px solid var(--teal)}
+/* stage */
+.stage{display:flex;flex-direction:column;gap:6px;max-width:1500px;margin:0 auto;min-height:100%}
+.stagebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.stp{display:flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:99px;background:#0d203b;border:1px solid var(--line);color:var(--muted);font-size:.82em}
+.stp b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#173257;font-size:.85em}
+.stp.cur{color:var(--text);border-color:var(--teal)}.stp.cur b{background:var(--teal);color:#03201d}
+.stp.done b{background:var(--green);color:#03201d}
+.steph h2{font-size:1.28em}
+.inst{margin-top:2px;color:#d3e6ff}
+.work{flex:1;position:relative;padding:4px 0}
+.stepfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:8px;border-top:1px solid rgba(38,77,128,.6)}
+.note{color:var(--muted);font-size:.82em}
+.mean-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;align-items:start;margin-top:6px}
+.mean ul{margin:0;padding-left:20px}.mean li{margin:7px 0}
+.quiz .qq{font-weight:800;margin-bottom:6px}
+.qopt{display:block;width:100%;text-align:left;padding:10px 14px;margin:6px 0;border-radius:12px;border:1.5px solid var(--line);background:#0f2645;color:var(--text);cursor:pointer;line-height:1.45}
+.qopt:hover{border-color:var(--teal)}
+.qopt.right{border-color:var(--green);background:rgba(94,227,154,.15)}
+.qopt.wrong{border-color:var(--red);background:rgba(255,107,122,.1)}
+/* clear & ending */
+.clear,.ending{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px}
+.clear-badge{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font-size:58px;background:radial-gradient(circle,#18406f,#0a1b33);border:3px solid var(--gold);box-shadow:0 0 40px rgba(255,200,87,.45);animation:popin .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes popin{from{transform:scale(.2);opacity:0}}
+.clear h2{font-size:1.6em}
+.clear-msg{font-size:1.18em;font-weight:700;color:#fff3cf;max-width:760px;line-height:1.6}
+.unlock{color:var(--teal);font-weight:800}
+.ending h1{font-size:clamp(28px,3.4vw,48px);color:var(--gold)}
+.tl-line{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;max-width:1300px;width:100%;position:relative;margin:10px 0}
+.tl-line::before{content:"";position:absolute;left:4%;right:4%;top:28px;height:3px;background:linear-gradient(90deg,var(--gold),var(--teal),var(--cyan))}
+.tl-item{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px}
+.tl-dot{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:26px;background:#0d2342;border:3px solid var(--teal);z-index:1}
+.tl-y{font-weight:900;color:var(--cyan);font-size:.86em}
+.tl-tt{font-weight:800;font-size:.86em;line-height:1.3}
+.tl-d{font-size:.76em;color:var(--muted);line-height:1.35}
+/* sort */
+.sort{display:flex;flex-direction:column;gap:10px}
+.sort-main{display:flex;flex-direction:column;gap:12px}
+.slots{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:10px 10px;padding-top:8px}
+.slot{position:relative;min-height:74px;border:2px dashed #2d5a8f;border-radius:14px;padding:6px;display:flex;align-items:stretch;background:rgba(8,22,42,.5)}
+.slot-n{position:absolute;top:-10px;left:-8px;width:24px;height:24px;border-radius:50%;background:var(--teal);color:#03201d;font-weight:900;display:grid;place-items:center;font-size:.8em;z-index:2}
+.slot>.card{flex:1;margin:0;width:auto}
+.slot.correct{border-color:var(--green);border-style:solid}
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:80px;padding:10px;border:1.5px dashed #2d5a8f;border-radius:14px;background:rgba(8,22,42,.35);align-content:flex-start}
+.card{background:linear-gradient(180deg,#1c4176,#143058);border:1.5px solid #3c6dab;border-radius:12px;padding:8px 12px;font-weight:700;display:flex;flex-direction:column;justify-content:center;min-height:54px;box-shadow:0 4px 10px rgba(0,0,0,.25);line-height:1.35}
+.pool>.card{width:clamp(150px,15vw,230px)}
+.card .cs{font-weight:400;font-size:.82em;color:var(--muted)}
+.card.right{border-color:var(--green);background:linear-gradient(180deg,#17493e,#103a33)}
+.sort.vert .sort-main{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:start}
+.sort.vert .slots{grid-template-columns:1fr}
+.sort.vert .pool{flex-direction:column;flex-wrap:nowrap;min-height:100%}
+.sort.vert .pool>.card{width:auto}
+.sort .ptitle{font-size:.85em;color:var(--muted);margin-bottom:4px}
+/* match */
+.match{position:relative;display:grid;grid-template-columns:1fr minmax(50px,11%) 1fr;align-items:center}
+.mcol{display:flex;flex-direction:column;gap:10px}
+.mitem{position:relative;padding:10px 16px;border-radius:12px;background:#122d55;border:1.5px solid #34639f;cursor:pointer;font-weight:600;min-height:52px;display:flex;align-items:center;touch-action:none;line-height:1.4}
+.mitem.R{padding-left:22px}.mitem.L{padding-right:22px}
+.mitem .dot{position:absolute;top:50%;width:16px;height:16px;margin-top:-8px;border-radius:50%;background:#0b1a30;border:3px solid var(--cyan)}
+.mitem.L .dot{right:-9px}.mitem.R .dot{left:-9px}
+.mitem.sel{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,200,87,.25)}
+.mitem.linked{border-color:var(--teal)}
+.mitem.wrong{border-color:var(--red)}.mitem.right{border-color:var(--green)}
+.mlines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:2}
+.mlines path{fill:none;stroke:var(--teal);stroke-width:3.5;stroke-linecap:round}
+.mlines path.bad{stroke:var(--red)}.mlines path.good{stroke:var(--green)}.mlines path.temp{stroke:var(--gold);stroke-dasharray:8 6}
+.mhead{display:grid;grid-template-columns:1fr minmax(50px,11%) 1fr;font-size:.85em;color:var(--muted);margin-bottom:6px}
+/* bins */
+.binrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:10px}
+.bin{border:2px dashed #2d5a8f;border-radius:16px;min-height:140px;padding:8px;background:rgba(8,22,42,.5)}
+.bin-h{text-align:center;font-weight:900;font-size:1.15em;margin-bottom:6px}
+.bin-b{display:flex;flex-direction:column;gap:6px}
+.bin-b .card{min-height:0;font-size:.9em}
+.counter{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:#0d223f;border:1px solid var(--line)}
+.counter .cl{min-width:110px}
+.counter .cb{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#16345f;color:var(--text);font-weight:900;cursor:pointer;font-size:1.1em}
+.counter b{min-width:28px;text-align:center;font-size:1.2em;color:var(--gold)}
+/* lens */
+.lensbox{position:relative;overflow:hidden;border-radius:18px;background:#000;border:2px solid var(--line);flex:none}
+.lens-base{position:absolute;inset:0}
+.lens-base.blurry{filter:blur(2.4px) brightness(.75)}
+.lens-base svg,.lens-in svg{width:100%;height:100%}
+.lens{position:absolute;border-radius:50%;overflow:hidden;border:5px solid #c8d8ea;box-shadow:0 0 0 3px #3c5a80,0 10px 30px rgba(0,0,0,.6);cursor:grab;touch-action:none;background:#000}
+.lens-in{position:absolute;pointer-events:none}
+.lens::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.22),transparent 40%);pointer-events:none}
+.clues{display:flex;flex-direction:column;gap:8px}
+.clue{padding:8px 12px;border-radius:12px;border:1.5px dashed var(--line);color:var(--muted);font-size:.92em}
+.clue.found{border-style:solid;border-color:var(--green);color:var(--text);background:rgba(94,227,154,.08)}
+/* ===== stage 1 ===== */
+.s1a{display:grid;grid-template-columns:160px 1fr 250px;gap:14px;align-items:start}
+.shelf{display:flex;flex-direction:column;gap:8px}
+.ing{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:12px;background:#0f2645;border:1.5px solid var(--line);font-weight:700}
+.ing-ic{width:46px;height:46px;flex:none}
+.bowls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bowl-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;border-radius:16px;background:rgba(10,27,51,.6);border:1px solid var(--line)}
+.bowl-title{font-weight:800}
+.bowl{position:relative;width:220px;height:170px;margin-top:30px;border-radius:20px;touch-action:none}
+.bowl::before{content:"";position:absolute;left:10px;right:10px;top:62px;height:38px;border-radius:50%;background:#1b3658;border:3px solid #7fb5e2}
+.bowl::after{content:"";position:absolute;left:10px;right:10px;top:80px;bottom:6px;border-radius:0 0 100px 100px/0 0 80px 80px;background:linear-gradient(180deg,#5fa4dc,#2a5d92);border:3px solid #7fb5e2;border-top:none;z-index:2}
+.dough{position:absolute;left:50%;bottom:84px;width:150px;height:0;transform:translateX(-50%);border-radius:50% 50% 44% 44%/90% 90% 12% 12%;background:radial-gradient(circle at 40% 30%,#fffaf0,#ead2a1);z-index:1;transition:height .5s,width .5s}
+.dough.slow{transition:height 2.8s ease-out,width 2.8s ease-out}
+.dough.lumpy{background:radial-gradient(circle at 30% 40%,#fff 0 8%,transparent 9%),radial-gradient(circle at 65% 30%,#fff 0 7%,transparent 8%),radial-gradient(circle at 50% 60%,#f8f0dc 0 10%,transparent 11%),#e8dbc0}
+.dough.wet{box-shadow:inset 0 -6px 0 rgba(90,170,255,.45)}
+.bubbles{position:absolute;left:30%;right:30%;bottom:90px;height:90px;z-index:3;pointer-events:none}
+.bub{position:absolute;bottom:0;width:8px;height:8px;border-radius:50%;border:2px solid rgba(255,255,255,.8);animation:rise 1.6s ease-in infinite;opacity:0}
+@keyframes rise{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(-70px)}}
+.mixlab{position:absolute;left:0;right:0;bottom:24px;text-align:center;z-index:3;font-weight:800;font-size:.9em;color:#fff;text-shadow:0 1px 3px #000}
+.bowl.mixready{cursor:grab}
+.bowl.mixing{cursor:grabbing}
+.bowl.pick{cursor:pointer}
+.bowl.pick:hover{box-shadow:0 0 0 3px var(--gold)}
+.btags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;min-height:24px}
+.tag{font-size:.78em;padding:1px 8px;border-radius:99px;background:#1b3e6c;border:1px solid #3c6dab}
+.ctrl{display:flex;flex-direction:column;gap:10px}
+.sl{display:flex;flex-direction:column;gap:2px;font-weight:700}
+.sl b{color:var(--gold)}
+input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer;height:22px}
+input[type=range]:disabled{opacity:.4;cursor:not-allowed}
+.clock{font-size:.9em;color:var(--cyan);min-height:22px}
+.s1b{display:grid;grid-template-columns:300px 1fr;gap:14px;align-items:start}
+.farm-side{display:flex;flex-direction:column;gap:8px}
+.gen{font-size:1.15em;font-weight:900;color:var(--gold)}
+.goal-t{font-size:.88em;padding:6px 10px;border-radius:10px;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.4)}
+.seeds{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:30px}
+.seedbag{display:flex;align-items:center;gap:6px;padding:4px 6px;line-height:1.25;border-radius:10px;background:#3b2a16;border:1.5px solid #a8824a;font-weight:700;font-size:.88em}
+.seedbag svg{width:30px;height:30px}
+.can{width:78px;height:62px;cursor:grab;touch-action:none;position:relative;z-index:20;transition:transform .25s}
+.can.pour{transition:none;cursor:grabbing}
+.meter{flex:1;height:12px;border-radius:99px;background:#06152a;border:1px solid var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4fb3ff,#7ee8ff)}
+.field{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px;border-radius:18px;background:linear-gradient(180deg,#5a3d22,#3f2a16);border:3px solid #7a5532;box-shadow:inset 0 0 30px rgba(0,0,0,.4)}
+.plot{position:relative;height:min(23vh,180px);border-radius:12px;background:rgba(0,0,0,.12);display:flex;align-items:flex-end;justify-content:center;cursor:pointer;border:2px solid transparent}
+.plot svg{width:100%;height:100%}
+.plot.grow svg{animation:grow 1.2s ease-out}
+@keyframes grow{from{transform:scaleY(.2);transform-origin:bottom;opacity:.4}}
+.plot.sel{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,200,87,.4)}
+.plot.best{background:rgba(94,227,154,.12)}
+.ptag{position:absolute;top:4px;left:4px;right:4px;font-size:.7em;line-height:1.3;background:rgba(5,15,30,.82);border-radius:8px;padding:3px 6px;text-align:center}
+.ptag .g{color:var(--green);font-weight:800}.ptag .r{color:#ffb38a;font-weight:800}
+.ptag .st{color:var(--gold)}
+.drop-w{position:fixed;width:6px;height:10px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:#7ec8ff;z-index:9998;pointer-events:none;animation:dropw .5s linear forwards}
+@keyframes dropw{to{transform:translateY(60px);opacity:0}}
+.gchart{display:flex;gap:8px;align-items:flex-end;height:78px;padding:6px;border-radius:10px;background:#0a1b33}
+.gbar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:.72em;color:var(--muted)}
+.gbar i{display:block;width:70%;background:linear-gradient(180deg,var(--green),#2a9e66);border-radius:4px 4px 0 0;min-height:2px}
+.gbar b{color:var(--text)}
+/* ===== stage 2 ===== */
+.s2{display:grid;grid-template-columns:150px 220px 1fr 250px;gap:12px;align-items:start}
+.tray{display:flex;flex-direction:column;gap:8px}
+.slide{height:46px;border-radius:6px;background:linear-gradient(180deg,rgba(220,240,255,.35),rgba(170,210,240,.2));border:1.5px solid #b9d9f3;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:.82em;font-weight:700}
+.slide i{width:20px;height:20px;border-radius:50%;flex:none;box-shadow:0 0 0 2px rgba(0,0,0,.2)}
+.scope{position:relative;width:220px;height:312px}
+.scope>svg{width:100%;height:100%}
+.stagezone{position:absolute;left:12%;top:52%;width:60%;height:12%;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.stagezone .slide{height:30px;font-size:.7em;width:100%}
+.knob{position:absolute;left:68%;top:56%;width:56px;height:56px;border-radius:50%;background:conic-gradient(#9fb4cc 0 10deg,#5c7594 10deg 30deg,#9fb4cc 30deg 40deg,#5c7594 40deg 60deg,#9fb4cc 60deg 70deg,#5c7594 70deg 90deg,#9fb4cc 90deg 100deg,#5c7594 100deg 120deg,#9fb4cc 120deg 130deg,#5c7594 130deg 150deg,#9fb4cc 150deg 160deg,#5c7594 160deg 180deg,#9fb4cc 180deg 190deg,#5c7594 190deg 210deg,#9fb4cc 210deg 220deg,#5c7594 220deg 240deg,#9fb4cc 240deg 250deg,#5c7594 250deg 270deg,#9fb4cc 270deg 280deg,#5c7594 280deg 300deg,#9fb4cc 300deg 310deg,#5c7594 310deg 330deg,#9fb4cc 330deg 340deg,#5c7594 340deg 360deg);border:3px solid #dbe7f4;cursor:grab;touch-action:none;box-shadow:0 0 0 4px rgba(255,200,87,.0)}
+.knob::after{content:"";position:absolute;left:50%;top:4px;width:6px;height:16px;margin-left:-3px;border-radius:3px;background:var(--gold)}
+.knob:hover{box-shadow:0 0 0 4px rgba(255,200,87,.5)}
+.knob-lab{position:absolute;left:52%;top:75%;background:#0b1a30;padding:1px 8px;border-radius:99px;border:1px solid var(--gold);font-size:.72em;color:var(--gold);font-weight:800;white-space:nowrap}
+.viewcol{display:flex;flex-direction:column;align-items:center;gap:8px}
+.mview{position:relative;width:min(300px,42vh);aspect-ratio:1;border-radius:50%;overflow:hidden;background:#000;border:10px solid #22344d;box-shadow:0 0 0 3px #4d6b90,inset 0 0 40px rgba(0,0,0,.8)}
+.mview .inner{position:absolute;left:-50%;top:-50%;width:200%;height:200%;transition:transform .35s}
+.mview .inner svg{width:100%;height:100%}
+.mview.empty::after{content:"표본 없음";position:absolute;inset:0;display:grid;place-items:center;color:#56708f;font-weight:700}
+.mview::before{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 50px rgba(0,0,0,.75);z-index:2;pointer-events:none}
+.obj{cursor:pointer}
+.obj:hover>*{stroke:#ffc857}
+.obj.pick>*{stroke:#ff3b6b!important;stroke-width:5}
+.swim{animation:swim 6s ease-in-out infinite alternate}
+@keyframes swim{to{transform:translate(40px,-20px) rotate(8deg)}}
+.vstat{font-weight:800;color:var(--cyan);min-height:24px;text-align:center}
+.magbtns{display:flex;gap:6px}
+.magbtns button{padding:6px 12px;border-radius:10px;border:1.5px solid var(--line);background:#0f2645;color:var(--text);font-weight:800;cursor:pointer}
+.magbtns button.on{background:var(--teal);color:#03201d;border-color:var(--teal)}
+.lightrow{display:flex;align-items:center;gap:8px;width:100%;max-width:320px;font-weight:700;white-space:nowrap}
+.notebook{background:#f6f1e4;color:#2b2416;border-radius:14px;padding:12px;min-height:250px;box-shadow:0 6px 20px rgba(0,0,0,.35);background-image:repeating-linear-gradient(transparent 0 27px,#d9cdb3 27px 28px)}
+.notebook h4{color:#6b4b1f}
+.nb-entry{font-size:.9em;font-weight:700;margin:4px 0;color:#1f5d3a}
+.nb-empty{font-size:.85em;color:#8a7a5c}
+.nb-choice{margin-top:10px;padding:8px;border-radius:10px;background:#fff8e6;border:1.5px solid #e2c27a}
+.nb-choice .row button{flex:1}
+/* ===== stage 3 ===== */
+.s3c{display:grid;grid-template-columns:200px 1fr 1fr;gap:14px;align-items:start}
+.syringe{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:14px;background:#0f2645;border:1.5px solid var(--line);font-weight:700;text-align:center;font-size:.9em}
+.syringe svg{width:120px;height:46px}
+.syringe.used{opacity:.35}
+.group{display:flex;flex-direction:column;gap:6px}
+.gbadge{align-self:flex-start;font-size:.85em;font-weight:800;padding:2px 10px;border-radius:99px;background:#1a2f4f;color:var(--muted)}
+.gbadge.on{background:rgba(34,211,197,.18);color:var(--teal)}
+.people{display:grid;grid-template-columns:repeat(12,1fr);gap:4px 6px;max-width:460px}
+.pp{color:#a9c6e8;transition:color .3s}
+.pp svg{width:100%;height:auto}
+.group.vacc .pp{color:#7fe7d9}
+.group .pp.sick,.group.vacc .pp.sick{color:var(--red)}
+.pp.sick{color:var(--red);animation:pop .4s}
+/* ===== stage 4 ===== */
+.s4{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:start}
+.peas{display:flex;flex-direction:column;gap:8px}
+.pea{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:12px;background:#0f2645;border:1.5px solid var(--line);font-size:.84em;font-weight:700;line-height:1.3}
+.pea svg{width:46px;height:52px;flex:none}
+.pea small{display:block;color:var(--gold);font-weight:900}
+.crossrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pslot{width:150px;height:120px;border:2px dashed #2d5a8f;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.8em;color:var(--muted);text-align:center;background:rgba(8,22,42,.5)}
+.pslot svg{width:62px;height:70px}
+.pslot.filled{border-style:solid;border-color:var(--teal);color:var(--text)}
+.xmark{font-size:2em;font-weight:900;color:var(--gold)}
+.offs{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:8px;border-radius:14px;background:rgba(40,80,40,.25);border:1px solid #2f6b44;min-height:70px}
+.off{display:flex;flex-direction:column;align-items:center;font-size:.72em;font-weight:900;color:var(--gold)}
+.off svg{width:100%;max-width:56px;height:auto}
+.off.bloom{animation:popin .5s cubic-bezier(.2,1.6,.4,1) both}
+.rec{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* ===== stage 5 ===== */
+.s5a{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.dish-click{width:min(360px,52vh);aspect-ratio:1;cursor:crosshair;position:relative}
+.dish-click svg{width:100%;height:100%}
+.mark{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:3px solid var(--gold);pointer-events:none;animation:popin .4s}
+.mark.bad{border-color:var(--red)}
+.s5c{display:grid;grid-template-columns:180px 1fr 1fr;gap:14px;align-items:start}
+.dishbox{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;border-radius:16px;background:rgba(10,27,51,.6);border:1.5px solid var(--line)}
+.dishbox .d{width:min(250px,36vh);aspect-ratio:1}
+.dishbox .d svg{width:100%;height:100%}
+.dishbox.pickable{cursor:pointer}
+.dishbox.pickable:hover{border-color:var(--gold)}
+.moldpiece{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:14px;background:#0f2645;border:1.5px solid var(--line);font-weight:700;font-size:.9em;text-align:center}
+.moldpiece.used{opacity:.35}
+/* ===== stage 6 ===== */
+.s6b{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+.ladder{display:flex;flex-direction:column;gap:5px;align-items:center}
+.rung{display:flex;align-items:center;gap:0}
+.base{width:52px;height:38px;border-radius:9px;display:grid;place-items:center;font-weight:900;font-size:1.15em;color:#08121f;border:2px solid rgba(255,255,255,.4)}
+.bA{background:#ff8a8a}.bT{background:#ffd56b}.bG{background:#6fe39a}.bC{background:#7ec8ff}
+.bond{width:70px;height:6px;background:repeating-linear-gradient(90deg,#9fb6d6 0 6px,transparent 6px 10px)}
+.bslot{width:52px;height:38px;border-radius:9px;border:2px dashed #3c6dab;background:rgba(8,22,42,.5)}
+.bslot .base{width:100%;height:100%;border-radius:7px}
+.rail{width:14px;height:38px;background:#5c7594;border-radius:4px}
+.basepool{display:grid;grid-template-columns:1fr 1fr;gap:10px;justify-items:center}
+.basepool .base{width:64px;height:48px;font-size:1.4em}
+.rule{padding:10px;border-radius:12px;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.45);font-weight:700}
+.s6c{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start}
+.helixbox{position:relative;width:min(300px,50vh);margin:0 auto;border-radius:18px;background:radial-gradient(circle at 50% 40%,#13355e,#0a1b33);border:1px solid var(--line)}
+.helixbox svg{width:100%;height:auto}
+.railzone{position:absolute;top:4%;bottom:4%;width:22%;border-radius:12px;border:2px dashed rgba(126,232,255,.5);display:grid;place-items:center;color:var(--muted);font-size:.8em;font-weight:700;writing-mode:vertical-rl}.railzone.set{border-color:transparent;color:transparent}
+.railzone.l{left:2%}.railzone.r{right:2%}
+.bbstrip{display:flex;align-items:center;gap:8px;padding:8px;border-radius:12px;background:#0f2645;border:1.5px solid var(--line);font-weight:700;font-size:.88em}
+.bbstrip i{width:16px;height:60px;border-radius:6px;background:repeating-linear-gradient(180deg,#b58cff 0 10px,#7ee8ff 10px 20px);flex:none}
+.bbstrip.used{opacity:.3}
+/* ===== stage 7 ===== */
+.sheeprow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sheep{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border-radius:16px;background:rgba(10,27,51,.6);border:1.5px solid var(--line);text-align:center;font-weight:800;font-size:.9em}
+.sheep svg{width:120px;height:90px}
+.sheep.pickable{cursor:pointer}
+.sheep.pickable:hover{border-color:var(--gold)}
+.sheep.right{border-color:var(--green);background:rgba(94,227,154,.1)}
+.sheep.wrong{border-color:var(--red)}
+.s7{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;align-items:start}
+.bench{display:flex;align-items:center;justify-content:space-around;gap:12px;padding:14px;border-radius:18px;background:radial-gradient(circle at 50% 40%,#173a63,#0b1d36);border:1.5px solid var(--line);min-height:260px;position:relative}
+.bench-lab{position:absolute;top:8px;left:12px;font-size:.8em;color:var(--muted);font-weight:700}
+.egg{position:relative;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff4f7,#ffc4d4);border:6px solid rgba(255,225,233,.6);box-shadow:0 0 0 12px rgba(255,200,215,.12)}
+.egg.small{width:64px;height:64px;border-width:3px;box-shadow:none}
+.nuc{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#d4a8ff,#6b38b8);border:2px solid #f1e3ff}
+.nuc.donor{background:radial-gradient(circle at 35% 35%,#a6fff4,#119c8f);border-color:#e0fffb}
+.egg.small .nuc{width:18px;height:18px;margin:-9px 0 0 -9px}
+.egg.fused{animation:flash 1s 2}
+@keyframes flash{50%{box-shadow:0 0 0 14px rgba(255,200,87,.6),0 0 50px rgba(255,200,87,.9)}}
+.waste{width:120px;height:120px;border-radius:50%;border:3px dashed #5c7594;display:grid;place-items:center;text-align:center;font-size:.8em;color:var(--muted);position:relative;background:rgba(8,22,42,.5)}
+.waste .nuc{position:static;margin:0}
+.somatic{position:relative;width:130px;height:100px;border-radius:44% 56% 52% 48%/50% 44% 56% 50%;background:radial-gradient(circle at 40% 40%,#effbff,#a9d6ef);border:4px solid rgba(220,245,255,.6)}
+.somatic .nuc{width:42px;height:42px;margin:-21px 0 0 -21px}
+.cellsrc{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.82em;font-weight:700;text-align:center}
+.mini-egg{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff4f7,#ffc4d4);border:3px solid rgba(255,225,233,.6);position:relative}
+.mini-egg::after{content:"";position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#7b45c4}
+.mini-som{width:62px;height:48px;border-radius:44% 56% 52% 48%/50% 44% 56% 50%;background:radial-gradient(circle at 40% 40%,#effbff,#a9d6ef);position:relative}
+.mini-som::after{content:"";position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#119c8f}
+.dolly{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:16px;border:2px solid var(--gold);background:rgba(255,200,87,.08);font-weight:900}
+.dolly svg{width:150px;height:112px}
+/* ===== stage 8 ===== */
+.chromo{width:100%;max-width:900px;margin:0 auto 10px}
+.fragrow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.fslot{min-height:58px;border:2px dashed #2d5a8f;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(8,22,42,.5);position:relative}
+.fslot .fnum{position:absolute;top:-9px;left:-6px;width:22px;height:22px;border-radius:50%;background:var(--teal);color:#03201d;font-weight:900;font-size:.75em;display:grid;place-items:center}
+.frag{display:inline-flex;padding:8px 10px;border-radius:10px;background:#122d55;border:1.5px solid #3c6dab;font-family:Consolas,"Courier New",monospace;font-weight:900;font-size:1.05em;letter-spacing:.06em}
+.frag .os{color:#ffd56b}.frag .oe{color:#7ee8ff}.frag .both{color:#b9ffd6}
+.fslot .frag{border-color:var(--green)}
+.fpool{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:12px;border:1.5px dashed #2d5a8f;border-radius:14px;margin-top:12px;min-height:66px}
+.seqout{margin-top:10px;font-family:Consolas,"Courier New",monospace;font-weight:900;font-size:1.15em;letter-spacing:.12em;text-align:center;color:var(--green);word-break:break-all}
+.patient{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+.patient .av{width:64px;height:64px;border-radius:50%;background:#16345f;display:grid;place-items:center;font-size:32px;flex:none;border:2px solid var(--teal)}
+@media (max-width:1200px){.s2{grid-template-columns:140px 200px 1fr 220px}.s1a{grid-template-columns:150px 1fr 220px}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media print{.top,.ending .row{display:none}#main,body{overflow:visible;height:auto}*{color:#000!important;background:#fff!important;box-shadow:none!important;-webkit-text-fill-color:#000!important}}
+.tl-item{animation:popin .6s cubic-bezier(.2,1.6,.4,1) both}
+.gwrap{position:relative;max-width:920px;margin:14px auto 0;padding:22px 0 64px}
+.gstrip{display:flex;height:76px;border-radius:38px;overflow:hidden;border:3px solid #7ee8ff;box-shadow:0 0 24px rgba(126,232,255,.25)}
+.gband{flex:1;border-right:2px solid rgba(7,17,31,.5);opacity:.55;transition:opacity .15s}
+.gband.lit{opacity:1}
+.gband.found{background:#ff3b5c!important;opacity:1;box-shadow:inset 0 0 0 3px #fff}
+.scanner{position:absolute;top:8px;width:64px;height:150px;margin-left:-32px;border:3px solid var(--gold);border-radius:16px;background:rgba(255,200,87,.15);cursor:grab;touch-action:none;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-weight:800;font-size:.85em;color:var(--gold)}
+.scanner.on{cursor:grabbing;background:rgba(255,200,87,.3)}
+.gtally{text-align:center;font-size:1.2em;font-weight:900;color:var(--gold)}
+.intro-info .story p{font-size:1.15em;line-height:1.7}
+.mean li{font-size:1.08em}
+.nb-guide{font-size:.82em;line-height:1.5;padding:6px 8px;margin-bottom:6px;border-radius:8px;background:#fff8e6;border:1px solid #e2c27a;color:#4a3a1a}
+.nb-opts{display:flex;flex-direction:column;gap:6px}
+.nb-opt{text-align:left;padding:8px 10px;border-radius:10px;border:2px solid #c9a54a;background:#fffdf5;color:#2b2416;cursor:pointer;display:flex;flex-direction:column;gap:2px;line-height:1.35}
+.nb-opt b{font-size:1.05em}.nb-opt span{font-size:.8em;color:#5c4a28}
+.nb-opt:hover{border-color:#16b8aa;background:#eafffb}
+.pea-off{opacity:.38;filter:grayscale(.8);cursor:not-allowed;border-style:dashed}
+.pea .lockmsg{color:var(--muted)!important;font-weight:700!important;font-size:.9em}
+
+/* ===== 밝고 친근한 과학 체험실 테마 (기존 학습 동작 유지) ===== */
+:root{--bg:#f5faff;--panel:#ffffff;--line:#c9ddec;--teal:#087f84;--cyan:#176b9e;--text:#223a50;--muted:#5a7083;--gold:#ac6500;--red:#b43d55;--green:#16774c;--purple:#7953ae}
+body{background:var(--bg);color:var(--text)}
+.top{background:linear-gradient(110deg,#ffffff,#e6f7ff);border-bottom:1px solid #c5dfe9;box-shadow:0 3px 14px rgba(39,94,120,.1)}
+#main{background:radial-gradient(900px 460px at 95% 0%,rgba(140,222,246,.27),transparent 70%),radial-gradient(850px 460px at 0% 100%,rgba(255,224,160,.25),transparent 65%),linear-gradient(rgba(55,145,190,.035) 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,rgba(55,145,190,.035) 1px,transparent 1px) 0 0/34px 34px,#f6fbff}
+.panel{background:linear-gradient(180deg,#ffffff,#f6fbff);border-color:#cbdfea;box-shadow:0 5px 18px rgba(37,96,131,.07)}
+.ib{background:#ffffff;color:#26445b;border-color:#b9d7e7}.ib:hover{background:#e9f8ff;border-color:#3e9fbc}
+.pbar,.meter{background:#dcecf4}.pbar i{background:linear-gradient(90deg,#4abca7,#55aee7);box-shadow:none}
+#ptext,.logo b,.tl-n,.yr,.tl-y,.vstat,.clock{color:#176b9e}
+.btn{background:linear-gradient(180deg,#54d7b6,#27b6a2);color:#073c40;box-shadow:0 4px 0 #14877d,0 6px 12px rgba(25,134,135,.15)}
+.btn.ghost{background:#ffffff;color:#21516d;border-color:#b3d3e4}.btn.ghost:hover{background:#eaf8ff}
+.btn:disabled{opacity:.5;filter:grayscale(.5);box-shadow:none}
+.chip{background:#e0f7f4;color:#126f75;border-color:#a0ddd6}.chip.gold{background:#fff4d8;color:#915c08;border-color:#f0cf8e}
+.fb.ok{background:#e7f8ef;border-color:#9dddb8;color:#195c3b}.fb.bad{background:#fff0f1;border-color:#efb4bf;color:#96354b}.fb.info{background:#eaf7ff;border-color:#afd8ee;color:#255b7a}
+.tl-node{background:linear-gradient(160deg,#ffffff,#edf8ff);border-color:#c5deea;color:#223a50;box-shadow:0 5px 12px rgba(37,96,131,.07)}
+.tl-node.open{border-color:#37aaa2;box-shadow:0 0 0 3px #d7f4ee}.tl-node.done{border-color:#7bcba5}
+.tl-node.locked{opacity:.65;filter:saturate(.6)}.tl-node.final{background:linear-gradient(160deg,#fffdf1,#fff0d0);border-color:#e8c77d}
+.tl-icon{background:#e9f6fc;border-color:#b5d6e7}.tl-node.open .tl-icon{border-color:#46b9a7;box-shadow:0 0 0 4px #e0f7f1}
+.stp{background:#ffffff;border-color:#c5dce8;color:#597185}.stp b{background:#e5f1f8;color:#32617c}.stp.cur{color:#174a62;border-color:#3caea7}.stp.cur b{background:#3bbbab;color:#073b3e}.stp.done b{background:#75d4a4;color:#164a31}
+.inst{color:#345a74}.story{border-left-color:#e8b64e}.goal{border-left-color:#48b7a9}
+.title-screen h1{background:linear-gradient(90deg,#2876b5,#159d96 55%,#b98521);-webkit-background-clip:text;background-clip:text}.title-screen .sub{color:#1d779c}.title-screen .lead{color:#43647c}
+h4{color:#176b9e}.clear-msg{color:#34637a}.unlock{color:#137e79}.ending h1{color:#ae760e}
+.qopt,.mitem,.ing,.pea,.syringe,.moldpiece,.bbstrip{background:#ffffff;color:#25445c;border-color:#bdd8e8}.qopt:hover,.mitem:hover{background:#eaf8ff;border-color:#48aeb7}.qopt.right{background:#e2f8eb;border-color:#62bd92}.qopt.wrong{background:#fff0f2;border-color:#d98a9a}
+.slot,.pool,.bin,.pslot,.fslot,.fpool{background:#f0f8fc;border-color:#9bc5da}.card,.frag{background:linear-gradient(180deg,#ffffff,#e8f4ff);color:#27465c;border-color:#a9d0e8;box-shadow:0 3px 9px rgba(38,95,132,.1)}.card.right{background:#e3f8ee;border-color:#7ccaa2}
+.mitem .dot{background:#ffffff;border-color:#2386a5}.counter,.magbtns button,.seedbag{background:#ffffff;color:#25445c;border-color:#b6d3e5}.counter .cb{background:#e8f5fd;color:#245b7b}.counter b,.gen{color:#9a680a}
+.bowl-wrap,.dishbox,.sheep{background:#ffffff;border-color:#c5dfea}.tag{background:#e7f4fb;border-color:#b5d7e8;color:#315b76}
+.goal-t,.rule{background:#fff8e7;border-color:#ebce94;color:#71501d}.gchart{background:#eaf5fb}.gbar b{color:#25445c}
+.gbade,.gbadge{background:#eaf3fa;color:#476a83}.gbadge.on{background:#dff8f3;color:#137e79}
+.helixbox,.bench{background:radial-gradient(circle at 50% 40%,#ffffff,#e6f4fd);border-color:#b9d8e8}.railzone{border-color:#85bdd3;color:#587e95}
+.rail{background:#8eb7cf}.bslot{background:#f0f8fc;border-color:#9bc5da}.waste{background:#f1f8fc;border-color:#aac8d8;color:#5b7182}
+.patient .av{background:#e8f7fc;border-color:#59b6bf}.lensbox,.mview{border-color:#91bbd1}
+.gstrip{border-color:#63b7d1;box-shadow:0 3px 16px rgba(54,145,184,.15)}.scanner{color:#80530a;border-color:#dca843;background:rgba(255,224,134,.3)}
+#toast{background:#ffffff;color:#26566d;border-color:#65b8bd;box-shadow:0 8px 26px rgba(39,96,126,.18)}.modal-ov{background:rgba(35,67,91,.43)}
+.clear-badge{background:radial-gradient(circle,#ffffff,#dff5ff);border-color:#e5bd65;box-shadow:0 0 25px rgba(234,186,93,.2)}
+.tl-dot{background:#ffffff;border-color:#5fbab4}.tl-d,.tiny,.note,.tl-era,.tl-s,.tl-tt,.ptitle,.mhead,.clue{color:#526f83}
+.clue{border-color:#b8d4e4}.clue.found{background:#e8f8ef;border-color:#78c69d;color:#235f44}
+.title-screen .tring,.tm{filter:drop-shadow(0 8px 20px rgba(49,154,184,.12))}
+@media(max-width:1050px){.top{height:auto;min-height:58px;flex-wrap:wrap;padding:8px 12px}.tools{flex-wrap:wrap}.tl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.screen{padding:12px}.s1a,.s2,.s3c,.s5c{overflow-x:auto}}
+@media(max-width:650px){.tl-grid{grid-template-columns:1fr}.intro{grid-template-columns:1fr;gap:8px}.tm{width:min(200px,35vh)}.mean-grid{grid-template-columns:1fr}.tools .ib{padding:6px}.title-screen h1{font-size:30px}}
+
+
+/* === BIO TIME MACHINE · 3D pastel miniature visual upgrade v1 === */
+.s1a{grid-template-columns:160px minmax(490px,1fr) 235px;gap:13px}
+.s1a .shelf{background:linear-gradient(155deg,#fffdf5,#fff0d9 80%);border:2px solid #e9cfa4;border-radius:22px;box-shadow:0 9px 0 #ead8bb,0 16px 25px #8e6c3a18;position:relative;overflow:visible}
+.s1a .shelf:before{content:'✦  ✿  ✦';position:absolute;top:-15px;right:12px;color:#e9ad56;font-size:18px;letter-spacing:8px}
+.s1a .ing{background:linear-gradient(145deg,#fff,#fff7ed);border:2px solid #efd6b7;border-radius:17px;box-shadow:0 5px 0 #ead3b8,0 8px 13px #73532e13;transition:transform .18s,box-shadow .18s;cursor:grab}
+.s1a .ing:hover{transform:translateY(-4px) rotate(-1deg);box-shadow:0 9px 0 #ead3b8,0 13px 15px #73532e16}
+.s1a .ing:active{cursor:grabbing;transform:scale(.97)}
+.s1a .ing-ic{width:50px;height:50px;filter:drop-shadow(0 4px 3px #bda27c44)}
+.s1a .bowl-wrap{position:relative;overflow:hidden;min-height:282px;padding:16px 8px 12px;background:radial-gradient(ellipse at 50% 48%,#fffdf7 0%,#f3fbff 67%,#e3f2fa 100%);border:2px solid #c5e1f0;border-radius:25px;box-shadow:0 9px 0 #c4dce8,0 14px 23px #4c789322}
+.s1a .bowl-wrap:before{content:'✧';position:absolute;left:12px;top:43px;font-size:30px;color:#f1c775;opacity:.8}
+.s1a .bowl-wrap:after{content:'✦';position:absolute;right:15px;top:57px;font-size:23px;color:#9bd5d7;opacity:.8}
+.s1a .bowl-title{z-index:1;color:#34617c;font-size:14px;text-align:center}
+.s1a .bowl{filter:drop-shadow(0 12px 7px #4b7c9850);transition:filter .25s,transform .25s}
+.s1a .bowl:hover{filter:drop-shadow(0 15px 9px #4b7c9870)}
+.s1a .bowl:before{background:radial-gradient(ellipse at 45% 20%,#e2f8ff,#72bfe9 66%,#438cc3);border-color:#bde7ff;box-shadow:inset 0 7px 9px #ffffff90}
+.s1a .bowl:after{background:linear-gradient(115deg,#b8e8ff 0%,#5eaddd 24%,#3788bd 65%,#286a9d 100%);border-color:#b8e6ff;box-shadow:inset 13px 0 18px #ffffff3c,inset -12px -7px 17px #164b7835}
+.s1a .dough{background:radial-gradient(ellipse at 36% 20%,#fffef5 0%,#fff2d3 43%,#f0cf93 79%,#d8ab68 100%);box-shadow:inset -10px -8px 14px #c89c5330,0 -3px 9px #f2d49c45}
+.s1a .dough.lumpy{background:radial-gradient(circle at 35% 35%,#fff9e8 0 10%,transparent 11%),radial-gradient(circle at 66% 40%,#f1d8aa 0 9%,transparent 10%),linear-gradient(125deg,#fff6df,#e8c995)}
+.s1a .bowl.mixready{animation:miniBowlPulse 1.7s ease-in-out infinite}
+@keyframes miniBowlPulse{50%{filter:drop-shadow(0 0 14px #5ec9c7aa)}}
+.s1a .bowl.mixing{animation:none;transform:rotate(-2deg)}
+.s1a .btags{z-index:2}
+.s1a .tag{background:#fff5e1;color:#765b36;border:1px solid #e7c994;box-shadow:0 2px 3px #9b7b431c}
+.s1a .ctrl{border:2px solid #c7e5e4;background:linear-gradient(160deg,#fff,#f1fffa);border-radius:22px;box-shadow:0 8px 0 #cde8e3,0 14px 20px #4d9b8c17}
+.s1a .ctrl input[type=range]{accent-color:#31b5a8}
+.s1a .ctrl .btn{border-radius:14px;box-shadow:0 5px 0 #148f83}
+.s1a .ctrl .btn:disabled{box-shadow:none}
+.s1a .fb{border-radius:16px}
+.s1a .mixlab{bottom:28px}
+.s1a .bowl-wrap .mini-scenery{position:absolute;bottom:47px;left:12px;font-size:24px;opacity:.83;pointer-events:none;z-index:0}
+.s1a .bowl-wrap .mini-scenery.right{left:auto;right:10px}
+@media(max-width:1250px){.s1a{grid-template-columns:150px minmax(475px,1fr) 220px}}
+
+
+/* ===== pastel miniature design system: all eight stages ===== */
+.tm-era{color:#172b3b!important;font-weight:900;font-size:clamp(12px,1.12vw,17px);line-height:1.48;white-space:pre-line;bottom:17%;padding:0 13%;text-shadow:0 1px 0 #ffffff}
+.tm .yr{position:absolute;top:20%;left:18%;right:18%;z-index:3;color:#123e5c;text-shadow:0 2px 2px rgba(255,255,255,.95);font-size:clamp(17px,2.05vw,29px);line-height:1.15;pointer-events:none;white-space:nowrap}
+.era-art{position:absolute;inset:13% 17% 28%;display:grid;place-items:center;z-index:1;pointer-events:none;filter:drop-shadow(0 8px 7px #446b8728)}
+.era-art svg{width:100%;height:100%;object-fit:contain;animation:floatMini 3.5s ease-in-out infinite}
+@keyframes floatMini{50%{transform:translateY(-5px)}}
+.tm .tm-rings{opacity:.45;filter:saturate(.8)}
+.tm{overflow:visible}
+.steph{position:relative;padding-left:94px;min-height:74px;background:linear-gradient(110deg,#ffffffee,#eaf7ffee);border:1px solid #d3e8f3;border-radius:20px;padding-top:10px;padding-bottom:10px;padding-right:14px;box-shadow:0 6px 0 #dbeaf2,0 12px 16px #426b8310}
+.stage-mini-art{position:absolute;width:73px;height:64px;left:10px;top:4px;filter:drop-shadow(0 4px 3px #49677d25)}
+.stage-mini-art svg{width:100%;height:100%}
+.stagebar{padding:6px 10px;border-radius:17px;background:#ffffffa6;border:1px solid #d9e9f0}
+.stage .panel{border-radius:23px;border:2px solid #c9e3ed;box-shadow:0 6px 0 #d9e9ef,0 13px 22px #4a7a9714}
+.stage .panel h3,.stage .panel h4{color:#1c617b}
+.stage .card,.stage .frag,.stage .pea,.stage .syringe,.stage .sheep,.stage .dishbox,.stage .mitem,.stage .qopt{border-radius:17px;border-width:2px;box-shadow:0 4px 0 #c8dce8,0 8px 15px #315b7d12;transition:transform .16s,box-shadow .16s,border-color .16s}
+.stage .card:hover,.stage .frag:hover,.stage .pea:not(.pea-off):hover,.stage .syringe:hover,.stage .sheep.pickable:hover,.stage .dishbox.pickable:hover,.stage .mitem:hover,.stage .qopt:hover{transform:translateY(-3px);box-shadow:0 7px 0 #bdd9e6,0 12px 20px #315b7d18}
+.stage .panel svg,.stage .pea svg,.stage .sheep svg,.stage .dishbox svg{filter:drop-shadow(0 4px 3px #6b94a33d)}
+.s1b .panel,.s2 .panel,.s3c .panel,.s4 .panel,.s5a .panel,.s5c .panel,.s6b .panel,.s6c .panel,.s7 .panel{background:linear-gradient(150deg,#ffffff,#f1f9ff)}
+.s1b .panel{border-color:#eed7b1;background:linear-gradient(160deg,#fffefa,#fff5e7)}
+.s2 .panel{border-color:#b5dce9;background:linear-gradient(160deg,#ffffff,#eaf8ff)}
+.s3c .panel{border-color:#edc7d5;background:linear-gradient(160deg,#ffffff,#fff0f6)}
+.s4 .panel{border-color:#c6e2b9;background:linear-gradient(160deg,#ffffff,#f1fce9)}
+.s5a .panel,.s5c .panel{border-color:#b7decf;background:linear-gradient(160deg,#ffffff,#ecfaf2)}
+.s6b .panel,.s6c .panel{border-color:#cbd1f1;background:linear-gradient(160deg,#ffffff,#f1f1ff)}
+.s7 .panel{border-color:#ead9b9;background:linear-gradient(160deg,#ffffff,#fff8eb)}
+.s2 .mview{border:12px solid #a6d9ec;box-shadow:0 0 0 5px #e4f8ff,0 12px 20px #517a9938,inset 0 0 25px #061d34}
+.s3c .syringe{background:linear-gradient(145deg,#ffffff,#ffeef5);border-color:#f0c3d7}
+.s4 .pea{background:linear-gradient(140deg,#ffffff,#effbe8);border-color:#c9e5b9}
+.s5a .dish-click,.s5c .dishbox{filter:drop-shadow(0 6px 6px #548e7b2a)}
+.s6c .helixbox{background:radial-gradient(circle at 40% 30%,#ffffff,#e8e9ff);border:3px solid #d0d3f5;box-shadow:0 7px 0 #d2d5ec}
+.s7 .sheep{background:linear-gradient(140deg,#fffefa,#fff3df);border-color:#ead5b4}
+.patient .av{background:linear-gradient(150deg,#fff,#dff4ff);box-shadow:0 5px 0 #b9dce8}
+.tl-icon{overflow:hidden;background:linear-gradient(145deg,#fff,#e6f6ff);box-shadow:0 4px 0 #c9e2ec}
+.tl-icon .map-art{width:62px;height:62px;display:grid;place-items:center}
+.map-art svg{width:100%;height:100%}
+.tl-node{border-radius:23px;box-shadow:0 7px 0 #dbe8f0,0 14px 22px #416f8a15}
+.tl-node:hover{transform:translateY(-4px)}
+.clear-badge{background:linear-gradient(145deg,#fff,#e9f9ff);box-shadow:0 7px 0 #e4d4aa,0 12px 25px #52768b1b}
+@media(max-width:700px){.steph{padding-left:74px}.stage-mini-art{width:60px;height:55px}.tm-era{bottom:11%}}
+
+</style>
+</head>
+<body>
+<div id="app">
+<header class="top">
+ <div class="logo" id="logo" title="처음 화면">⏳ <span>BIO <b>TIME MACHINE</b></span></div>
+ <div class="prog"><div class="pbar"><i id="pfill"></i></div><span id="ptext">0 / 8 완료</span><span id="where" class="where"></span></div>
+ <div class="tools">
+  <button class="ib" id="btnMap">🗺️ 지도</button>
+  <button class="ib" id="btnReset" title="지금 하는 활동을 처음 상태로 되돌려요">↺ 실험 초기화</button>
+  <button class="ib" id="btnHelp">❓ 도움말</button>
+  <button class="ib" id="btnSound" title="소리 켜기/끄기">🔊 소리</button>
+  <button class="ib" id="btnFull">⛶ 전체 화면</button>
+ </div>
+</header>
+<main id="main"></main>
+</div>
+<div id="toast"></div>
+<script>
+'use strict';
+/* ================= 공통 도구 ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function h(tag,attrs,...kids){const el=document.createElement(tag);attrs=attrs||{};for(const k in attrs){const v=attrs[k];if(v===false||v==null)continue;if(k==='class')el.className=v;else if(k==='html')el.innerHTML=v;else if(k==='style')el.style.cssText=v;else if(k.startsWith('on')&&typeof v==='function')el.addEventListener(k.slice(2),v);else el.setAttribute(k,v);}
+ for(const c of kids.flat(3)){if(c==null||c===false)continue;el.append(c.nodeType?c:document.createTextNode(String(c)));}return el;}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function rng(seed){return()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};}
+
+/* ================= 저장 ================= */
+const KEY='bioTimeMachine.v1';
+const S={done:[],step:{},sound:true,finalDone:false,finishedAt:null};
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d)Object.assign(S,d);}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* ================= 효과음 ================= */
+let AC=null;
+function tone(f,d=.12,type='sine',v=.07,delay=0){if(!S.sound)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime+delay;const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.03);}catch(e){}}
+const SFX={
+ pick:()=>tone(520,.06,'triangle',.05),
+ drop:()=>tone(700,.08,'triangle',.07),
+ ok:()=>{tone(660,.1);tone(880,.16,'sine',.07,.1);},
+ bad:()=>tone(200,.2,'sawtooth',.04),
+ win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.28,'triangle',.08,i*.12)),
+ warp:()=>{if(!S.sound)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(180,t);o.frequency.exponentialRampToValueAtTime(1400,t+1.2);g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+1.4);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+1.5);}catch(e){}}
+};
+
+/* ================= 화면 공통 ================= */
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2300);}
+function fb(box,type,msg){box.className='fb '+type;box.innerHTML=msg;box.classList.remove('pop');void box.offsetWidth;box.classList.add('pop');if(type==='bad')SFX.bad();if(type==='ok')SFX.ok();}
+function modal(content,buttons){const ov=h('div',{class:'modal-ov'});const m=h('div',{class:'modal panel'});m.append(typeof content==='string'?h('div',{html:content}):content);const row=h('div',{class:'row center'});(buttons||[{t:'닫기'}]).forEach(b=>row.append(h('button',{class:'btn '+(b.cls||''),onclick:()=>{ov.remove();b.fn&&b.fn();}},b.t)));m.append(row);ov.append(m);ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});document.body.append(ov);}
+function confetti(){const c=['#22d3c5','#ffc857','#ff6b7a','#7ee8ff','#b58cff','#5ee39a'];for(let i=0;i<70;i++){const s=h('i',{class:'cf',style:`left:${Math.random()*100}vw;background:${c[i%6]};animation-delay:${Math.random()*.7}s;animation-duration:${2+Math.random()*1.6}s`});document.body.append(s);setTimeout(()=>s.remove(),4500);}}
+let screenTok=0;
+const alive=t=>t===screenTok;
+function show(el){screenTok++;const m=$('#main');m.innerHTML='';m.scrollTop=0;el.classList.add('screen');m.append(el);}
+const RINGS=(()=>{let ticks='';for(let i=0;i<24;i++){const a=i*15*Math.PI/180;ticks+=`<line x1="${200+Math.cos(a)*108}" y1="${200+Math.sin(a)*108}" x2="${200+Math.cos(a)*(i%2?114:120)}" y2="${200+Math.sin(a)*(i%2?114:120)}" stroke="#7ee8ff" stroke-width="2"/>`;}
+ return `<svg viewBox="0 0 400 400"><defs><radialGradient id="rg"><stop offset="0" stop-color="#22d3c5" stop-opacity=".32"/><stop offset="1" stop-color="#22d3c5" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="196" fill="url(#rg)"/><g class="spin"><circle cx="200" cy="200" r="182" fill="none" stroke="#22d3c5" stroke-width="2" stroke-dasharray="4 10" opacity=".75"/></g><g class="spin s2"><circle cx="200" cy="200" r="154" fill="none" stroke="#7ee8ff" stroke-width="7" stroke-dasharray="60 30 10 30" opacity=".45"/></g><g class="spin s3"><circle cx="200" cy="200" r="128" fill="none" stroke="#ffc857" stroke-width="2" stroke-dasharray="2 7" opacity=".8"/>${ticks}</g><circle cx="200" cy="200" r="100" fill="#071427" stroke="#22d3c5" stroke-width="3"/></svg>`;})();
+
+/* ================= 드래그 앤 드롭 ================= */
+function draggable(el,opt){
+ el.classList.add('drag');
+ el.addEventListener('pointerdown',e=>{
+  if(e.button!==0||el.classList.contains('locked'))return;
+  e.preventDefault();e.stopPropagation();
+  const r=el.getBoundingClientRect(),ox=e.clientX-r.left,oy=e.clientY-r.top;
+  const g=el.cloneNode(true);g.classList.add('dghost');g.classList.remove('dragging');
+  Object.assign(g.style,{width:r.width+'px',height:r.height+'px',left:r.left+'px',top:r.top+'px'});
+  document.body.append(g);el.classList.add('dragging');SFX.pick();
+  const tg=((typeof opt.targets==='function'?opt.targets():opt.targets)||[]).filter(Boolean);
+  tg.forEach(t=>t.classList.add('can-drop'));
+  let over=null;
+  const hit=ev=>{const els=document.elementsFromPoint(ev.clientX,ev.clientY);return tg.find(t=>els.includes(t))||null;};
+  const mv=ev=>{g.style.left=(ev.clientX-ox)+'px';g.style.top=(ev.clientY-oy)+'px';const t=hit(ev);if(t!==over){over&&over.classList.remove('over');over=t;over&&over.classList.add('over');}};
+  const up=ev=>{
+   window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);
+   tg.forEach(t=>t.classList.remove('can-drop','over'));el.classList.remove('dragging');
+   const t=ev.type==='pointercancel'?null:hit(ev);let ok=false;
+   if(t){try{ok=opt.drop(t,ev)===true;}catch(err){console.error(err);}}
+   if(ok){SFX.drop();g.remove();}
+   else{g.style.transition='left .25s,top .25s,opacity .25s';g.style.left=r.left+'px';g.style.top=r.top+'px';g.style.opacity='0';setTimeout(()=>g.remove(),270);}
+  };
+  window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
+ });
+}
+
+/* ================= 활동 컴포넌트 ================= */
+// 카드 순서 배열
+function SortTask(host,{items,onDone,cols,vertical,btnText}){
+ const n=items.length;
+ const slots=items.map((_,i)=>{const s=h('div',{class:'slot'},h('span',{class:'slot-n'},i+1));s.dataset.i=i;return s;});
+ const row=h('div',{class:'slots',style:`--cols:${cols||n}`},slots);
+ const pool=h('div',{class:'pool'});
+ const box=h('div',{class:'fb'});
+ let locked=false;
+ const cards=shuffle(items).map(it=>{const c=h('div',{class:'card'},h('div',{class:'ct'},it.text),it.sub?h('div',{class:'cs'},it.sub):null);c.dataset.id=it.id;return c;});
+ cards.forEach(c=>{pool.append(c);draggable(c,{targets:()=>[...slots,pool],drop:t=>{
+  if(locked)return false;
+  slots.forEach(s=>s.classList.remove('correct'));
+  if(t===pool){pool.append(c);return true;}
+  const ex=t.querySelector('.card');if(ex===c)return true;
+  const from=c.parentElement;
+  if(ex){if(from.classList.contains('slot'))from.append(ex);else pool.append(ex);}
+  t.append(c);return true;}});});
+ const btn=h('button',{class:'btn',onclick:()=>{
+  const placed=slots.map(s=>{const c=s.querySelector('.card');return c?c.dataset.id:null;});
+  if(placed.some(x=>!x))return fb(box,'info','모든 번호 칸에 카드를 하나씩 놓아 주세요.');
+  let right=0,firstWrong=-1;
+  placed.forEach((id,i)=>{if(id===items[i].id)right++;else if(firstWrong<0)firstWrong=i;});
+  if(right===n){locked=true;slots.forEach(s=>s.classList.add('correct'));cards.forEach(c=>c.classList.add('locked','right'));btn.disabled=true;fb(box,'ok','🎉 순서가 모두 맞았어요!');onDone&&setTimeout(onDone,600);}
+  else{const it=items.find(x=>x.id===placed[firstWrong]);fb(box,'bad',`${n}장 중 <b>${right}장</b>이 올바른 자리에 있어요. 정답은 아직 공개하지 않을게요.<br>💡 ${firstWrong+1}번 칸에 놓은 「${it.text}」 카드를 다시 생각해 보세요. ${it.hint||''}`);}
+ }},btnText||'순서 확인');
+ const wrap=h('div',{class:'sort'+(vertical?' vert':'')},h('div',{class:'sort-main'},h('div',{},vertical?h('div',{class:'ptitle'},'▼ 순서대로 놓는 칸 (위가 먼저)'):null,row),h('div',{},h('div',{class:'ptitle'},'▼ 카드 보관함 — 카드를 끌어 번호 칸에 놓으세요'),pool)),h('div',{class:'row'},btn),box);
+ host.append(wrap);
+}
+// 선 잇기
+function MatchTask(host,{left,right,onDone,heads}){
+ const wrap=h('div',{class:'match'});
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','mlines');
+ const L=h('div',{class:'mcol'}),R=h('div',{class:'mcol'});
+ const lE={},rE={},link={};let sel=null,temp=null,locked=false;
+ left.forEach(it=>{const e=h('div',{class:'mitem L'},h('span',{},it.text),h('i',{class:'dot'}));e.dataset.id=it.id;lE[it.id]=e;L.append(e);});
+ shuffle(right).forEach(it=>{const e=h('div',{class:'mitem R'},h('i',{class:'dot'}),h('span',{},it.text));e.dataset.id=it.id;rE[it.id]=e;R.append(e);});
+ wrap.append(L,h('div'),R,svg);
+ const box=h('div',{class:'fb'});
+ const btn=h('button',{class:'btn',onclick:check},'연결 확인');
+ host.append(h('div',{},heads?h('div',{class:'mhead'},h('div',{},heads[0]),h('div'),h('div',{},heads[1])):null,wrap,h('div',{class:'row',style:'margin-top:10px'},btn,h('span',{class:'tiny'},'왼쪽 항목을 누른 채 오른쪽 항목까지 끌어 선을 이어요. (왼쪽 클릭 → 오른쪽 클릭도 가능)')),box));
+ const pt=el=>{const d=el.querySelector('.dot').getBoundingClientRect(),w=wrap.getBoundingClientRect();return[d.left+d.width/2-w.left,d.top+d.height/2-w.top];};
+ function draw(){if(!wrap.isConnected)return;let s='';for(const l in link){const r=link[l];const[x1,y1]=pt(lE[l]),[x2,y2]=pt(rE[r]);const cls=lE[l].classList.contains('wrong')?'bad':lE[l].classList.contains('right')?'good':'';const mx=(x1+x2)/2;s+=`<path class="${cls}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"/>`;}
+  if(temp)s+=`<path class="temp" d="M${temp[0]},${temp[1]} L${temp[2]},${temp[3]}"/>`;svg.innerHTML=s;
+  Object.values(lE).forEach(e=>e.classList.toggle('linked',!!link[e.dataset.id]));Object.values(rE).forEach(e=>e.classList.toggle('linked',Object.values(link).includes(e.dataset.id)));}
+ function selectL(id){sel=id;Object.values(lE).forEach(x=>x.classList.toggle('sel',x.dataset.id===id));}
+ function connect(l,r){for(const k in link)if(link[k]===r)delete link[k];link[l]=r;lE[l].classList.remove('wrong','right');SFX.drop();draw();}
+ Object.values(lE).forEach(e=>e.addEventListener('pointerdown',ev=>{
+  if(locked||ev.button!==0)return;ev.preventDefault();const id=e.dataset.id;selectL(id);SFX.pick();
+  const[x,y]=pt(e);
+  const mv=m=>{const w=wrap.getBoundingClientRect();temp=[x,y,m.clientX-w.left,m.clientY-w.top];draw();};
+  const up=u=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);temp=null;const els=document.elementsFromPoint(u.clientX,u.clientY);const r=Object.values(rE).find(z=>els.includes(z));if(r){connect(id,r.dataset.id);selectL(null);}draw();};
+  window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);}));
+ Object.values(rE).forEach(e=>e.addEventListener('click',()=>{if(locked||!sel)return;connect(sel,e.dataset.id);selectL(null);}));
+ function check(){
+  if(Object.keys(link).length<left.length)return fb(box,'info','아직 연결하지 않은 항목이 있어요. 모든 항목을 선으로 이어 주세요.');
+  const wrong=left.filter(it=>link[it.id]!==it.ans);
+  left.forEach(it=>{lE[it.id].classList.toggle('wrong',link[it.id]!==it.ans);lE[it.id].classList.toggle('right',link[it.id]===it.ans);});draw();
+  if(!wrong.length){locked=true;btn.disabled=true;fb(box,'ok','🎉 모두 올바르게 연결했어요!');onDone&&setTimeout(onDone,600);}
+  else fb(box,'bad',`${left.length}개 중 <b>${left.length-wrong.length}개</b>가 맞았어요. 빨간 선을 다시 연결해 보세요.<br>💡 「${wrong[0].text}」: ${wrong[0].why}`);
+ }
+ try{new ResizeObserver(draw).observe(wrap);}catch(e){window.addEventListener('resize',draw);}
+ setTimeout(draw,60);
+}
+// 분류함(O/X 등)에 넣기
+function BinTask(host,{bins,cards,onDone}){
+ const pool=h('div',{class:'pool'});const binEls={};const box=h('div',{class:'fb'});let left=cards.length;
+ const brow=h('div',{class:'binrow'},bins.map(b=>{const e=h('div',{class:'bin'},h('div',{class:'bin-h',html:b.label}),h('div',{class:'bin-b'}));e.dataset.id=b.id;binEls[b.id]=e;return e;}));
+ shuffle(cards).forEach(c=>{const e=h('div',{class:'card'},c.text);pool.append(e);draggable(e,{targets:()=>Object.values(binEls),drop:t=>{
+  if(t.dataset.id!==c.bin){fb(box,'bad','🤔 다시 생각해 보세요. '+c.why);return false;}
+  t.querySelector('.bin-b').append(e);e.classList.add('locked','right');fb(box,'ok','⭕ 맞아요! '+c.why);
+  if(--left===0)onDone&&setTimeout(onDone,900);return true;}});});
+ host.append(h('div',{},h('div',{class:'tiny',style:'margin-bottom:4px'},'▼ 카드를 끌어 알맞은 상자에 넣으세요'),pool,brow,box));
+}
+// 개념 확인 문제
+function Quiz(host,{q,options,onDone}){
+ const box=h('div',{class:'fb'});const opts=h('div');let done=false;
+ shuffle(options).forEach(o=>{const b=h('button',{class:'qopt'},o.t);b.onclick=()=>{if(done)return;if(o.ok){done=true;b.classList.add('right');fb(box,'ok','⭕ '+o.why);onDone&&setTimeout(onDone,400);}else{b.classList.add('wrong');fb(box,'bad','💡 '+o.why);}};opts.append(b);});
+ host.append(h('div',{class:'quiz'},h('div',{class:'qq',html:'❓ '+q}),opts,box));
+}
+// 숫자 세기 기록
+function Counter(label){let v=0;const out=h('b',{},'0');const e=h('div',{class:'counter'},h('span',{class:'cl',html:label}),h('button',{class:'cb',onclick:()=>{v=Math.max(0,v-1);out.textContent=v;SFX.pick();}},'−'),out,h('button',{class:'cb',onclick:()=>{v++;out.textContent=v;SFX.pick();}},'+'));return{e,get v(){return v;}};}
+// 돋보기 관찰
+function Lens(host,{svg,size,zoom,lensSize,blurry}){
+ const box=h('div',{class:'lensbox',style:`width:${size}px;height:${size}px`});
+ const base=h('div',{class:'lens-base'+(blurry?' blurry':''),html:svg});
+ const lens=h('div',{class:'lens',style:`width:${lensSize}px;height:${lensSize}px`});
+ const inner=h('div',{class:'lens-in',html:svg,style:`width:${size*zoom}px;height:${size*zoom}px`});
+ lens.append(inner);box.append(base,lens);host.append(box);
+ const st={x:size*.14,y:size*.86};
+ function place(){lens.style.left=(st.x-lensSize/2)+'px';lens.style.top=(st.y-lensSize/2)+'px';inner.style.left=(-st.x*zoom+lensSize/2)+'px';inner.style.top=(-st.y*zoom+lensSize/2)+'px';}
+ lens.addEventListener('pointerdown',e=>{e.preventDefault();lens.setPointerCapture(e.pointerId);lens.style.cursor='grabbing';const r=box.getBoundingClientRect();const k=size/r.width;const dx=(e.clientX-r.left)*k-st.x,dy=(e.clientY-r.top)*k-st.y;
+  const mv=ev=>{st.x=Math.max(0,Math.min(size,(ev.clientX-r.left)*k-dx));st.y=Math.max(0,Math.min(size,(ev.clientY-r.top)*k-dy));place();};
+  const up=()=>{lens.removeEventListener('pointermove',mv);lens.removeEventListener('pointerup',up);lens.style.cursor='';};
+  lens.addEventListener('pointermove',mv);lens.addEventListener('pointerup',up);});
+ place();
+ return{box,pos:()=>({x:st.x/size,y:st.y/size})};
+}
+/* ================= 스테이지 데이터 ================= */
+const STAGES=[];
+const NOTE='※ 이 실험은 생명 기술의 원리를 이해하기 위해 단순하게 만든 교육용 모형이에요.';
+
+/* ---------- STAGE 1 ---------- */
+const ING={
+ flour:{n:'밀가루 + 소금',svg:`<svg viewBox="0 0 64 64"><defs><linearGradient id="flour3d" x2="1" y2=".8"><stop stop-color="#fff8de"/><stop offset="1" stop-color="#d9b98b"/></linearGradient></defs><ellipse cx="32" cy="58" rx="19" ry="4" fill="#aa8c6c" opacity=".22"/><path d="M16 18Q32 12 48 18L45 54Q32 60 19 54Z" fill="url(#flour3d)" stroke="#c8a578" stroke-width="2"/><path d="M16 18Q32 9 48 18L43 24Q32 18 21 24Z" fill="#fffdf0" stroke="#d7b98e" stroke-width="2"/><ellipse cx="32" cy="38" rx="12" ry="10" fill="#fffdf3"/><path d="M25 38q7-9 14 0q-7 10-14 0" fill="#dfb870"/><path d="M31 30v16" stroke="#c79c55" stroke-width="2"/><path d="M44 12l5-4" stroke="#f1c46c" stroke-width="2" stroke-linecap="round"/></svg>`},
+ water:{n:'물',svg:`<svg viewBox="0 0 64 64"><defs><linearGradient id="water3d"><stop stop-color="#bdeeff"/><stop offset="1" stop-color="#3d9fe1"/></linearGradient></defs><ellipse cx="32" cy="58" rx="17" ry="4" fill="#8dbbce" opacity=".25"/><path d="M19 13h26l-3 41Q32 59 22 54Z" fill="#e9f9ff" stroke="#80bce6" stroke-width="2.5"/><path d="M21 31Q32 28 43 31l-2 21Q32 56 23 52Z" fill="url(#water3d)"/><path d="M25 18v30" stroke="white" stroke-width="3" opacity=".75" stroke-linecap="round"/><path d="M46 9q-5 7 0 10q5-3 0-10" fill="#66c9f5"/></svg>`},
+ yeast:{n:'효모',svg:`<svg viewBox="0 0 64 64"><defs><linearGradient id="yeast3d"><stop stop-color="#fff8d9"/><stop offset="1" stop-color="#e8bb65"/></linearGradient></defs><ellipse cx="32" cy="58" rx="19" ry="4" fill="#bda06c" opacity=".25"/><rect x="17" y="16" width="30" height="40" rx="8" fill="url(#yeast3d)" stroke="#c69a4b" stroke-width="2"/><rect x="15" y="10" width="34" height="12" rx="5" fill="#e7b44d" stroke="#c69a4b" stroke-width="2"/><rect x="21" y="27" width="22" height="22" rx="7" fill="#fffaf0"/><circle cx="28" cy="35" r="2.1" fill="#9e7a39"/><circle cx="37" cy="35" r="2.1" fill="#9e7a39"/><path d="M28 41q4 5 9 0" fill="none" stroke="#b88b49" stroke-width="2" stroke-linecap="round"/><path d="M22 12h18" stroke="#fff2bd" stroke-width="2" stroke-linecap="round"/></svg>`},
+
+};
+const CAN_SVG='<svg viewBox="0 0 90 70"><path d="M20 22h38v36a6 6 0 0 1-6 6H26a6 6 0 0 1-6-6z" fill="#4fa3d9" stroke="#bfe3ff" stroke-width="2.5"/><path d="M58 30l24-14 3 5-22 17" fill="#4fa3d9" stroke="#bfe3ff" stroke-width="2.5"/><circle cx="84" cy="17" r="5" fill="#bfe3ff"/><path d="M22 22q17-22 34 0" fill="none" stroke="#bfe3ff" stroke-width="4"/></svg>';
+const SEED_SVG='<svg viewBox="0 0 40 40"><path d="M8 12h24l-2 24H10z" fill="#c89a5a" stroke="#7a5532" stroke-width="2"/><path d="M8 12l4-6h16l4 6" fill="#e0b878" stroke="#7a5532" stroke-width="2"/><g fill="#5b3b22"><ellipse cx="17" cy="24" rx="2.4" ry="3.2"/><ellipse cx="24" cy="27" rx="2.4" ry="3.2"/></g></svg>';
+function plantSVG(p,st){
+ const soil='<ellipse cx="50" cy="98" rx="42" ry="9" fill="#2e1d0f"/>';
+ if(!p||!st)return `<svg viewBox="0 0 100 110">${soil}</svg>`;
+ if(st===1)return `<svg viewBox="0 0 100 110">${soil}<path d="M50 96v-14" stroke="#4caf50" stroke-width="3"/><path d="M50 86q-10-8-14-2q8 6 14 2zM50 84q10-10 15-3q-8 6-15 3z" fill="#6fd16f"/></svg>`;
+ const leaf=p.r?'#3fb65a':'#a7ac3c';
+ const spots=p.r?'':'<g fill="#6b3c12"><circle cx="30" cy="70" r="2.8"/><circle cx="70" cy="60" r="2.4"/><circle cx="33" cy="47" r="2.2"/><circle cx="68" cy="38" r="2.2"/><circle cx="26" cy="72" r="1.6"/></g>';
+ const fc=['#f6b26b','#ef6b4f','#d0213b'][p.q-1];
+ const pos=[[42,30],[60,26],[36,52],[64,50],[50,40]];
+ const fruits=pos.slice(0,p.y).map(([x,y])=>`<circle cx="${x}" cy="${y}" r="7" fill="${fc}" stroke="#6e1515" stroke-width="1"/><circle cx="${x-2.4}" cy="${y-2.4}" r="2" fill="#fff" opacity=".6"/>`).join('');
+ return `<svg viewBox="0 0 100 110">${soil}<path d="M50 96V18" stroke="#3d8b40" stroke-width="3.5"/><g fill="${leaf}"><path d="M50 78q-24-10-28 3q15 8 28-3z"/><path d="M50 66q24-12 29 1q-15 9-29-1z"/><path d="M50 52q-22-10-26 1q13 8 26-1z"/><path d="M50 42q20-10 24 1q-12 7-24-1z"/></g>${spots}${fruits}</svg>`;
+}
+STAGES.push({
+ icon:'🍞',short:'발효 기술과 품종 개량',title:'생명 기술의 시작 — 발효 기술과 품종 개량',era:'고대',eraLabel:'농사를 짓기 시작한\n아주 먼 옛날',yearNum:-6000,yearText:'아주 먼 옛날',yearShort:'고대',
+ story:'사람들이 한곳에 머물며 농사를 짓고 가축을 기르기 시작했어요. 그런데 빵은 딱딱하고 금방 상했고, 작물은 수확량이 적거나 병에 잘 걸렸지요.<br><br>어떻게 하면 <b>음식을 더 맛있고 다양하게</b> 만들고, <b>더 많고 품질 좋은 농작물</b>을 얻을 수 있을까요?',
+ goal:'발효 기술과 품종 개량을 통해 인간이 더 많은 양의 고품질 농축산물을 생산할 수 있게 되었음을 이해한다.',
+ steps:[
+ {title:'발효 실험실',inst:'재료를 끌어 두 그릇에 넣고, 반죽을 섞은 뒤 발효 조건을 정해 보세요. <b>A에는 효모를 넣고, B에는 넣지 않아요.</b>',note:'※ 발효 과정을 학습용으로 단순화한 모형이에요. 실제 발효 속도는 재료와 환경에 따라 달라요.',run(W,done){
+  const cont={A:new Set(),B:new Set()},mix={A:0,B:0};let phase='add',finished=false;
+  const box=h('div',{class:'fb'});
+  const mk=X=>{const doughE=h('div',{class:'dough'}),lab=h('div',{class:'mixlab'}),bub=h('div',{class:'bubbles'});const bowl=h('div',{class:'bowl'},doughE,bub,lab);const tags=h('div',{class:'btags'});const w=h('div',{class:'bowl-wrap'},h('div',{class:'bowl-title'},X==='A'?'A 반죽 (효모 넣기)':'B 반죽 (효모 없이, 비교용)'),h('span',{class:'mini-scenery'},'🌾'),h('span',{class:'mini-scenery right'},X==='A'?'🍞':'🥐'),bowl,tags);return{w,bowl,doughE,lab,tags,bub};};
+  const BW={A:mk('A'),B:mk('B')};
+  const shelf=h('div',{class:'panel shelf'},h('h4',{},'🧺 미니 베이커리'),h('div',{class:'tiny'},'밀가루와 소금은 미리 섞여 있어요.'));
+  Object.entries(ING).forEach(([k,v])=>{const t=h('div',{class:'ing'},h('div',{class:'ing-ic',html:v.svg}),h('span',{},v.n));shelf.append(t);draggable(t,{targets:()=>[BW.A.bowl,BW.B.bowl],drop:tg=>addIng(k,tg===BW.A.bowl?'A':'B')});});
+  function paint(X){const c=cont[X],b=BW[X];b.tags.innerHTML='';['flour','water','yeast'].forEach(k=>{if(c.has(k))b.tags.append(h('span',{class:'tag'},ING[k].n));});let ht=0;if(c.has('flour'))ht=16;if(c.has('water'))ht=26;if(mix[X]<100){b.doughE.style.height=ht+'px';b.doughE.classList.toggle('lumpy',ht>0);b.doughE.classList.toggle('wet',c.has('water'));}}
+  function addIng(k,X){
+   const c=cont[X];
+   if(phase!=='add'){fb(box,'info','재료는 이미 다 넣었어요. 이제 다음 단계를 진행하세요.');return false;}
+   if(c.has(k)){fb(box,'info',`${X} 그릇에는 이미 ${ING[k].n}을(를) 넣었어요.`);return false;}
+   if(k!=='flour'&&!c.has('flour')){fb(box,'bad','먼저 <b>밀가루 + 소금</b>을 넣어 주세요.');return false;}
+   if(k==='yeast'&&X==='B'){fb(box,'bad','B는 <b>효모를 넣지 않은 비교용 반죽</b>이에요. 효모가 있을 때와 없을 때를 비교하려면 B에는 효모를 넣지 않아야 해요.');return false;}
+   if(k==='yeast'&&!c.has('water')){fb(box,'bad','효모는 밀가루 + 소금과 <b>물</b>을 넣은 다음에 넣어요. 효모가 활동하려면 물이 필요해요.');return false;}
+   c.add(k);paint(X);
+   const need=['flour','water','yeast'].every(x=>cont.A.has(x))&&['flour','water'].every(x=>cont.B.has(x));
+   if(need){phase='mix';['A','B'].forEach(x=>{BW[x].bowl.classList.add('mixready');BW[x].lab.textContent='섞기 0%';});fb(box,'info','🥄 재료를 모두 넣었어요! 이제 각 그릇 위에서 <b>마우스를 누른 채 빙글빙글 움직여</b> 반죽을 섞으세요.');}
+   else fb(box,'ok',`${X} 그릇에 ${ING[k].n}을(를) 넣었어요.`);
+   return true;}
+  ['A','B'].forEach(X=>{const b=BW[X];b.bowl.addEventListener('pointerdown',e=>{
+   if(phase==='obs'){observe(X);return;}
+   if(phase!=='mix'||mix[X]>=100)return;e.preventDefault();b.bowl.setPointerCapture(e.pointerId);let lx=e.clientX,ly=e.clientY;b.bowl.classList.add('mixing');
+   const end=()=>{b.bowl.removeEventListener('pointermove',mv);b.bowl.removeEventListener('pointerup',end);b.bowl.classList.remove('mixing');};
+   const mv=ev=>{const d=Math.hypot(ev.clientX-lx,ev.clientY-ly);lx=ev.clientX;ly=ev.clientY;mix[X]=Math.min(100,mix[X]+d/15);b.lab.textContent=`섞기 ${Math.round(mix[X])}%`;b.doughE.style.transform=`translateX(-50%) rotate(${Math.sin(mix[X]/3)*7}deg)`;
+    if(mix[X]>=100){end();b.doughE.style.transform='translateX(-50%)';b.doughE.classList.remove('lumpy','wet');b.doughE.style.height='30px';b.lab.textContent='섞기 완료 ✔';b.bowl.classList.remove('mixready');SFX.ok();
+     if(mix.A>=100&&mix.B>=100){phase='cond';[temp,time].forEach(x=>x.disabled=false);go.disabled=false;fb(box,'info','🌡️ 반죽이 완성됐어요! 오른쪽에서 <b>발효 온도와 시간</b>을 정한 뒤 <b>발효 진행</b>을 누르세요.');}}};
+   b.bowl.addEventListener('pointermove',mv);b.bowl.addEventListener('pointerup',end);});});
+  const temp=h('input',{type:'range',min:5,max:60,step:1,value:12,disabled:true}),time=h('input',{type:'range',min:0.5,max:3,step:0.5,value:0.5,disabled:true});
+  const tv=h('b',{},'12℃'),hv=h('b',{},'0.5시간');temp.oninput=()=>tv.textContent=temp.value+'℃';time.oninput=()=>hv.textContent=time.value+'시간';
+  const clock=h('div',{class:'clock'});
+  const go=h('button',{class:'btn',disabled:true,onclick:ferment},'🔥 발효 진행');
+  const ctrl=h('div',{class:'panel ctrl'},h('h4',{},'⚙️ 발효 조건 설정'),h('div',{style:'padding:10px 12px;margin:8px 0 12px;border-radius:12px;background:#e9f8ee;border:1px solid #a5d9b8;color:#175c3b;font-size:13px;line-height:1.55'},h('div',{},h('b',{},'🌡️ 효모 발효 권장 온도: 30~35℃'),h('div',{},'⏱️ 권장 시간: 1~2시간'),h('div',{style:'font-size:12px;margin-top:6px'},'너무 차가우면 발효가 느리고, 너무 뜨거우면 효모가 손상될 수 있어요. 높은 온도에서 오래 두면 과발효가 될 수도 있어요.'))),h('label',{class:'sl'},h('span',{},'온도 ',tv),temp),h('label',{class:'sl'},h('span',{},'시간 ',hv),time),go,clock);
+  async function ferment(){
+   go.disabled=true;temp.disabled=time.disabled=true;
+   const T=+temp.value,H=+time.value;const res=T>=50?'dead':(T>=36&&H>=2)?'over':T>40?'hot':T<30?'cold':T>35?'warm':H<1?'short':H>2?'over':'good';
+   const hA={good:86,short:44,cold:37,warm:65,hot:39,dead:30,over:46}[res];
+   ['A','B'].forEach(x=>{BW[x].doughE.classList.add('slow');BW[x].doughE.style.height='30px';BW[x].doughE.style.width='150px';BW[x].bub.innerHTML='';});
+   await sleep(60);
+   BW.A.doughE.style.height=hA+'px';BW.A.doughE.style.width=(150+(hA-30)*.55)+'px';BW.B.doughE.style.height='31px';if(res==='over'){BW.A.doughE.style.height='88px';await sleep(750);BW.A.doughE.style.height='46px';}
+   if(res==='good'||res==='short'||res==='over'||res==='warm'){const n=res==='good'?12:res==='over'?18:res==='warm'?8:4;for(let i=0;i<n;i++)BW.A.bub.append(h('span',{class:'bub',style:`left:${Math.random()*90}%;animation-delay:${Math.random()*1.6}s`}));}
+   let s=0;const iv=setInterval(()=>{s++;clock.textContent=`⏳ 발효 중… (${(H*s/10).toFixed(1)}시간 경과를 빠르게 보는 중)`;if(s>=10)clearInterval(iv);},280);
+   await sleep(3000);
+   ['A','B'].forEach(x=>BW[x].doughE.classList.remove('slow'));
+   clock.textContent=`⏱️ ${T}℃에서 ${H}시간 발효 완료`;
+   if(res==='good'){phase='obs';BW.A.bowl.classList.add('pick');BW.B.bowl.classList.add('pick');fb(box,'info','👀 두 반죽을 비교해 보세요. <b>더 크게 부풀어 오른 반죽</b>을 클릭하세요!');}
+   else{fb(box,'bad',{cold:'온도가 낮아 발효가 느리게 진행됐어요. <b>권장 온도 30~35℃</b>로 조절해 보세요.',warm:'발효가 진행되지만 이 게임의 권장 범위보다 높아요. <b>30~35℃</b>로 조절해 보세요.',hot:'너무 높은 온도에서는 효모의 활동이 약해지거나 손상될 수 있어요. <b>30~35℃</b>로 낮춰 보세요.',dead:'고온으로 효모가 크게 손상되어 반죽이 거의 부풀지 않았어요. <b>50℃ 이상은 피하고 30~35℃</b>로 조절해 보세요.',over:'⚠️ <b>과발효!</b> 반죽이 지나치게 발효되면 구조가 약해져 부풀었던 반죽이 꺼질 수 있어요. 온도는 <b>30~35℃</b>, 시간은 <b>1~2시간</b>으로 조절해 보세요.',short:'반죽이 조금밖에 부풀지 않았어요. 발효 시간을 <b>1~2시간</b>으로 늘려 보세요.'}[res]+' 조건을 바꾸어 다시 발효해 보세요.');go.disabled=false;temp.disabled=time.disabled=false;}
+  }
+  function observe(X){if(finished)return;
+   if(X==='A'){finished=true;BW.A.bowl.classList.remove('pick');BW.B.bowl.classList.remove('pick');fb(box,'ok','정답! 효모를 넣은 A 반죽만 크게 부풀었어요. <b>효모(미생물)</b>가 반죽 속 당분을 분해하면서 <b>이산화 탄소 기체</b>를 만들어 반죽이 부푼 거예요. 이처럼 미생물의 활동을 이용해 식품을 만드는 것이 <b>발효</b>예요. 빵, 김치, 된장, 요구르트도 발효 식품이에요.');done();}
+   else fb(box,'bad','B 반죽은 효모가 없어서 거의 그대로예요. 효모를 넣은 반죽과 다시 비교해 보세요.');}
+  W.append(h('div',{class:'s1a'},shelf,h('div',{},h('div',{class:'bowls'},BW.A.w,BW.B.w),box),ctrl));
+ }},
+ {title:'품종 개량 농장',inst:'씨앗 심기 → 물 주기 → 수확·조사 → <b>우수한 개체 2그루 고르기</b>를 여러 세대 반복해 보세요. 한 번에 완성되지 않아요!',note:'※ 품종 개량을 학습용으로 단순화한 모형이에요. 실제 품종 개량은 훨씬 오랜 세월과 많은 세대가 걸려요.',run(W,done){
+  const TYPES=[{n:'수확량 적은 작물',y:1,r:false,q:2},{n:'수확량 많은 작물',y:4,r:false,q:1},{n:'병에 강한 작물',y:2,r:true,q:1},{n:'품질 좋은 작물',y:2,r:false,q:3}];
+  const good=p=>p.y>=4&&p.r;
+  let gen=1,phase='plant',plots=Array(8).fill(null),next=null,water=0,hist=[],sel=[];
+  const box=h('div',{class:'fb'});
+  const field=h('div',{class:'field'});
+  const plotEls=[...Array(8)].map((_,i)=>{const e=h('div',{class:'plot'});e.dataset.st=0;e.onclick=()=>clickPlot(i);field.append(e);return e;});
+  const seeds=h('div',{class:'seeds'});
+  const can=h('div',{class:'can',html:CAN_SVG});
+  const wbar=h('i');const genLab=h('div',{class:'gen'});const chart=h('div',{class:'gchart'});
+  const nextBtn=h('button',{class:'btn',disabled:true,onclick:nextGen},'🌱 고른 개체로 다음 세대 기르기');
+  const side=h('div',{class:'panel farm-side'},genLab,h('div',{class:'goal-t',html:'🎯 <b>목표</b>: 열매가 4개 이상이면서 병에 강한 작물이 밭의 <b>5그루 이상</b>인 세대 만들기'}),h('h4',{},'① 씨앗 봉투 (밭으로 끌기)'),seeds,h('h4',{},'② 물뿌리개 (밭 위에서 움직이기)'),h('div',{class:'row',style:'flex-wrap:nowrap'},can,h('div',{class:'meter'},wbar)),h('h4',{},'세대별 우수 개체 수'),chart);
+  W.append(h('div',{class:'s1b'},side,h('div',{},field,h('div',{class:'row',style:'margin-top:10px'},nextBtn,h('span',{class:'tiny'},'열매 수 · 병 저항성(잎의 반점) · 품질(열매 색)을 비교해 보세요.')),box)));
+  function render(i){const p=plots[i],e=plotEls[i];e.innerHTML=plantSVG(p,+e.dataset.st);if(p&&e.dataset.rev)e.append(h('div',{class:'ptag',html:`열매 ${p.y}개<br>${p.r?'<span class="g">병에 강함</span>':'<span class="r">병에 약함</span>'}<br><span class="st">${'★'.repeat(p.q)}${'☆'.repeat(3-p.q)}</span>`}));e.classList.toggle('sel',sel.includes(i));e.classList.toggle('best',!!(p&&e.dataset.rev&&good(p)));}
+  const renderAll=()=>plotEls.forEach((_,i)=>render(i));
+  function drawChart(){chart.innerHTML='';hist.forEach((c,i)=>chart.append(h('div',{class:'gbar'},h('b',{},c),h('i',{style:`height:${c/8*70}%`}),h('span',{},`${i+1}세대`))));}
+  function updGen(){genLab.textContent=`🌾 ${gen}세대 농장`;}
+  function setupSeeds(){seeds.innerHTML='';
+   const list=gen===1?TYPES.map(t=>({label:t.n,make:()=>[{...t},{...t}]})):[{label:`${gen-1}세대에서 고른 부모의 씨앗`,make:()=>next}];
+   list.forEach(sd=>{const bag=h('div',{class:'seedbag'},h('span',{html:SEED_SVG}),h('span',{},sd.label));seeds.append(bag);draggable(bag,{targets:()=>[field],drop:()=>{
+    if(phase!=='plant')return false;
+    const ps=sd.make();ps.forEach(p=>{const k=plots.findIndex(x=>!x);if(k>=0){plots[k]=p;plotEls[k].dataset.st=1;render(k);}});
+    bag.remove();
+    if(plots.every(Boolean)){phase='water';fb(box,'info','💧 씨앗을 모두 심었어요! <b>물뿌리개를 끌어 밭 위에서 이리저리 움직이며</b> 물을 주세요.');}
+    else fb(box,'ok','씨앗을 심었어요! 나머지 씨앗 봉투도 밭으로 끌어 심어 주세요.');
+    return true;}});});}
+  can.addEventListener('pointerdown',e=>{
+   if(phase!=='water'){fb(box,'info',phase==='plant'?'먼저 씨앗을 밭에 심어 주세요.':'지금은 물을 줄 단계가 아니에요.');return;}
+   e.preventDefault();can.setPointerCapture(e.pointerId);const sx=e.clientX,sy=e.clientY;let lx=sx,ly=sy,cnt=0;can.classList.add('pour');
+   const finish=()=>{can.removeEventListener('pointermove',mv);can.removeEventListener('pointerup',fin);can.classList.remove('pour');can.style.transform='';};
+   const mv=ev=>{can.style.transform=`translate(${ev.clientX-sx}px,${ev.clientY-sy}px) rotate(-25deg)`;const fr=field.getBoundingClientRect();
+    if(ev.clientX>fr.left&&ev.clientX<fr.right&&ev.clientY>fr.top-40&&ev.clientY<fr.bottom){water=Math.min(100,water+Math.hypot(ev.clientX-lx,ev.clientY-ly)/12);wbar.style.width=water+'%';if(++cnt%3===0){const d=h('i',{class:'drop-w',style:`left:${ev.clientX+30+Math.random()*20}px;top:${ev.clientY+10}px`});document.body.append(d);setTimeout(()=>d.remove(),520);}}
+    lx=ev.clientX;ly=ev.clientY;
+    if(water>=100&&phase==='water'){finish();grow();}};
+   const fin=()=>finish();
+   can.addEventListener('pointermove',mv);can.addEventListener('pointerup',fin);});
+  async function grow(){phase='grow';fb(box,'info','🌱 작물이 자라는 중…');plotEls.forEach((e,i)=>{e.dataset.st=2;e.classList.add('grow');render(i);});await sleep(1300);plotEls.forEach(e=>e.classList.remove('grow'));phase='harvest';fb(box,'info','🧺 다 자랐어요! <b>작물을 하나씩 클릭</b>해 수확하고 특징을 조사하세요.');}
+  function clickPlot(i){
+   const e=plotEls[i];
+   if(phase==='harvest'&&!e.dataset.rev){e.dataset.rev=1;SFX.pick();render(i);if(plotEls.every(x=>x.dataset.rev))afterHarvest();return;}
+   if(phase==='select'){const k=sel.indexOf(i);if(k>=0)sel.splice(k,1);else{sel.push(i);if(sel.length>2)sel.shift();}SFX.pick();renderAll();nextBtn.disabled=sel.length!==2;}
+  }
+  function afterHarvest(){
+   const cnt=plots.filter(good).length;hist.push(cnt);drawChart();renderAll();
+   if(gen>=3&&cnt>=5){phase='done';fb(box,'ok',`🎉 ${gen}세대 만에 열매가 많고 병에 강한 작물이 <b>${cnt}그루</b>가 되었어요! 우수한 개체를 골라 기르는 과정을 <b>여러 세대 반복</b>하면 원하는 형질을 가진 품종을 얻을 수 있어요. 이것이 <b>품종 개량</b>이에요.`);done();return;}
+   phase='select';
+   fb(box,'info',(gen>=3?`우수한 작물이 ${cnt}그루예요. 목표까지 한 세대 더 길러 봐요! `:`${gen}세대 수확 완료! `)+'다음 세대의 부모가 될 <b>우수한 개체 2그루</b>를 클릭해 고르세요.');
+  }
+  function breed(a,b){let kids,tries=0;do{kids=[];for(let i=0;i<8;i++){const pick=(x,y)=>Math.random()<.5?x:y;let y=pick(a.y,b.y)+(Math.random()<.12?-1:Math.random()<.22?1:0);y=Math.max(1,Math.min(5,y));const r=a.r&&b.r?Math.random()<.92:(a.r||b.r)?Math.random()<.5:Math.random()<.03;const q=Math.max(1,Math.min(3,pick(a.q,b.q)+(Math.random()<.15?(Math.random()<.5?-1:1):0)));kids.push({y,r,q});}tries++;}while(kids.filter(good).length<2&&tries<200);return kids;}
+  function nextGen(){
+   const[a,b]=sel.map(i=>plots[i]);const cnt=plots.filter(good).length;let err='';
+   if(cnt>=2&&!(good(a)&&good(b)))err='밭에 <b>열매가 많으면서 병에도 강한</b> 개체가 2그루 이상 있어요. 그런 개체를 부모로 골라야 우수한 형질이 다음 세대로 이어질 가능성이 커요.';
+   else if(cnt===1&&!(good(a)||good(b)))err='열매가 많으면서 병에도 강한 개체가 1그루 있어요. 그 개체를 꼭 부모로 골라 보세요.';
+   else if(cnt===0&&!((a.y>=4||b.y>=4)&&(a.r||b.r)))err='목표는 "열매가 많고 병에 강한 작물"이에요. 두 부모가 <b>열매가 많은 형질</b>과 <b>병에 강한 형질</b>을 함께 가지도록 골라 보세요.';
+   if(err){fb(box,'bad',err);return;}
+   next=breed(a,b);gen++;plots=Array(8).fill(null);sel=[];plotEls.forEach(e=>{e.dataset.st=0;delete e.dataset.rev;});water=0;wbar.style.width='0';phase='plant';nextBtn.disabled=true;
+   setupSeeds();renderAll();updGen();fb(box,'info',`🌱 ${gen}세대 시작! 고른 부모에게서 얻은 씨앗 봉투를 밭으로 끌어 심으세요.`);
+  }
+  setupSeeds();renderAll();updGen();drawChart();
+  fb(box,'info','🌾 네 종류의 씨앗 봉투를 하나씩 밭으로 끌어 심으세요. (봉투 하나에 2그루씩 심어져요)');
+ }}],
+ meaning:'<ul><li><b>발효</b>: 효모, 유산균 같은 <b>미생물의 활동을 이용</b>해 빵, 김치, 된장, 요구르트 등의 식품을 만드는 기술이에요.</li><li><b>품종 개량</b>: 원하는 형질을 가진 생물을 <b>골라 여러 세대에 걸쳐 기르며</b> 농작물과 가축의 특성을 개선하는 기술이에요.</li><li>두 기술은 다르지만, 모두 <b>생명체의 특성과 기능을 이용</b>한 생명 기술이에요.</li><li>그 결과 인간은 <b>더 많은 양의 고품질 농축산물</b>을 생산할 수 있게 되었어요.</li></ul>',
+ quiz:{q:'발효 기술과 품종 개량을 바르게 구분한 것은 무엇일까요?',options:[
+  {t:'발효는 미생물을 이용해 식품을 만들고, 품종 개량은 원하는 형질의 생물을 골라 여러 세대 기르는 기술이다.',ok:true,why:'맞아요! 발효는 미생물의 활동을, 품종 개량은 생물의 형질이 다음 세대로 이어지는 것을 이용해요.'},
+  {t:'발효는 좋은 씨앗을 골라 심는 기술이고, 품종 개량은 효모로 빵을 부풀리는 기술이다.',ok:false,why:'두 기술의 설명이 서로 바뀌었어요. 효모로 빵을 부풀리는 것은 발효예요.'},
+  {t:'두 기술 모두 현미경이 발명된 뒤에야 처음 시작되었다.',ok:false,why:'발효와 품종 개량은 미생물이나 세포의 존재를 알기 훨씬 전, 아주 먼 옛날부터 이용해 온 기술이에요.'}]},
+ success:'생명체의 특성과 기능을 이용하면 식품을 만들고 농축산물의 생산량과 품질을 개선할 수 있어요!',
+ hintEra:'농사를 짓기 시작한 아주 먼 옛날부터 이용해 온 기술이에요.',oneLine:'미생물로 식품을 만들고 좋은 형질을 골라 농작물 개선'
+});
+
+/* ---------- STAGE 2 ---------- */
+function hexPts(cx,cy,R){let p=[];for(let k=0;k<6;k++){const a=(60*k+30)*Math.PI/180;p.push((cx+R*Math.cos(a)).toFixed(1)+','+(cy+R*Math.sin(a)).toFixed(1));}return p.join(' ');}
+function specimenSVG(k){
+ if(k==='cork'){let s='';for(let r=0;r<12;r++)for(let c=0;c<13;c++){const x=c*48+(r%2?24:0),y=r*42;s+=`<g class="obj" data-kind="cell"><polygon points="${hexPts(x,y,25)}" fill="#e2b47c" stroke="#7a4d22" stroke-width="5"/></g>`;}return `<svg viewBox="0 0 600 600"><rect width="600" height="600" fill="#c9965c"/>${s}</svg>`;}
+ if(k==='onion'){let s='';for(let r=0;r<14;r++)for(let c=0;c<7;c++){const x=c*96+(r%2?-48:0),y=r*44;s+=`<g class="obj" data-kind="cell"><rect x="${x}" y="${y}" width="94" height="42" fill="#f4e6f8" stroke="#9b6fb0" stroke-width="4"/><circle cx="${x+30+(c*13+r*7)%40}" cy="${y+21}" r="6" fill="#8a4fb0" stroke="#5c2f7a" stroke-width="1"/></g>`;}return `<svg viewBox="0 0 600 600"><rect width="600" height="600" fill="#eadcf0"/>${s}</svg>`;}
+ const R=rng(5);let s='';
+ for(let i=0;i<14;i++){const x=R()*600,y=R()*600;s+=`<path d="M${x} ${y}l${8+R()*10} ${4+R()*6}l-${4+R()*6} ${8+R()*6}z" fill="#9db7a5" opacity=".6"/>`;}
+ const mic=[[150,170],[380,140],[260,330],[460,380],[140,430],[330,500],[500,230]];
+ mic.forEach(([x,y],i)=>{const rot=(i*47)%180;s+=`<g class="obj swim" data-kind="microbe" style="animation-delay:-${i*1.3}s"><g transform="translate(${x} ${y}) rotate(${rot})"><ellipse rx="44" ry="18" fill="#a8e6c5" stroke="#2f7d58" stroke-width="3"/>${[...Array(14)].map((_,j)=>{const a=j/14*Math.PI*2;return `<line x1="${(Math.cos(a)*44).toFixed(1)}" y1="${(Math.sin(a)*18).toFixed(1)}" x2="${(Math.cos(a)*52).toFixed(1)}" y2="${(Math.sin(a)*24).toFixed(1)}" stroke="#2f7d58" stroke-width="2"/>`;}).join('')}<circle cx="-8" cy="0" r="7" fill="#4f9f7a"/><circle cx="18" cy="-4" r="4" fill="#d8fff0" stroke="#2f7d58"/><circle cx="-26" cy="4" r="3.5" fill="#d8fff0" stroke="#2f7d58"/></g></g>`;});
+ return `<svg viewBox="0 0 600 600"><rect width="600" height="600" fill="#d7f1e3"/>${s}</svg>`;
+}
+const SCOPE_SVG='<svg viewBox="0 0 220 312"><defs><linearGradient id="mg" x1="0" x2="1"><stop offset="0" stop-color="#6d87a8"/><stop offset=".5" stop-color="#d3e0f0"/><stop offset="1" stop-color="#5d7696"/></linearGradient></defs><rect x="30" y="284" width="160" height="22" rx="8" fill="url(#mg)"/><path d="M150 282C196 236 196 118 150 74" stroke="url(#mg)" stroke-width="24" fill="none" stroke-linecap="round"/><rect x="62" y="18" width="34" height="104" rx="6" fill="url(#mg)"/><rect x="66" y="2" width="26" height="22" rx="4" fill="#2b3d55"/><rect x="70" y="120" width="18" height="30" rx="3" fill="#9aa9bd"/><rect x="72" y="146" width="14" height="10" rx="2" fill="#5d7696"/><rect x="18" y="166" width="140" height="12" rx="3" fill="#2b3d55"/><rect x="70" y="178" width="18" height="60" fill="url(#mg)"/><circle id="lamp" cx="79" cy="250" r="15" fill="#ffd56b"/><circle cx="79" cy="250" r="15" fill="none" stroke="#c9d6e6" stroke-width="3"/></svg>';
+STAGES.push({
+ icon:'🔬',short:'현미경과 세포·미생물의 발견',title:'보이지 않는 세계 — 현미경과 세포·미생물',era:'17세기',eraLabel:'1600년대 유럽',yearNum:1665,yearText:'1665년',yearShort:'17세기',
+ story:'17세기 사람들은 렌즈를 이용해 작은 것을 크게 보는 <b>현미경</b>을 발전시켰어요. 맨눈으로 보면 아무것도 없는 코르크 조각이나 연못물 속에는 무엇이 숨어 있을까요?<br><br>현미경을 직접 조작해 <b>보이지 않던 세계</b>를 탐험해 보세요!',
+ goal:'17세기 현미경의 발달로 세포와 미생물의 존재를 관찰하게 되었음을 이해한다.',
+ steps:[{title:'현미경 연구실',inst:'① 표본을 재물대로 끌어 올리고 ② 조명을 밝히고 ③ 배율을 고른 뒤 ④ <b>초점 조절 손잡이를 마우스로 돌려</b> 선명하게 맞추세요. 그다음 관찰 대상을 클릭해 기록해요. <b>세포와 미생물을 각각 1번 이상</b> 기록해야 해요.',note:'※ 현미경 관찰을 학습용으로 단순화한 모형이에요. 실제 표본의 모습과 크기는 다를 수 있어요.',run(W,done){
+  const SPEC={cork:{n:'코르크 조각',kind:'cell',c:'#c58a4a'},onion:{n:'양파 표피',kind:'cell',c:'#d9b8e6'},pond:{n:'연못물 한 방울',kind:'microbe',c:'#7fc8a9'}};
+  let cur=null,light=15,mag=40,focus=0,target=0,knobRot=0,rec={},finished=false,picked=false;
+  const box=h('div',{class:'fb'});
+  const tray=h('div',{class:'panel tray'},h('h4',{},'🧫 표본 상자'));
+  const scope=h('div',{class:'scope',html:SCOPE_SVG});const zone=h('div',{class:'stagezone'});const knob=h('div',{class:'knob',title:'초점 조절 손잡이: 누른 채 돌리세요'});
+  scope.append(zone,knob,h('div',{class:'knob-lab'},'↻ 초점 손잡이'));
+  Object.entries(SPEC).forEach(([k,v])=>{const sl=h('div',{class:'slide'},h('i',{style:`background:${v.c}`}),v.n);tray.append(sl);draggable(sl,{targets:()=>[zone],drop:()=>{load(k);return true;}});});
+  const inner=h('div',{class:'inner'});const view=h('div',{class:'mview empty'},inner);const vstat=h('div',{class:'vstat'},'재물대에 표본을 올려 주세요.');
+  const lightIn=h('input',{type:'range',min:0,max:100,value:light});lightIn.oninput=()=>{light=+lightIn.value;apply();};
+  const mags=[40,100,400].map(m=>{const b=h('button',{onclick:()=>{mag=m;mags.forEach(x=>x.classList.toggle('on',x===b));apply();SFX.pick();}},m+'배');if(m===mag)b.classList.add('on');return b;});
+  const nb=h('div',{class:'nb-list'},h('div',{class:'nb-empty'},'아직 기록이 없어요.'));const nbChoice=h('div');
+  const notebook=h('div',{class:'notebook'},h('h4',{},'📓 관찰 기록장'),h('div',{class:'nb-guide',html:'🧱 <b>세포</b>: 벽으로 나뉜 작은 방 모양<br>🦠 <b>미생물</b>: 물속에서 움직이는 작은 생물'}),h('div',{class:'nb-entry',style:'color:#6b4b1f'},'목표: 세포 □  미생물 □'),nb,nbChoice);
+  const goalLine=notebook.children[2];
+  W.append(h('div',{class:'s2'},tray,scope,h('div',{class:'viewcol'},view,vstat,h('div',{class:'lightrow'},'💡 조명',lightIn),h('div',{class:'row'},h('b',{},'🔍 배율'),h('div',{class:'magbtns'},mags))),h('div',{},notebook,box)));
+  const blur=()=>Math.min(14,Math.abs(focus-target)/30);let trend='';
+  const clear=()=>cur&&light>=40&&blur()<=1.2;
+  function load(k){cur=k;focus=0;target=(Math.random()<.5?1:-1)*(170+Math.random()*200);trend='';inner.innerHTML=specimenSVG(k);view.classList.remove('empty');zone.innerHTML='';zone.append(h('div',{class:'slide'},h('i',{style:`background:${SPEC[k].c}`}),SPEC[k].n));nbChoice.innerHTML='';picked=false;apply();fb(box,'info',`${SPEC[k].n} 표본을 올렸어요. 조명·배율·초점을 조절해 보세요.`);}
+  function apply(){const lamp=scope.querySelector('#lamp');if(lamp)lamp.style.opacity=(.2+light/100*.8).toFixed(2);
+   if(!cur){vstat.textContent='재물대에 표본을 올려 주세요.';return;}
+   const b=blur(),br=.12+light/100;inner.style.filter=`blur(${b.toFixed(1)}px) brightness(${br.toFixed(2)})`;inner.style.transform=`scale(${{40:.52,100:1,400:1.9}[mag]})`;
+   vstat.textContent=light<40?'💡 너무 어두워요. 조명을 밝게 해 보세요.':b>3?(trend==='worse'?'🌫️ 점점 흐려져요. 반대 방향으로 돌려 보세요.':trend==='better'?'🌫️ 점점 선명해지고 있어요. 계속 돌려 보세요!':'🌫️ 흐려요. 초점 손잡이를 돌려 보세요.'):b>1.2?'🔍 거의 선명해요! 아주 조금만 더!':(mag===40?'✨ 선명해요! 배율을 높이면 더 자세히 보여요.':'✨ 선명해요! 관찰 대상을 클릭하세요.');}
+  knob.addEventListener('pointerdown',e=>{if(!cur){fb(box,'info','먼저 표본을 재물대에 올려 주세요.');return;}e.preventDefault();knob.setPointerCapture(e.pointerId);const r=knob.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let la=Math.atan2(e.clientY-cy,e.clientX-cx);
+   const mv=ev=>{const a=Math.atan2(ev.clientY-cy,ev.clientX-cx);let d=(a-la)*180/Math.PI;if(d>180)d-=360;if(d<-180)d+=360;la=a;const b0=Math.abs(focus-target);focus+=d;knobRot+=d;const b1=Math.abs(focus-target);if(Math.abs(d)>.5)trend=b1>b0?'worse':'better';knob.style.transform=`rotate(${knobRot}deg)`;apply();};
+   const up=()=>{knob.removeEventListener('pointermove',mv);knob.removeEventListener('pointerup',up);};knob.addEventListener('pointermove',mv);knob.addEventListener('pointerup',up);});
+  view.addEventListener('click',e=>{if(finished||!cur)return;const o=e.target.closest('.obj');
+   if(light<40)return fb(box,'info','너무 어두워 잘 보이지 않아요. 조명을 밝게 조절하세요.');
+   if(!clear())return fb(box,'info','화면이 흐려 관찰 대상을 알아볼 수 없어요. 초점 조절 손잡이를 돌려 선명하게 맞춰 보세요.');
+   if(mag===40)return fb(box,'info','40배에서는 너무 작게 보여요. 배율을 100배 이상으로 높여 보세요.');
+   if(!o)return fb(box,'info','관찰 대상(작은 방 모양 또는 움직이는 생물)을 정확히 클릭해 보세요.');
+   $$('.obj.pick',view).forEach(x=>x.classList.remove('pick'));o.classList.add('pick');picked=true;SFX.pick();
+   nbChoice.innerHTML='';nbChoice.append(h('div',{class:'nb-choice'},h('div',{style:'font-weight:800;margin-bottom:6px'},`선택한 대상 (${SPEC[cur].n}, ${mag}배)은 무엇일까요?`),h('div',{class:'nb-opts'},h('button',{class:'nb-opt',onclick:()=>choose('cell')},h('b',{},'🧱 세포'),h('span',{},'작은 방들이 벽으로 나뉘어 줄지어 있어요. 움직이지 않아요.')),h('button',{class:'nb-opt',onclick:()=>choose('microbe')},h('b',{},'🦠 미생물'),h('span',{},'물속을 헤엄치는 아주 작은 생물이에요. 혼자 움직여요.')))));});
+  function choose(kind){if(!picked||finished)return;const real=SPEC[cur].kind;
+   if(kind!==real){fb(box,'bad',real==='cell'?'다시 살펴보세요. 이 대상은 스스로 움직이지 않고, 벽으로 나뉜 <b>작은 방</b>들이 규칙적으로 이어져 있어요. 생물의 몸을 이루는 이 기본 단위는 무엇일까요?':'다시 살펴보세요. 이 대상은 물속을 헤엄치듯 <b>스스로 움직이는 하나의 아주 작은 생물</b>이에요. 눈에 보이지 않을 만큼 작은 생물을 무엇이라고 할까요?');return;}
+   if(!rec.cell&&!rec.microbe)nb.innerHTML='';
+   rec[kind]=true;nb.append(h('div',{class:'nb-entry'},`✔ ${kind==='cell'?'세포':'미생물'} — ${SPEC[cur].n} (${mag}배)`));nbChoice.innerHTML='';picked=false;
+   goalLine.textContent=`목표: 세포 ${rec.cell?'☑':'□'}  미생물 ${rec.microbe?'☑':'□'}`;
+   const msg=kind==='cell'?(cur==='cork'?'기록 완료! 벽으로 나뉜 작은 방들이 보여요. 1665년 <b>훅</b>은 코르크에서 이런 작은 방을 보고 <b>세포(cell)</b>라고 이름 붙였어요.':'기록 완료! 양파 표피도 작은 방 모양의 <b>세포</b>들로 이루어져 있어요. 세포는 생물의 몸을 이루는 기본 단위예요.'):'기록 완료! 물속에서 스스로 움직이는 아주 작은 생물, <b>미생물</b>이에요. <b>레이우엔훅</b>은 직접 만든 현미경으로 이런 미생물을 관찰해 세상에 알렸어요.';
+   if(rec.cell&&rec.microbe){finished=true;fb(box,'ok',msg+'<br>🎉 세포와 미생물을 모두 관찰하고 기록했어요!');done();}
+   else fb(box,'ok',msg+(rec.cell?' 이제 <b>미생물</b>도 찾아 기록해 보세요.':' 이제 <b>세포</b>도 찾아 기록해 보세요.'));}
+  apply();fb(box,'info','표본 상자에서 관찰할 표본을 골라 현미경의 <b>재물대</b>(가운데 검은 판)로 끌어 놓으세요.');
+ }}],
+ meaning:'<ul><li>1665년 <b>훅</b>은 현미경으로 코르크를 관찰하고 작은 방 모양의 구조를 <b>세포</b>라고 불렀어요.</li><li><b>레이우엔훅</b>은 직접 만든 현미경으로 연못물 등에서 <b>미생물</b>을 관찰했어요.</li><li>현미경 덕분에 사람들은 <b>눈에 보이지 않던 세포와 미생물의 존재</b>를 확인할 수 있게 되었어요.</li><li>이 발견은 이후 발효의 원리와 감염병의 원인을 밝히는 연구의 바탕이 되었어요.</li></ul>',
+ quiz:{q:'17세기 현미경의 발달이 가져온 변화로 옳은 것은?',options:[
+  {t:'눈에 보이지 않던 세포와 미생물을 관찰할 수 있게 되었다.',ok:true,why:'맞아요! 현미경은 보이지 않던 작은 세계를 보여 주었어요.'},
+  {t:'DNA의 이중 나선 구조를 직접 관찰할 수 있게 되었다.',ok:false,why:'DNA 이중 나선 구조는 20세기 중반(1953년)에 X선 회절 자료 등을 바탕으로 밝혀졌어요.'},
+  {t:'곧바로 천연두를 예방하는 백신을 만들 수 있게 되었다.',ok:false,why:'우두를 이용한 예방접종법은 18세기 말(1796년)에 개발되었어요. 현미경 관찰과는 다른 사건이에요.'}]},
+ success:'현미경의 발달로 사람들은 눈에 보이지 않던 세포와 미생물의 존재를 확인할 수 있게 되었어요!',
+ hintEra:'17세기(1600년대)의 일이에요.',oneLine:'현미경으로 세포와 미생물의 존재를 확인'
+});
+
+/* ---------- STAGE 3 ---------- */
+const PERSON='<svg viewBox="0 0 20 28"><circle cx="10" cy="7" r="5" fill="currentColor"/><path d="M2 27q0-12 8-12t8 12z" fill="currentColor"/></svg>';
+const SYRINGE='<svg viewBox="0 0 120 46"><rect x="20" y="14" width="64" height="18" rx="3" fill="#e9f6ff" stroke="#8fb8d8" stroke-width="2"/><rect x="24" y="17" width="34" height="12" fill="#ffcf8a"/><rect x="84" y="20" width="8" height="6" fill="#8fb8d8"/><path d="M92 23h24" stroke="#c9d6e6" stroke-width="2"/><rect x="6" y="10" width="6" height="26" rx="2" fill="#8fb8d8"/><rect x="10" y="20" width="12" height="6" fill="#8fb8d8"/></svg>';
+STAGES.push({
+ icon:'💉',short:'백신 개발',title:'질병을 예방하라 — 백신 개발',era:'18세기 말',eraLabel:'1790년대 영국',yearNum:1796,yearText:'1796년',yearShort:'1796년',
+ story:'<b>천연두</b>는 많은 사람의 목숨을 앗아 간 무서운 감염병이었어요. 영국의 의사 <b>제너</b>는 "소에게 생기는 병인 <b>우두</b>를 앓았던 젖 짜는 사람들은 천연두에 잘 걸리지 않는다"는 이야기에 주목했어요.<br><br>이 관찰을 어떻게 감염병 <b>예방</b>에 활용할 수 있을까요?',
+ goal:'18세기 말 우두를 이용한 천연두 예방접종법의 개발과 백신의 예방 목적을 이해한다.',
+ steps:[
+ {title:'관찰 기록 연결하기',inst:'18세기 연구 노트의 관찰 자료와 알맞은 설명을 <b>선으로 연결</b>하세요.',note:'※ 역사적 사실을 학습용으로 간추린 자료예요.',run(W,done){MatchTask(W,{heads:['관찰 자료','설명'],onDone:done,left:[
+  {id:'a',text:'🥛 우두를 앓았던 젖 짜는 사람들',ans:'a',why:'제너가 주목한 소문은 이 사람들이 천연두가 유행할 때 어떤 모습을 보였는지에 관한 것이었어요.'},
+  {id:'b',text:'☠️ 천연두',ans:'b',why:'천연두는 사람에게 심각한 피해를 준 감염병이에요. 우두와는 다른 질병이에요.'},
+  {id:'c',text:'🐄 우두',ans:'c',why:'우두는 소에게 생기는 병으로, 사람에게 옮아도 비교적 가볍게 지나가요.'},
+  {id:'d',text:'👨‍⚕️ 제너 (1796년)',ans:'d',why:'제너는 관찰을 바탕으로 새로운 예방 방법을 시도한 의사예요.'}],right:[
+  {id:'a',text:'천연두가 유행해도 잘 걸리지 않는 것처럼 보였어요.'},
+  {id:'b',text:'많은 사람의 목숨을 앗아 간 무서운 감염병이에요.'},
+  {id:'c',text:'소에게 생기는 병으로, 사람에게는 비교적 가볍게 나타나요.'},
+  {id:'d',text:'우두를 이용한 예방접종법을 시도했어요.'}]});}},
+ {title:'예방접종 과정 배열하기',inst:'우두를 이용한 예방접종법이 만들어진 과정을 <b>순서대로</b> 배열하세요.',note:'※ 역사적 원리를 이해하기 위한 단순화된 순서예요. 실제 의료 행위가 아니에요.',run(W,done){SortTask(W,{vertical:true,onDone:done,items:[
+  {id:'1',text:'우두를 앓은 사람들이 천연두에 잘 걸리지 않는다는 점을 관찰한다.',hint:'모든 연구는 관찰에서 시작돼요.'},
+  {id:'2',text:'우두에 걸린 사람의 물집에서 얻은 물질을 다른 사람에게 접종한다.',hint:'관찰한 뒤, 그 생각을 확인하기 위해 처음으로 한 행동은 무엇일까요?'},
+  {id:'3',text:'접종받은 사람이 우두를 가볍게 앓고 회복한다.',hint:'접종 직후 몸에 나타나는 일을 생각해 보세요.'},
+  {id:'4',text:'이후 천연두에 대한 저항력이 생겼는지 확인한다.',hint:'회복한 다음에 확인해야 할 것은 무엇일까요?'},
+  {id:'5',text:'예방접종법이 널리 퍼져 많은 사람이 천연두를 예방한다.',hint:'효과를 확인한 뒤에 일어난 일이에요.'}]});}},
+ {title:'예방 효과 확인하기',inst:'주사기를 끌어 <b>한 마을에만</b> 예방접종을 하고, 천연두 유행 상황을 시뮬레이션해 두 마을을 비교하세요.',note:'※ 실제 병원체를 다루지 않는 단순화된 확률 모형이에요. 실제 효과는 백신과 질병에 따라 달라요.',run(W,done){
+  let vacc=null;const box=h('div',{class:'fb'});
+  const grp=(id,label)=>{const people=h('div',{class:'people'});for(let i=0;i<24;i++)people.append(h('span',{class:'pp',html:PERSON}));const badge=h('div',{class:'gbadge'},'접종 안 함');const e=h('div',{class:'group panel'},h('h4',{},label),badge,people);e.dataset.id=id;return{e,people,badge};};
+  const G={a:grp('a','🏘️ 마을 ㉮ (24명)'),b:grp('b','🏘️ 마을 ㉯ (24명)')};
+  const syr=h('div',{class:'syringe'},h('span',{html:SYRINGE}),h('span',{},'우두를 이용한 예방접종'));
+  const simBtn=h('button',{class:'btn',disabled:true,onclick:sim},'🦠 천연두 유행 시뮬레이션');
+  const qhost=h('div');
+  draggable(syr,{targets:()=>[G.a.e,G.b.e],drop:t=>{if(vacc)return false;vacc=t.dataset.id;const g=G[vacc];g.e.classList.add('vacc');g.badge.textContent='💉 접종 완료';g.badge.classList.add('on');syr.classList.add('locked','used');simBtn.disabled=false;fb(box,'info','다른 마을은 <b>비교를 위해 접종하지 않은 채로</b> 두어요. 이제 천연두 유행 시뮬레이션을 시작하세요.');return true;}});
+  async function sim(){simBtn.disabled=true;const nv=vacc==='a'?'b':'a';const inf={};inf[vacc]=1+Math.floor(Math.random()*2);inf[nv]=13+Math.floor(Math.random()*3);
+   const order=[];['a','b'].forEach(id=>shuffle([...Array(24).keys()]).slice(0,inf[id]).forEach(i=>order.push([id,i])));
+   fb(box,'info','🦠 천연두가 퍼지고 있어요…');
+   for(const[id,i]of shuffle(order)){if(!alive(tok))return;G[id].people.children[i].classList.add('sick');tone(300+Math.random()*80,.05,'square',.02);await sleep(110);}
+   G[vacc].badge.textContent=`💉 접종 완료 · 감염 ${inf[vacc]}명`;G[nv].badge.textContent=`접종 안 함 · 감염 ${inf[nv]}명`;
+   fb(box,'ok',`접종한 마을은 <b>${inf[vacc]}명</b>, 접종 안 한 마을은 <b>${inf[nv]}명</b>이 감염됐어요. 예방접종을 하면 감염이 크게 줄어요!`);done();}
+  const tok=screenTok;
+  W.append(h('div',{class:'s3c'},h('div',{class:'row',style:'flex-direction:column;align-items:stretch'},syr,simBtn),G.a.e,G.b.e),box,qhost);
+ }}],
+ meaning:'<ul><li>1796년 <b>제너</b>는 우두를 이용해 천연두를 예방하는 <b>예방접종법</b>을 개발했어요. (‘백신’이라는 말은 라틴어로 소를 뜻하는 말에서 유래했어요.)</li><li><b>백신</b>은 병에 걸리기 전에 미리 접종해 우리 몸이 병원체에 대비하도록 돕는 것으로, <b>감염병 예방</b>이 핵심 목적이에요.</li><li>백신은 감염 위험을 크게 줄이지만, 모든 감염을 100% 막는 것은 아니에요.</li><li>예방접종이 널리 퍼진 결과, 1980년 세계 보건 기구(WHO)는 천연두가 사라졌다고 선언했어요.</li></ul>',
+ quiz:{q:'백신의 가장 중요한 목적은 무엇일까요?',options:[
+  {t:'감염병에 걸리기 전에 미리 대비해 감염병을 예방하는 것',ok:true,why:'맞아요! 백신의 핵심은 예방이에요.'},
+  {t:'이미 걸린 세균 감염병을 치료하는 것',ok:false,why:'세균 감염병을 치료하는 약은 페니실린 같은 항생제예요. 백신은 예방이 목적이에요.'},
+  {t:'모든 감염을 100% 완벽하게 막는 것',ok:false,why:'백신은 감염 위험을 크게 낮추지만 100% 막는 것은 아니에요.'}]},
+ success:'백신의 개발은 감염병을 예방하고 많은 생명을 보호하는 데 중요한 역할을 했어요!',
+ hintEra:'18세기 말(1796년)의 일이에요.',oneLine:'우두를 이용한 예방접종으로 감염병 예방'
+});
+
+/* ---------- STAGE 4 ---------- */
+const flower=(c,x,y)=>{const f=c==='p'?'#a259e6':'#f4f6ff',s=c==='p'?'#5f2a9e':'#a9b4c8';return `<g transform="translate(${x} ${y})"><ellipse cx="0" cy="-9" rx="10" ry="12" fill="${f}" stroke="${s}" stroke-width="1.5"/><ellipse cx="-10" cy="4" rx="10" ry="8" fill="${f}" stroke="${s}" stroke-width="1.5"/><ellipse cx="10" cy="4" rx="10" ry="8" fill="${f}" stroke="${s}" stroke-width="1.5"/><circle cx="0" cy="2" r="3.5" fill="#ffd56b"/></g>`;};
+const peaSVG=c=>`<svg viewBox="0 0 80 90"><path d="M40 88V34" stroke="#3c9a4a" stroke-width="3"/><path d="M40 72q-18-6-20 4q12 4 20-4zM40 58q18-8 21 2q-12 5-21-2z" fill="#58c26a"/><path d="M40 48q-10-2-14 4" stroke="#3c9a4a" stroke-width="2" fill="none"/>${flower(c,40,26)}</svg>`;
+const PEA={PP:{n:'순종 보라색 꽃 완두',c:'p'},pp:{n:'순종 흰색 꽃 완두',c:'w'},Pp:{n:'잡종 1대 보라색 꽃 완두',c:'p'}};
+function crossLab(W,done,mode){
+ const avail=mode===1?['PP','pp']:['PP','pp','Pp'];const usable=mode===1?['PP','pp']:['Pp'];const slots=[null,null];let stage='set';
+ const box=h('div',{class:'fb'});
+ const shelf=h('div',{class:'panel peas'},h('h4',{},'🌱 완두 화분'));
+ const sEls=[0,1].map(i=>{const e=h('div',{class:'pslot'},h('span',{},i===0?'부모 ①':'부모 ②'),h('span',{},'여기로 끌어 놓기'));return e;});
+ avail.forEach(k=>{const off=!usable.includes(k);const t=h('div',{class:'pea'+(off?' pea-off':'')},h('span',{html:peaSVG(PEA[k].c)}),h('div',{},PEA[k].n,h('small',{},'유전 요소 '+k),off?h('small',{class:'lockmsg'},'🔒 이번 실험에서는 쓰지 않아요'):null));shelf.append(t);if(off){t.addEventListener('pointerdown',()=>fb(box,'info','이번에는 <b>잡종 1대 완두</b>끼리 교배해요. 순종 완두는 쓸 수 없어요.'));return;}draggable(t,{targets:()=>sEls,drop:tg=>{if(stage!=='set')return false;const i=sEls.indexOf(tg);slots[i]=k;tg.innerHTML='';tg.classList.add('filled');tg.append(h('span',{html:peaSVG(PEA[k].c)}),h('span',{},PEA[k].n));return true;}});});
+ const offs=h('div',{class:'offs'},h('div',{class:'tiny',style:'grid-column:1/-1;align-self:center;text-align:center'},'교배하면 여기에 자손이 나타나요.'));
+ const recHost=h('div');
+ const crossBtn=h('button',{class:'btn',onclick:cross},'🐝 교배하기');
+ W.append(h('div',{class:'s4'},shelf,h('div',{},h('div',{class:'panel'},h('h4',{},'🧪 교배 구역'),h('div',{class:'crossrow'},sEls[0],h('span',{class:'xmark'},'×'),sEls[1],crossBtn)),h('h4',{style:'margin-top:10px'},mode===1?'🌸 자손 (잡종 1대)':'🌸 자손 (잡종 2대)'),offs,recHost,box)));
+ async function cross(){
+  if(stage!=='set')return;
+  if(!slots[0]||!slots[1])return fb(box,'info','부모 ①과 부모 ② 칸에 완두를 모두 놓아 주세요.');
+  const set=[...slots].sort().join(',');
+  if(mode===1){if(slots[0]===slots[1])return fb(box,'bad','두 부모의 꽃 색이 같으면 서로 다른 형질이 자손에게 어떻게 전달되는지 비교하기 어려워요. <b>꽃 색이 서로 다른 순종 완두</b>를 교배해 보세요.');}
+  else if(set!=='Pp,Pp')return fb(box,'bad','이번 실험은 <b>잡종 1대 완두끼리</b> 교배(자가 수분)해서 잡종 2대에서 어떤 꽃이 피는지 확인하는 거예요. 두 칸 모두 잡종 1대 완두를 놓아 보세요.');
+  stage='grow';crossBtn.disabled=true;
+  const kids=mode===1?Array(8).fill('Pp'):shuffle([...Array(4).fill('PP'),...Array(8).fill('Pp'),...Array(4).fill('pp')]);
+  offs.innerHTML='';offs.style.gridTemplateColumns=`repeat(${kids.length},1fr)`;
+  fb(box,'info','🐝 꽃가루를 옮겨 교배하는 중… 자손이 자라고 있어요.');
+  const els=kids.map(k=>{const e=h('div',{class:'off'},h('span',{html:peaSVG(k==='pp'?'w':'p')}),h('span',{class:'gt'},''));e.dataset.k=k;e.style.visibility='hidden';offs.append(e);return e;});
+  for(const e of els){await sleep(140);e.style.visibility='';e.classList.add('bloom');tone(500+Math.random()*300,.06,'triangle',.03);}
+  const exP=kids.filter(k=>k!=='pp').length,exW=kids.length-exP;
+  const cp=Counter('보라색 꽃 <span style="color:#c89bff">●</span>'),cw=Counter('흰색 꽃 <span style="color:#fff">●</span>');
+  const chk=h('button',{class:'btn',onclick:()=>{
+   if(cp.v===exP&&cw.v===exW){chk.disabled=true;els.forEach(e=>e.querySelector('.gt').textContent=e.dataset.k);
+    fb(box,'ok',mode===1?'정답! 자손이 <b>모두 보라색</b>이에요. 이렇게 잡종 1대에 나타나는 형질을 <b>우성</b>이라고 해요.':`정답! 사라졌던 <b>흰색 꽃이 다시</b> 나타났어요. 보라 : 흰색 = 약 <b>3 : 1</b>`);done();}
+   else fb(box,'bad','개수가 달라요. 꽃을 다시 세어 보세요.');}},'기록 확인');
+  recHost.innerHTML='';recHost.append(h('div',{class:'panel',style:'margin-top:10px'},h('h4',{},'📋 관찰 기록표: 자손의 꽃 색을 세어 기록하세요'),h('div',{class:'rec'},cp.e,cw.e,chk)));
+  fb(box,'info','자손의 꽃 색을 세어 <b>기록표</b>를 완성하세요.');
+ }
+}
+STAGES.push({
+ icon:'🌸',short:'유전 법칙 발견',title:'유전의 비밀 — 유전 법칙 발견',era:'19세기',eraLabel:'1860년대 수도원의 정원',yearNum:1865,yearText:'1865년',yearShort:'1865년',
+ story:'<b>멘델</b>은 수도원 정원에서 완두를 기르며 궁금해했어요. "부모의 특징(형질)은 자손에게 어떻게 전해질까?"<br><br>꽃 색깔이 다른 완두를 직접 골라 <b>교배</b>하고, 자손을 관찰하며 그 비밀을 밝혀 보세요!',
+ goal:'19세기 유전 법칙의 발견으로 부모의 형질이 자손에게 전달되는 현상을 이해한다.',
+ steps:[
+ {title:'순종끼리 교배하기',inst:'꽃 색이 다른 <b>순종 완두 두 그루</b>를 골라 교배 구역으로 끌어 놓고 교배한 뒤, 자손(잡종 1대)의 꽃 색을 세어 기록하세요.',note:'※ 멘델의 실험을 학습용으로 단순화한 모형이에요.',run(W,done){crossLab(W,done,1);}},
+ {title:'잡종 1대끼리 교배하기',inst:'이번에는 <b>잡종 1대 완두끼리</b> 교배(자가 수분)해 보세요. 잡종 2대에서는 어떤 꽃이 필까요?',note:'※ 이해를 돕기 위해 자손 16개를 이론적인 비율대로 나타냈어요. 실제로는 비율이 조금씩 다를 수 있어요.',run(W,done){crossLab(W,done,2);}},
+ {title:'유전 결과 분석',inst:'두 번의 교배 실험 결과를 바탕으로 유전 현상을 설명해 보세요.',run(W,done){
+  W.append(h('div',{class:'panel',style:'margin-bottom:10px'},h('h4',{},'📊 실험 결과 정리'),h('div',{html:'<b>1차 교배</b>: 순종 보라 × 순종 흰 → 잡종 1대: <b>모두 보라색</b><br><b>2차 교배</b>: 잡종 1대 × 잡종 1대 → 잡종 2대: 보라색 12 : 흰색 4 (약 <b>3 : 1</b>)'})));
+  Quiz(W,{q:'잡종 2대에서 흰색 꽃이 다시 나타난 까닭으로 가장 알맞은 것은?',onDone:done,options:[
+   {t:'잡종 1대 속에 흰색 꽃 유전 요소가 드러나지 않은 채 들어 있다가 자손에게 전달되었기 때문이다.',ok:true,why:'맞아요! 잡종 1대(Pp)는 흰색 꽃 유전 요소(p)를 가지고 있었고, 이것이 둘 다 p인 자손(pp)에서 흰색 꽃으로 나타났어요.'},
+   {t:'흰색 형질은 약한 형질이라 사라졌다가 우연히 새로 생겼기 때문이다.',ok:false,why:'열성은 "약한" 형질이라는 뜻이 아니에요. 흰색 꽃 유전 요소는 사라진 것이 아니라 숨어 있다가 다시 나타났어요.'},
+   {t:'완두를 기른 주변 환경 때문에 꽃 색이 바뀌었기 때문이다.',ok:false,why:'이 실험은 같은 조건에서 교배한 결과예요. 꽃 색은 부모에게서 물려받은 유전 요소에 따라 정해졌어요.'}]});
+ }}],
+ meaning:'<ul><li>꽃 색이 다른 순종끼리 교배하면 잡종 1대에서는 한 가지 형질(보라색)만 나타나요. 이것이 <b>우성</b>, 나타나지 않은 형질(흰색)이 <b>열성</b>이에요.</li><li>잡종 1대끼리 교배하면 잡종 2대에서 열성 형질이 다시 나타나고, 우성 : 열성이 약 <b>3 : 1</b>이에요.</li><li>멘델은 형질이 <b>유전 요소</b>(오늘날의 유전자)를 통해 부모에게서 자손에게 전달된다는 <b>유전 법칙</b>을 발견했어요(1865년 발표).</li><li>유전 법칙은 품종 개량을 과학적으로 할 수 있는 바탕이 되었어요.</li></ul>',
+ quiz:{q:'우성 형질에 대한 설명으로 옳은 것은?',options:[
+  {t:'서로 다른 형질의 순종끼리 교배했을 때 잡종 1대에서 나타나는 형질이다.',ok:true,why:'맞아요! 우성은 "나타나는 형질"이라는 뜻이에요.'},
+  {t:'더 강하고 좋은 형질이다.',ok:false,why:'우성과 열성은 형질의 좋고 나쁨이나 강하고 약함과는 관계가 없어요.'},
+  {t:'자손에게 전달되지 않는 형질이다.',ok:false,why:'우성 형질도 열성 형질도 모두 유전 요소를 통해 자손에게 전달돼요.'}]},
+ success:'유전 법칙의 발견으로 생명체의 형질이 다음 세대에 전달되는 원리를 이해할 수 있게 되었어요!',
+ hintEra:'19세기 중반(1865년)의 일이에요.',oneLine:'부모의 형질이 자손에게 전달되는 원리 발견'
+});
+/* ---------- STAGE 5 ---------- */
+const MOLD={x:140,y:150},ZONE=78,MR=32;
+function dishSVG(){
+ const R=rng(7);let col='';
+ for(let i=0;i<320;i++){const a=R()*Math.PI*2,d=Math.sqrt(R())*166,x=200+Math.cos(a)*d,y=200+Math.sin(a)*d,r=2.2+R()*3.4;if(Math.hypot(x-MOLD.x,y-MOLD.y)<ZONE)continue;col+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="#fbf1c8" stroke="#bfa766" stroke-width=".8"/>`;}
+ const R2=rng(3);let mold='';
+ for(let i=0;i<30;i++){const a=R2()*6.283,d=R2()*MR;mold+=`<circle cx="${(MOLD.x+Math.cos(a)*d).toFixed(1)}" cy="${(MOLD.y+Math.sin(a)*d).toFixed(1)}" r="${(6+R2()*9).toFixed(1)}" fill="${R2()<.5?'#3f8f7a':'#5fb39a'}"/>`;}
+ return `<svg viewBox="0 0 400 400"><defs><radialGradient id="agar"><stop offset="0" stop-color="#e9d58f"/><stop offset="1" stop-color="#c9ad57"/></radialGradient></defs><rect width="400" height="400" fill="#0b1626"/><circle cx="200" cy="200" r="192" fill="#dfe9f2" opacity=".3" stroke="#a9c1d8" stroke-width="4"/><circle cx="200" cy="200" r="176" fill="url(#agar)"/><circle cx="${MOLD.x}" cy="${MOLD.y}" r="${ZONE-4}" fill="#f7ecbf" opacity=".5"/>${col}<circle cx="${MOLD.x}" cy="${MOLD.y}" r="${MR+10}" fill="#e8f5ee" opacity=".55"/>${mold}<circle cx="${MOLD.x}" cy="${MOLD.y}" r="11" fill="#245a4f"/></svg>`;
+}
+function growDish(withMold,t){
+ const R=rng(withMold?11:12);let s='';const n=Math.round(150*t/3),mr=6+16*t/3,zr=withMold?(20+44*t/3):0;
+ for(let i=0;i<150;i++){const a=R()*6.283,d=Math.sqrt(R())*98,x=120+Math.cos(a)*d,y=120+Math.sin(a)*d;if(i>=n)continue;if(withMold&&Math.hypot(x-120,y-120)<zr)continue;s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.2+2.6*t/3).toFixed(1)}" fill="#fbf1c8" stroke="#bfa766" stroke-width=".6"/>`;}
+ const m=withMold?`<circle cx="120" cy="120" r="${mr+6}" fill="#e8f5ee" opacity=".55"/><circle cx="120" cy="120" r="${mr}" fill="#4fa58c"/><circle cx="114" cy="116" r="${mr*.5}" fill="#3f8f7a"/>`:'';
+ return `<svg viewBox="0 0 240 240"><circle cx="120" cy="120" r="116" fill="#dfe9f2" opacity=".3" stroke="#a9c1d8" stroke-width="3"/><circle cx="120" cy="120" r="106" fill="#ddc275"/>${s}${m}</svg>`;
+}
+STAGES.push({
+ icon:'🍄',short:'페니실린 발견',title:'우연한 발견 — 페니실린',era:'20세기 초',eraLabel:'1928년 영국 런던의 연구실',yearNum:1928,yearText:'1928년',yearShort:'1928년',
+ story:'세균을 연구하던 <b>플레밍</b>은 휴가를 다녀온 뒤, 세균을 키우던 배양 접시 하나에 <b>푸른곰팡이</b>가 피어 있는 것을 발견했어요.<br><br>버리려던 접시에서 무언가 이상한 점이 보였는데… 무엇이었을까요?',
+ goal:'20세기 푸른곰팡이에서 항생 물질인 페니실린이 발견되어 세균 감염병 치료에 기여했음을 이해한다.',
+ steps:[
+ {title:'확대 관찰',inst:'접시가 작아서 잘 보이지 않아요. <b>돋보기를 끌어</b> 배양 접시 구석구석을 관찰하고, 단서 3가지를 모두 찾으세요. (돋보기를 단서 위에 잠시 멈춰 두면 기록돼요.)',note:'※ 실제 배양 접시를 단순화해 그린 교육용 모형이에요.',run(W,done){
+  const svg=dishSVG();const L=h('div');const clues=h('div',{class:'clues'});const box=h('div',{class:'fb'});
+  const cps=[{id:'col',name:'단서 1: 접시 대부분의 모습',test:(x,y)=>Math.hypot(x-MOLD.x,y-MOLD.y)>130&&Math.hypot(x-200,y-200)<160,note:'🔎 작은 점 모양의 <b>세균 무리(군집)</b>가 빽빽하게 자랐어요.'},
+   {id:'mold',name:'단서 2: 푸르스름한 덩어리',test:(x,y)=>Math.hypot(x-MOLD.x,y-MOLD.y)<24,note:'🔎 <b>푸른곰팡이</b>가 자라고 있어요. 원래는 세균만 키우던 접시인데 곰팡이가 우연히 들어왔어요.'},
+   {id:'zone',name:'단서 3: 곰팡이 주변',test:(x,y)=>{const d=Math.hypot(x-MOLD.x,y-MOLD.y);return d>44&&d<72;},note:'🔎 곰팡이 <b>주변에는 세균 군집이 없어요!</b> 투명한 띠가 생겼어요.'}];
+  const cEls={};cps.forEach(c=>{cEls[c.id]=h('div',{class:'clue'},c.name+' — ???');clues.append(cEls[c.id]);});
+  W.append(h('div',{class:'s5a'},L,h('div',{},h('h4',{},'🔍 관찰 단서'),clues,box)));
+  const lens=Lens(L,{svg,size:Math.min(380,Math.round(window.innerHeight*.52)),zoom:2.6,lensSize:150,blurry:true});
+  const found={},hold={};let n=0;const tok=screenTok;
+  const iv=setInterval(()=>{if(!alive(tok)){clearInterval(iv);return;}const p=lens.pos(),x=p.x*400,y=p.y*400;
+   cps.forEach(c=>{if(found[c.id])return;if(c.test(x,y)){hold[c.id]=(hold[c.id]||0)+1;if(hold[c.id]>=3){found[c.id]=1;n++;cEls[c.id].classList.add('found');cEls[c.id].innerHTML=c.note;SFX.ok();
+     if(n===3){clearInterval(iv);fb(box,'ok','단서를 모두 찾았어요! 곰팡이 주변에서만 세균이 자라지 않았다니, 정말 이상하지요?');done();}}}else hold[c.id]=0;});},160);
+ }},
+ {title:'이상 현상 발견',inst:'접시에서 <b>세균이 자라지 않은 부분</b>을 찾아 클릭하세요.',run(W,done){
+  const box=h('div',{class:'fb'});let ok=false;
+  const d=h('div',{class:'dish-click',html:dishSVG()});
+  d.addEventListener('click',e=>{if(ok)return;const r=d.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*400,y=(e.clientY-r.top)/r.height*400,dist=Math.hypot(x-MOLD.x,y-MOLD.y);
+   const mk=h('div',{class:'mark',style:`left:${e.clientX-r.left}px;top:${e.clientY-r.top}px`});d.append(mk);
+   if(dist>MR+4&&dist<ZONE-2){ok=true;fb(box,'ok','찾았어요! 푸른곰팡이 <b>주변</b>에는 세균이 자라지 않았어요. 플레밍은 "곰팡이가 세균의 증식을 막는 물질을 만드는 것은 아닐까?" 하고 생각했어요.');done();}
+   else{mk.classList.add('bad');setTimeout(()=>mk.remove(),900);fb(box,'bad',dist<=MR+4?'그곳은 푸른곰팡이 자체예요. 곰팡이 <b>주변</b>에서 세균 군집이 없는 투명한 부분을 찾아보세요.':Math.hypot(x-200,y-200)>176?'접시 바깥이에요. 배양 접시 안을 살펴보세요.':'그곳에는 세균 군집이 자라 있어요. 세균이 <b>자라지 않은</b> 부분을 찾아보세요.');}});
+  W.append(h('div',{class:'s5a'},d,h('div',{},h('div',{class:'panel'},h('h4',{},'🧐 생각해 보기'),h('p',{},'접시 대부분에는 세균 군집이 자랐어요. 그런데 어딘가 세균이 자라지 않은 곳이 있어요. 어디일까요?')),box)));
+ }},
+ {title:'비교 실험',inst:'푸른곰팡이 조각을 <b>한 접시에만</b> 넣고, 배양 시간 슬라이더를 움직여 두 접시의 세균 증식을 비교하세요.',note:'※ 세균 배양을 단순화한 시뮬레이션이에요. 실제 실험은 안전 설비를 갖춘 실험실에서만 해요.',run(W,done){
+  const box=h('div',{class:'fb'});let moldIn=null,t=0,finished=false;
+  const mk=id=>{const d=h('div',{class:'d'});const e=h('div',{class:'dishbox'},h('b',{},`접시 ${id}`),d,h('span',{class:'tiny lab'},'세균만 넣은 접시'));e.dataset.id=id;return{e,d};};
+  const D={1:mk(1),2:mk(2)};
+  const piece=h('div',{class:'moldpiece'},h('span',{style:'font-size:34px'},'🟢'),'푸른곰팡이 조각');
+  const slider=h('input',{type:'range',min:0,max:3,step:.1,value:0,disabled:true});const tv=h('b',{},'0일');
+  const paint=()=>{[1,2].forEach(id=>D[id].d.innerHTML=growDish(moldIn===String(id),t));};
+  draggable(piece,{targets:()=>[D[1].e,D[2].e],drop:tg=>{if(moldIn)return false;moldIn=tg.dataset.id;tg.querySelector('.lab').textContent='세균 + 푸른곰팡이';const o=D[moldIn==='1'?'2':'1'].e.querySelector('.lab');o.textContent='세균만 넣은 접시 (비교용)';piece.classList.add('locked','used');slider.disabled=false;paint();fb(box,'info','⏳ 이제 <b>배양 시간</b> 슬라이더를 오른쪽 끝(3일)까지 움직이며 두 접시를 비교하세요.');return true;}});
+  slider.oninput=()=>{t=+slider.value;tv.textContent=t.toFixed(1)+'일';paint();
+   if(t>=3&&!finished&&!D[1].e.classList.contains('pickable')){[1,2].forEach(id=>D[id].e.classList.add('pickable'));fb(box,'info','3일이 지났어요! <b>세균의 증식이 억제된 접시</b>를 클릭하세요.');}};
+  [1,2].forEach(id=>D[id].e.addEventListener('click',()=>{if(finished||!D[id].e.classList.contains('pickable'))return;
+   if(moldIn===String(id)){finished=true;fb(box,'ok','맞아요! 푸른곰팡이가 있는 접시에서는 곰팡이 주변에 세균이 자라지 못했고, 곰팡이가 없는 접시에는 세균이 전체에 퍼졌어요. 곰팡이가 <b>세균의 증식을 억제하는 물질</b>을 만든다는 것을 비교로 확인했어요.');done();}
+   else fb(box,'bad','이 접시는 곰팡이가 없어 세균이 접시 전체에 자랐어요. 다른 접시와 비교해 보세요.');}));
+  paint();
+  W.append(h('div',{class:'s5c'},h('div',{class:'row',style:'flex-direction:column;align-items:stretch'},piece,h('div',{class:'panel'},h('div',{class:'sl'},h('span',{},'배양 시간 ',tv),slider))),D[1].e,D[2].e),box);
+  fb(box,'info','🟢 푸른곰팡이 조각을 끌어 두 접시 중 <b>한 곳에만</b> 넣으세요. 다른 접시는 비교용이에요.');
+ }},
+ {title:'연구 결과 기록',inst:'관찰한 사실과 알맞은 설명을 <b>선으로 연결</b>해 연구 결과를 정리하세요.',run(W,done){MatchTask(W,{heads:['관찰·연구 내용','설명'],onDone:done,left:[
+  {id:'a',text:'곰팡이 주변에 투명한 띠가 생겼다',ans:'a',why:'투명한 띠는 세균이 자라지 못한 곳이에요. 왜 자라지 못했을까요?'},
+  {id:'b',text:'곰팡이가 없는 비교용 접시',ans:'b',why:'곰팡이가 없을 때 세균은 어떻게 자랐는지 떠올려 보세요.'},
+  {id:'c',text:'푸른곰팡이가 만든 물질',ans:'c',why:'이 물질에 붙여진 이름을 생각해 보세요.'},
+  {id:'d',text:'페니실린의 쓰임',ans:'d',why:'페니실린은 세균의 증식을 억제해요. 바이러스에 의한 질병을 치료하는 약은 아니에요.'}],right:[
+  {id:'a',text:'곰팡이가 만든 물질이 세균의 증식을 억제했다.'},
+  {id:'b',text:'세균이 접시 전체에 고르게 자랐다.'},
+  {id:'c',text:'페니실린이라는 항생 물질'},
+  {id:'d',text:'세균에 의한 감염병 치료'}]});}}],
+ meaning:'<ul><li>1928년 <b>플레밍</b>은 푸른곰팡이 주변에서 세균이 자라지 못하는 현상을 발견하고, 곰팡이가 만든 물질을 <b>페니실린</b>이라고 불렀어요.</li><li>페니실린은 세균의 증식을 억제하는 <b>항생 물질</b>이에요. 이후 1940년대에 대량 생산되어 많은 <b>세균 감염병</b> 환자를 치료했어요.</li><li>페니실린은 감기·독감 같은 <b>바이러스</b>에 의한 질병은 치료하지 못해요.</li><li>정리하면 <b>백신은 감염병 예방</b>, <b>페니실린(항생제)은 세균 감염병 치료</b>에 쓰여요.</li></ul>',
+ quiz:{q:'페니실린으로 치료할 수 있는 것은 무엇일까요?',options:[
+  {t:'세균에 의한 감염병',ok:true,why:'맞아요! 페니실린은 세균의 증식을 억제하는 항생제예요.'},
+  {t:'감기, 독감 같은 바이러스에 의한 질병',ok:false,why:'페니실린은 세균의 증식을 억제하는 항생제예요. 바이러스에 의한 질병을 치료하는 약은 아니에요.'},
+  {t:'병에 걸리기 전에 미리 맞는 예방접종',ok:false,why:'미리 접종해 감염병을 예방하는 것은 백신이에요. 페니실린은 이미 걸린 세균 감염병을 치료하는 데 쓰여요.'}]},
+ success:'푸른곰팡이에서 발견한 페니실린은 세균 감염병 치료에 크게 기여했어요!',
+ hintEra:'20세기 초(1928년)의 일이에요.',oneLine:'푸른곰팡이에서 항생 물질 발견, 세균 감염병 치료'
+});
+
+/* ---------- STAGE 6 ---------- */
+function xraySVG(){
+ let s='';for(let k=1;k<=6;k++){const y=k*22,x=k*11;[[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sy])=>{s+=`<ellipse cx="${200+sx*x}" cy="${200+sy*y}" rx="8" ry="3.5" fill="#f5f5f5" opacity="${(1-k*.1).toFixed(2)}"/>`;});}
+ return `<svg viewBox="0 0 400 400"><defs><radialGradient id="xh"><stop offset="0" stop-color="#5a5a5a"/><stop offset=".55" stop-color="#2a2a2a"/><stop offset="1" stop-color="#0a0a0a"/></radialGradient><filter id="xb"><feGaussianBlur stdDeviation="1.4"/></filter></defs><rect width="400" height="400" fill="url(#xh)"/><g filter="url(#xb)">${s}<ellipse cx="200" cy="45" rx="70" ry="9" fill="#fff" opacity=".9"/><ellipse cx="200" cy="355" rx="70" ry="9" fill="#fff" opacity=".9"/><circle cx="200" cy="200" r="150" fill="none" stroke="#888" stroke-width="2" opacity=".35"/></g><circle cx="200" cy="200" r="7" fill="#bbb"/></svg>`;
+}
+const BCOL={A:'bA',T:'bT',G:'bG',C:'bC'},COMP={A:'T',T:'A',G:'C',C:'G'};
+STAGES.push({
+ icon:'🧬',short:'DNA 이중 나선 구조 발견',title:'생명의 설계도 — DNA 이중 나선 구조',era:'20세기 중반',eraLabel:'1953년 영국',yearNum:1953,yearText:'1953년',yearShort:'1953년',
+ story:'과학자들은 유전 정보가 <b>DNA</b>에 담겨 있다는 것을 알아 가고 있었지만, DNA가 어떤 모양인지는 몰랐어요. <b>로절린드 프랭클린</b>이 찍은 <b>X선 회절 사진</b>은 중요한 단서였어요.<br><br>단서를 분석하고, 직접 DNA 모형을 조립해 보세요!',
+ goal:'20세기 중반 X선 회절 자료 등을 바탕으로 DNA의 이중 나선 구조가 밝혀졌고, 이후 유전자 관련 기술 발전의 기반이 되었음을 이해한다.',
+ steps:[
+ {title:'X선 회절 자료 관찰',inst:'<b>돋보기를 끌어</b> X선 회절 사진을 관찰하고, 구조를 알려 주는 단서 2가지를 찾으세요. (돋보기를 단서 위에 잠시 멈춰 두면 기록돼요.)',note:'※ 실제 역사적 X선 회절 사진을 단순화해 그린 교육용 모형이에요.',run(W,done){
+  const L=h('div');const clues=h('div',{class:'clues'});const box=h('div',{class:'fb'});
+  const cps=[{id:'x',name:'단서 1: 사진의 한가운데',test:(x,y)=>Math.hypot(x-200,y-200)<48,note:'🔎 가운데에 <b>X자 모양 무늬</b>가 있어요! 이 무늬는 DNA가 <b>나선 모양</b>이라는 중요한 단서였어요.'},
+   {id:'arc',name:'단서 2: 사진의 위·아래 끝',test:(x,y)=>Math.abs(x-200)<80&&(Math.abs(y-45)<34||Math.abs(y-355)<34),note:'🔎 위아래 끝에 진한 무늬가 있어요. DNA 안의 구조가 <b>일정한 간격으로 규칙적으로 쌓여 있다</b>는 단서였어요.'}];
+  const cEls={};cps.forEach(c=>{cEls[c.id]=h('div',{class:'clue'},c.name+' — ???');clues.append(cEls[c.id]);});
+  W.append(h('div',{class:'s5a'},L,h('div',{},h('h4',{},'🔍 구조 단서'),clues,box)));
+  const lens=Lens(L,{svg:xraySVG(),size:Math.min(380,Math.round(window.innerHeight*.52)),zoom:2.4,lensSize:150,blurry:true});
+  const found={},hold={};let n=0;const tok=screenTok;
+  const iv=setInterval(()=>{if(!alive(tok)){clearInterval(iv);return;}const p=lens.pos(),x=p.x*400,y=p.y*400;
+   cps.forEach(c=>{if(found[c.id])return;if(c.test(x,y)){hold[c.id]=(hold[c.id]||0)+1;if(hold[c.id]>=3){found[c.id]=1;n++;cEls[c.id].classList.add('found');cEls[c.id].innerHTML=c.note;SFX.ok();if(n===2){clearInterval(iv);fb(box,'ok','단서를 모두 찾았어요! 왓슨과 크릭은 이런 자료를 바탕으로 DNA 구조 모형을 만들었어요.');done();}}}else hold[c.id]=0;});},160);
+ }},
+ {title:'염기쌍 연결',inst:'왼쪽 가닥의 염기와 짝이 맞는 염기를 <b>오른쪽 빈칸으로 끌어</b> 연결하세요.',note:'※ DNA의 구조를 단순화한 교육용 모형이에요.',run(W,done){
+  const seq=['A','T','G','C','C','G','T','A'];let filled=0;const box=h('div',{class:'fb'});
+  const slots=seq.map(b=>{const s=h('div',{class:'bslot'});s.dataset.need=COMP[b];s.dataset.left=b;return s;});
+  const ladder=h('div',{class:'ladder'},seq.map((b,i)=>h('div',{class:'rung'},h('div',{class:'rail'}),h('div',{class:'base '+BCOL[b]},b),h('div',{class:'bond'}),slots[i],h('div',{class:'rail'}))));
+  const pool=h('div',{class:'basepool'});
+  ['A','T','G','C'].forEach(b=>{const t=h('div',{class:'base '+BCOL[b]},b);pool.append(t);draggable(t,{targets:()=>slots.filter(s=>!s.firstChild),drop:s=>{
+   if(s.dataset.need!==b){fb(box,'bad',`❌ <b>${b}</b>는 <b>${s.dataset.left}</b>와 짝을 이룰 수 없어요. 오른쪽의 짝 규칙을 다시 확인해 보세요.`);return false;}
+   s.append(h('div',{class:'base '+BCOL[b]},b));filled++;
+   if(filled===seq.length){fb(box,'ok','🎉 모든 염기쌍을 연결했어요! DNA의 두 가닥은 <b>A–T, G–C</b>처럼 정해진 짝끼리 연결되어 있어요. 그래서 한 가닥의 순서를 알면 다른 가닥의 순서도 알 수 있어요.');done();}
+   else fb(box,'ok',`좋아요! ${s.dataset.left}–${b} 연결 (${filled}/${seq.length})`);return true;}});});
+  W.append(h('div',{class:'s6b'},h('div',{class:'panel'},ladder),h('div',{style:'display:flex;flex-direction:column;gap:10px'},h('div',{class:'rule',html:'📏 염기 짝 규칙<br>A ↔ T &nbsp;&nbsp; G ↔ C'}),h('div',{class:'panel'},h('h4',{},'염기 상자 (계속 꺼내 쓸 수 있어요)'),pool),box)));
+ }},
+ {title:'DNA 모형 조립',inst:'① 두 개의 <b>골격(뼈대) 가닥</b>을 모형의 왼쪽과 오른쪽에 끌어 붙이고 ② <b>비틀기</b> 슬라이더를 끝까지 움직여 이중 나선을 완성하세요.',note:'※ DNA 이중 나선을 단순화한 교육용 모형이에요.',run(W,done){
+  const seq=['A','T','G','C','C','G','T','A','G','C'];const box=h('div',{class:'fb'});const bb={l:false,r:false};let tw=0,rot=0,finished=false;const tok=screenTok;
+  const svgW=h('div',{class:'helixbox'});const zl=h('div',{class:'railzone l'},'왼쪽 골격 놓는 곳'),zr=h('div',{class:'railzone r'},'오른쪽 골격 놓는 곳');
+  const slider=h('input',{type:'range',min:0,max:100,value:0,disabled:true});
+  const col={A:'#ff8a8a',T:'#ffd56b',G:'#6fe39a',C:'#7ec8ff'};
+  function draw(){const top=30,gap=38,cx=150,Wd=170,N=seq.length;let s='',Lp=[],Rp=[];const ang=y=>tw*((y-top)/gap)*.62+rot;
+   for(let y=top;y<=top+gap*(N-1);y+=4){const a=ang(y);Lp.push(`${(cx-Wd/2*Math.cos(a)).toFixed(1)},${y}`);Rp.push(`${(cx+Wd/2*Math.cos(a)).toFixed(1)},${y}`);}
+   seq.forEach((b,i)=>{const y=top+i*gap,a=ang(y),xl=cx-Wd/2*Math.cos(a),xr=cx+Wd/2*Math.cos(a),xm=(xl+xr)/2,op=(.45+.55*(Math.sin(a)+1)/2).toFixed(2);
+    s+=`<g opacity="${op}"><line x1="${xl}" y1="${y}" x2="${xm}" y2="${y}" stroke="${col[b]}" stroke-width="9" stroke-linecap="round"/><line x1="${xm}" y1="${y}" x2="${xr}" y2="${y}" stroke="${col[COMP[b]]}" stroke-width="9" stroke-linecap="round"/></g>`;});
+   if(bb.l)s+=`<polyline points="${Lp.join(' ')}" fill="none" stroke="#b58cff" stroke-width="8" stroke-linecap="round"/>`;
+   if(bb.r)s+=`<polyline points="${Rp.join(' ')}" fill="none" stroke="#7ee8ff" stroke-width="8" stroke-linecap="round"/>`;
+   svgW.querySelector('svg').innerHTML=s;}
+  svgW.innerHTML='<svg viewBox="0 0 300 420"></svg>';svgW.append(zl,zr);
+  const mkStrip=side=>{const t=h('div',{class:'bbstrip'},h('i',{}),side==='l'?'골격 가닥 ① (왼쪽)':'골격 가닥 ② (오른쪽)');draggable(t,{targets:()=>[side==='l'?zl:zr],drop:()=>{bb[side]=true;(side==='l'?zl:zr).classList.add('set');t.classList.add('locked','used');draw();if(bb.l&&bb.r){slider.disabled=false;fb(box,'info','🌀 두 가닥이 연결되어 사다리 모양이 되었어요! 이제 <b>비틀기</b> 슬라이더를 오른쪽 끝까지 움직여 보세요.');}else fb(box,'ok','골격 가닥을 붙였어요. 나머지 한쪽도 붙여 주세요.');return true;}});return t;};
+  slider.oninput=()=>{tw=+slider.value/100;draw();if(tw>=1&&!finished){finished=true;slider.disabled=true;fb(box,'ok','🎉 <b>이중 나선</b> 완성! 두 가닥이 염기쌍으로 연결된 채 꼬여 있는 모양이에요. 1953년 <b>왓슨과 크릭</b>은 이 구조를 발표했어요.');SFX.win();done();
+   const spinLoop=()=>{if(!alive(tok))return;rot+=.025;draw();requestAnimationFrame(spinLoop);};requestAnimationFrame(spinLoop);}};
+  W.append(h('div',{class:'s6c'},h('div',{style:'display:flex;flex-direction:column;gap:10px'},mkStrip('l'),mkStrip('r'),h('div',{class:'panel'},h('div',{class:'sl'},'🌀 비틀기',slider))),h('div',{},svgW,box)));
+  draw();fb(box,'info','염기쌍(가로 막대)만 있어요. 골격 가닥을 끌어 모형의 <b>왼쪽·오른쪽 가장자리</b>에 놓으세요.');
+ }},
+ {title:'기술 발전 연결',inst:'DNA 구조 발견과 그 이후의 기술 발전을 바르게 <b>선으로 연결</b>하세요. 구조 발견과 유전자 기술은 서로 다른 사건이에요!',run(W,done){MatchTask(W,{heads:['사건','의미'],onDone:done,left:[
+  {id:'a',text:'X선 회절 사진 (로절린드 프랭클린)',ans:'a',why:'X자 무늬가 무엇을 알려 주었는지 떠올려 보세요.'},
+  {id:'b',text:'왓슨과 크릭 (1953년)',ans:'b',why:'이들은 여러 자료를 바탕으로 DNA의 모양을 설명하는 모형을 발표했어요.'},
+  {id:'c',text:'DNA 이중 나선 구조의 발견',ans:'c',why:'구조를 알게 되자 유전 정보가 어떻게 담기고 복제되는지 이해할 수 있게 되었어요.'},
+  {id:'d',text:'유전자 재조합 기술 (1970년대)',ans:'d',why:'유전자 재조합 기술은 DNA 구조가 밝혀진 뒤 약 20년이 지나 발달한 별개의 기술이에요.'}],right:[
+  {id:'a',text:'DNA가 나선 구조라는 중요한 단서'},
+  {id:'b',text:'DNA 이중 나선 구조 모형 발표'},
+  {id:'c',text:'유전 정보가 저장되고 전달되는 원리를 이해하는 바탕'},
+  {id:'d',text:'DNA 구조에 대한 이해를 바탕으로 이후에 발달한 기술'}]});}}],
+ meaning:'<ul><li>1953년 <b>왓슨과 크릭</b>은 프랭클린의 X선 회절 자료 등을 바탕으로 <b>DNA 이중 나선 구조</b>를 발표했어요.</li><li>DNA는 두 가닥이 꼬인 모양이고, 염기는 <b>A–T, G–C</b>끼리 짝을 이뤄요. 이 구조로 유전 정보가 저장되고 복제되는 원리를 이해하게 되었어요.</li><li>이 발견은 이후 <b>유전자 재조합 기술</b>(1970년대) 등 유전자 관련 기술 발전의 <b>기반</b>이 되었어요. 구조 발견과 유전자 재조합은 서로 다른 사건이에요.</li></ul>',
+ quiz:{q:'DNA 이중 나선 구조의 발견에 대한 설명으로 옳은 것은?',options:[
+  {t:'구조 발견은 이후 유전자 재조합 등 유전자 관련 기술이 발전하는 바탕이 되었다.',ok:true,why:'맞아요! 구조 발견이 먼저이고, 유전자 기술은 그 이해를 바탕으로 나중에 발달했어요.'},
+  {t:'구조가 밝혀진 1953년에 유전자 재조합 기술도 함께 완성되었다.',ok:false,why:'유전자 재조합 기술은 1970년대에 발달했어요. DNA 구조 발견과 같은 사건이 아니에요.'},
+  {t:'DNA의 염기는 A와 G, T와 C끼리 짝을 이룬다.',ok:false,why:'염기의 짝은 A–T, G–C예요.'}]},
+ success:'DNA 이중 나선 구조의 발견은 유전 정보를 이해하고 유전자 관련 기술을 발전시키는 중요한 계기가 되었어요!',
+ hintEra:'20세기 중반(1953년)의 일이에요.',oneLine:'DNA 이중 나선 구조 발견, 유전자 기술의 기반'
+});
+
+/* ---------- STAGE 7 ---------- */
+const sheepSVG=face=>{const w=face==='w';return `<svg viewBox="0 0 120 90"><g fill="#2a2a2a"><rect x="40" y="62" width="6" height="22" rx="2"/><rect x="54" y="64" width="6" height="22" rx="2"/><rect x="76" y="64" width="6" height="22" rx="2"/><rect x="90" y="62" width="6" height="22" rx="2"/></g><g fill="#f5f2ea" stroke="#d3ccbc" stroke-width="1.5">${[[52,40],[68,34],[84,40],[94,52],[76,58],[58,58],[44,50],[66,46]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="15"/>`).join('')}</g><ellipse cx="27" cy="40" rx="13" ry="17" fill="${w?'#fbf6ee':'#2f2b2b'}" stroke="#b5ad9c" stroke-width="1.5"/><ellipse cx="15" cy="31" rx="7" ry="3.5" fill="${w?'#efe6d6':'#2f2b2b'}" transform="rotate(-25 15 31)"/><circle cx="23" cy="37" r="2.2" fill="${w?'#333':'#fff'}"/><path d="M22 50q4 3 8 0" stroke="${w?'#a08f7a':'#777'}" stroke-width="1.5" fill="none"/></svg>`;};
+function sheepCard(face,label,sub){return h('div',{class:'sheep'},h('span',{html:sheepSVG(face)}),h('span',{},label),sub?h('span',{class:'tiny'},sub):null);}
+STAGES.push({
+ icon:'🐑',short:'동물 복제',title:'생명 복제의 시대 — 동물 복제',era:'20세기 후반',eraLabel:'1996년 영국 스코틀랜드',yearNum:1996,yearText:'1996년',yearShort:'1996년',
+ story:'스코틀랜드의 연구팀은 다 자란 양의 몸을 이루는 <b>체세포</b>로 새로운 양을 탄생시킬 수 있을지 연구했어요. 그 결과 태어난 양이 바로 복제 양 <b>돌리</b>예요.<br><br><b>체세포 핵 이식</b>의 원리를 교육용 모형으로 체험해 보세요.',
+ goal:'20세기 후반 동물 복제의 성공과 체세포 핵 이식의 기본 원리를 이해한다.',
+ steps:[
+ {title:'핵 제거',inst:'① <b>난자 제공 양</b>의 난자를 작업대로 끌어 놓고 ② 난자의 <b>핵</b>을 끌어 "제거한 핵" 접시로 옮기세요.',note:'※ 실제 실험 방법이 아니라 체세포 핵 이식의 개념을 설명하는 교육용 모형이에요.',run(W,done){
+  const box=h('div',{class:'fb'});let phase='egg';
+  const eggSrc=h('div',{class:'mini-egg',title:'난자'}),somSrc=h('div',{class:'mini-som',title:'체세포'});
+  const sA=sheepCard('w','체세포 제공 양','흰 얼굴');sA.append(h('div',{class:'cellsrc'},somSrc,'체세포'));
+  const sB=sheepCard('b','난자 제공 양','검은 얼굴');sB.append(h('div',{class:'cellsrc'},eggSrc,'난자'));
+  const bench=h('div',{class:'bench'},h('span',{class:'bench-lab'},'🔬 작업대 (현미경 아래)'),h('div',{class:'tiny'},'여기에 세포를 끌어 놓으세요'));
+  const waste=h('div',{class:'waste'},'제거한 핵을 담는 접시');
+  draggable(eggSrc,{targets:()=>[bench],drop:()=>{if(phase!=='egg')return false;phase='nuc';eggSrc.classList.add('locked');eggSrc.style.opacity=.3;
+   const nuc=h('div',{class:'nuc',title:'난자의 핵'});const egg=h('div',{class:'egg'},nuc);bench.innerHTML='';bench.append(h('span',{class:'bench-lab'},'🔬 작업대 (현미경 아래)'),egg,waste);
+   draggable(nuc,{targets:()=>[waste],drop:()=>{nuc.remove();waste.innerHTML='';waste.append(h('div',{class:'nuc',style:'position:static;margin:0'}),h('div',{},'제거한 핵'));egg.append(h('div',{class:'tiny',style:'position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#7a3550;font-weight:800'},'핵이 제거된 난자'));fb(box,'ok','🎉 난자에서 <b>핵을 제거</b>했어요! 이제 이 난자에는 난자 제공 양의 핵 속 유전 정보가 없어요.');done();return true;}});
+   fb(box,'info','난자를 작업대에 올렸어요. 가운데 보라색 <b>핵</b>을 끌어 오른쪽 접시로 옮기세요.');return true;}});
+  draggable(somSrc,{targets:()=>[bench],drop:()=>{fb(box,'bad','지금은 핵을 제거할 <b>난자</b>가 필요해요. 체세포는 다음 단계에서 사용해요.');return false;}});
+  W.append(h('div',{class:'s7'},h('div',{class:'sheeprow',style:'grid-template-columns:1fr 1fr'},sA,sB),h('div',{},bench,box)));
+  fb(box,'info','🐑 오른쪽 <b>검은 얼굴 양</b>(난자 제공 양)의 난자를 작업대로 끌어 놓으세요.');
+ }},
+ {title:'핵 이식',inst:'<b>체세포 제공 양</b>의 체세포에서 <b>핵</b>을 끌어 핵이 제거된 난자 속에 넣고, 전기 자극으로 융합하세요.',note:'※ 실제 실험 방법이 아니라 체세포 핵 이식의 개념을 설명하는 교육용 모형이에요.',run(W,done){
+  const box=h('div',{class:'fb'});let ins=false;
+  const egg=h('div',{class:'egg'},h('div',{class:'tiny eggtxt',style:'position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#7a3550;font-weight:800'},'핵이 제거된 난자'));
+  const dnuc=h('div',{class:'nuc donor',title:'체세포의 핵'});const som=h('div',{class:'somatic'},dnuc);
+  const zap=h('button',{class:'btn',disabled:true,onclick:async()=>{zap.disabled=true;egg.classList.add('fused');tone(900,.3,'square',.04);await sleep(2000);egg.classList.remove('fused');fb(box,'ok','⚡ 융합 성공! <b>체세포의 핵이 이식된 난자</b>가 만들어졌어요. 이 난자는 체세포 제공 양의 핵 속 유전 정보를 가지고 있어요.');done();}},'⚡ 전기 자극으로 융합');
+  draggable(dnuc,{targets:()=>[egg],drop:()=>{if(ins)return false;ins=true;dnuc.remove();egg.querySelector('.eggtxt').remove();egg.append(h('div',{class:'nuc donor'}));som.append(h('div',{class:'tiny',style:'position:absolute;inset:0;display:grid;place-items:center;color:#2b5d78;font-weight:800'},'핵을 꺼낸 체세포'));zap.disabled=false;fb(box,'info','핵을 넣었어요! <b>⚡ 전기 자극</b> 버튼을 눌러 핵과 난자를 융합하세요.');return true;}});
+  const sA=sheepCard('w','체세포 제공 양','흰 얼굴');
+  W.append(h('div',{class:'s7'},h('div',{style:'display:flex;flex-direction:column;gap:10px'},sA,h('div',{class:'panel',style:'display:flex;flex-direction:column;align-items:center;gap:6px'},h('h4',{},'체세포 (젖샘 세포)'),som)),h('div',{},h('div',{class:'bench'},h('span',{class:'bench-lab'},'🔬 작업대'),egg,zap),box)));
+  fb(box,'info','청록색 <b>체세포의 핵</b>을 끌어 작업대의 난자 속으로 넣으세요.');
+ }},
+ {title:'발생 과정',inst:'복제 양이 태어나기까지의 과정을 <b>순서대로</b> 배열하세요.',note:'※ 실제 과정을 간추린 교육용 순서예요.',run(W,done){SortTask(W,{vertical:true,onDone:done,items:[
+  {id:'1',text:'난자 제공 양의 난자에서 핵을 제거한다.',hint:'먼저 다른 핵을 넣을 "빈 난자"를 준비해야 해요.'},
+  {id:'2',text:'체세포 제공 양의 체세포 핵을 핵이 제거된 난자에 넣는다.',hint:'빈 난자를 준비한 다음에 할 일이에요.'},
+  {id:'3',text:'핵이 이식된 난자가 세포 분열을 하여 배아가 된다.',hint:'세포가 분열해 자라기 시작하는 단계예요.'},
+  {id:'4',text:'배아를 대리모의 자궁에 이식한다.',hint:'배아가 자라려면 어미의 자궁이 필요해요.'},
+  {id:'5',text:'대리모가 복제 양을 낳는다.',hint:'가장 마지막에 일어나는 일이에요.'}]});}},
+ {title:'복제 결과 비교',inst:'태어난 복제 양 돌리는 <b>누구와 핵 속 유전 정보가 같을까요?</b> 알맞은 양을 클릭하세요.',run(W,done){
+  const box=h('div',{class:'fb'});let finished=false;
+  const opts=[{face:'w',label:'체세포 제공 양',ok:true},{face:'b',label:'난자 제공 양',why:'난자 제공 양의 핵은 제거했어요. 돌리의 핵은 어디에서 왔는지 떠올려 보세요.'},{face:'b',label:'대리모',why:'대리모는 배아를 자궁에서 길러 낳아 주었을 뿐, 돌리에게 핵을 주지 않았어요.'}];
+  const row=h('div',{class:'sheeprow'});
+  opts.forEach(o=>{const c=sheepCard(o.face,o.label);c.classList.add('pickable');c.onclick=()=>{if(finished)return;if(o.ok){finished=true;c.classList.add('right');fb(box,'ok','맞아요! 돌리는 <b>체세포 제공 양의 핵</b>을 받았으므로 핵 속 유전 정보가 체세포 제공 양과 같아요. 그래서 얼굴도 흰색이에요.<br>하지만 복제 동물이 외모와 성격까지 <b>완전히 똑같은 것은 아니에요</b>. 자라는 환경과 경험도 생물의 특징에 영향을 주기 때문이에요.');done();}else{c.classList.add('wrong');fb(box,'bad',o.why);}};row.append(c);});
+  const dol=h('div',{class:'dolly'},h('span',{html:sheepSVG('w')}),'복제 양 돌리 (1996년 탄생)');
+  W.append(h('div',{class:'s7',style:'grid-template-columns:240px 1fr'},dol,h('div',{},row,box)));
+ }}],
+ meaning:'<ul><li><b>체세포 핵 이식</b>: 핵을 제거한 난자에 다른 개체의 체세포 핵을 넣어 배아를 만들고, 대리모를 통해 새 개체를 태어나게 하는 방법이에요.</li><li>1996년 태어난 복제 양 <b>돌리</b>는 다 자란 동물의 체세포로도 복제가 가능하다는 것을 보여 주었어요.</li><li>복제 동물은 체세포 제공 개체와 <b>핵 속 유전 정보가 같지만</b>, 외모·성격까지 완전히 같은 것은 아니에요.</li><li>동물 복제는 멸종 위기 동물 보존, 의약품 생산 연구 등에 활용될 수 있지만 <b>윤리적 논쟁</b>도 함께 일어나고 있어요.</li></ul>',
+ quiz:{q:'복제 양 돌리에 대한 설명으로 옳은 것은?',options:[
+  {t:'돌리는 체세포를 제공한 양과 핵 속 유전 정보가 같다.',ok:true,why:'맞아요! 돌리의 핵은 체세포 제공 양에게서 왔어요.'},
+  {t:'돌리는 체세포 제공 양과 성격과 행동까지 완전히 똑같다.',ok:false,why:'유전 정보가 같아도 환경과 경험에 따라 성격이나 행동은 달라질 수 있어요.'},
+  {t:'돌리의 유전 정보는 대리모에게서 왔다.',ok:false,why:'대리모는 배아를 길러 낳아 주었을 뿐, 핵을 제공하지 않았어요.'}]},
+ success:'체세포 핵 이식 기술을 통해 동물 복제가 가능하다는 사실이 입증되었어요!',
+ hintEra:'20세기 후반(1996년)의 일이에요.',oneLine:'체세포 핵 이식으로 복제 양 돌리 탄생'
+});
+
+/* ---------- STAGE 8 ---------- */
+const FRAGS=['ATGGCTA','CTAACGT','CGTTCAG','CAGGATC','ATCCTGA','TGAAGCT'];
+function fragEl(f){const e=h('div',{class:'frag'});[...f].forEach((ch,i)=>{const s=i<3&&i>=f.length-3?'both':i<3?'os':i>=f.length-3?'oe':'';e.append(h('span',{class:s},ch));});return e;}
+const CHROMO='<svg class="chromo" viewBox="0 0 900 86"><rect x="10" y="15" width="880" height="40" rx="20" fill="#16345f" stroke="#7ee8ff" stroke-width="2"/><g fill="#2c5a92">'+[60,130,170,260,330,420,520,560,640,720,800].map((x,i)=>`<rect x="${x}" y="15" width="${12+(i%3)*8}" height="40"/>`).join('')+'</g><rect x="440" y="10" width="18" height="50" rx="9" fill="#0b1a30"/><rect x="560" y="8" width="150" height="54" rx="6" fill="none" stroke="#ffc857" stroke-width="3" stroke-dasharray="6 4"/><text x="635" y="80" font-size="13" fill="#ffc857" text-anchor="middle" font-family="sans-serif">확대한 부분</text></svg>';
+STAGES.push({
+ icon:'🩺',short:'인간 유전체 연구',title:'미래 의학의 시작 — 인간 유전체 연구',era:'21세기 초',eraLabel:'2003년, 여러 나라의 공동 연구',yearNum:2003,yearText:'2003년',yearShort:'2003년',
+ story:'여러 나라의 과학자들이 힘을 모아 사람이 가진 유전 정보 전체, 즉 <b>인간 유전체</b>를 해독하는 연구를 했고, 2003년에 그 결과를 발표했어요.<br><br>유전체 정보는 우리의 건강과 의학에 어떤 변화를 가져올까요? 그리고 유전체만으로 모든 것을 알 수 있을까요?',
+ goal:'21세기 초 인간 유전체 연구가 질병의 조기 진단, 의약품 개발, 유전자 치료 등의 발전에 기여했음을 이해한다.',
+ steps:[
+ {title:'유전체 지도 완성',inst:'유전 정보 조각들의 <b>겹치는 부분</b>(앞 조각의 끝 3글자 = 다음 조각의 첫 3글자)을 찾아 왼쪽부터 순서대로 이어 붙이세요.',note:'※ 실제 염기 서열 분석 과정이 아니라 개념을 이해하기 위한 교육용 모형이에요.',run(W,done){
+  const box=h('div',{class:'fb'});let filled=1;
+  const slots=FRAGS.map((_,i)=>h('div',{class:'fslot'},h('span',{class:'fnum'},i+1)));
+  slots[0].append(fragEl(FRAGS[0]));
+  const pool=h('div',{class:'fpool'});const out=h('div',{class:'seqout'});
+  shuffle(FRAGS.slice(1)).forEach(f=>{const e=fragEl(f);pool.append(e);draggable(e,{targets:()=>slots.slice(1).filter(s=>!s.querySelector('.frag')),drop:s=>{
+   const i=slots.indexOf(s);
+   if(!slots[i-1].querySelector('.frag')){fb(box,'bad','왼쪽 칸부터 <b>차례대로</b> 이어 붙여요. 앞 칸이 먼저 채워져야 해요.');return false;}
+   const prev=FRAGS[i-1].slice(-3);
+   if(f.slice(0,3)!==prev){fb(box,'bad',`앞 조각의 끝부분 <b style="color:#7ee8ff">${prev}</b>와(과) 이 조각의 시작 부분 <b style="color:#ffd56b">${f.slice(0,3)}</b>이(가) 같아야 겹쳐서 이어 붙일 수 있어요.`);return false;}
+   s.append(e);e.classList.add('locked');filled++;
+   if(filled===FRAGS.length){const full=FRAGS.reduce((a,b)=>a+b.slice(3));out.textContent='🧬 '+full;fb(box,'ok','🎉 유전 정보 조각을 모두 이어 붙여 긴 서열을 완성했어요! 인간 유전체 연구에서는 이렇게 아주 많은 조각을 <b>컴퓨터로 분석</b>해 약 30억 쌍의 염기로 이루어진 유전체 지도를 완성했어요.');done();}
+   else fb(box,'ok',`연결 성공! (${filled}/${FRAGS.length})`);return true;}});});
+  W.append(h('div',{},h('div',{html:CHROMO}),h('div',{class:'fragrow'},slots),pool,out,h('div',{class:'tiny',style:'text-align:center;margin-top:4px'},'노란 글자: 조각의 시작 부분 · 하늘색 글자: 조각의 끝부분'),box));
+  fb(box,'info','1번 칸의 끝부분 <b>CTA</b>로 시작하는 조각을 찾아 2번 칸에 놓아 보세요.');
+ }},
+ {title:'유전적 단서 찾기',inst:'가상의 인물 "하늘" 씨의 유전체 검사 결과를 보고, 각 정보에 알맞은 설명을 <b>선으로 연결</b>하세요.',note:'※ 학습을 위해 만든 가상의 인물과 검사 결과예요.',run(W,done){
+  W.append(h('div',{class:'panel patient'},h('div',{class:'av'},'🧑'),h('div',{html:'<b>가상 인물 하늘 (40세)</b><br>가족 중 같은 질병을 앓은 사람이 있어 유전체 검사를 받았어요. 검사 결과 <b>특정 질병의 위험과 관련된 유전적 차이</b>가 발견되었어요.'})));
+  MatchTask(W,{heads:['검사 결과 정보','의미'],onDone:done,left:[
+   {id:'a',text:'질병 위험과 관련된 유전적 차이 발견',ans:'a',why:'위험을 미리 알면 무엇을 더 자주 확인할 수 있을지 생각해 보세요.'},
+   {id:'b',text:'약의 효과와 관련된 유전 정보',ans:'b',why:'사람마다 같은 약에도 반응이 다를 수 있어요.'},
+   {id:'c',text:'"위험이 높다"는 검사 결과',ans:'c',why:'위험이 높다는 것과 반드시 병에 걸린다는 것은 같은 뜻이 아니에요.'}],right:[
+   {id:'a',text:'정기 검진으로 질병을 일찍 발견하는 데 도움을 받을 수 있다.'},
+   {id:'b',text:'몸에 더 잘 맞는 약을 고르는 데 참고할 수 있다.'},
+   {id:'c',text:'반드시 병에 걸린다는 뜻은 아니다.'}]});
+ }},
+ {title:'의료 기술 연결',inst:'유전체 연구가 활용되는 의료 기술과 알맞은 사례를 <b>선으로 연결</b>하세요.',run(W,done){MatchTask(W,{heads:['의료 기술','활용 사례'],onDone:done,left:[
+  {id:'a',text:'🔍 질병 조기 진단',ans:'a',why:'"조기"는 일찍이라는 뜻이에요. 병을 일찍 찾아내는 사례를 골라 보세요.'},
+  {id:'b',text:'💊 의약품 개발',ans:'b',why:'새로운 약을 만드는 사례를 골라 보세요.'},
+  {id:'c',text:'🧬 유전자 치료',ans:'c',why:'유전자 자체에 작용해 치료하는 사례를 골라 보세요.'}],right:[
+  {id:'a',text:'유전자 검사로 질병의 위험을 미리 확인한다.'},
+  {id:'b',text:'질병과 관련된 유전자를 표적으로 하는 새로운 약을 만든다.'},
+  {id:'c',text:'제 역할을 못 하는 유전자가 제대로 작동하도록 돕는 치료를 연구한다.'}]});}},
+ {title:'연구의 한계 이해',inst:'유전체 연구에 대한 설명 카드를 끌어 <b>옳은 설명(O)</b>과 <b>틀린 설명(X)</b> 상자에 넣으세요.',run(W,done){BinTask(W,{onDone:done,bins:[{id:'o',label:'⭕ 옳은 설명'},{id:'x',label:'❌ 틀린 설명'}],cards:[
+  {text:'유전체 정보만으로 모든 질병을 확실하게 예측할 수 있다.',bin:'x',why:'유전체 정보는 질병 위험을 예측하는 데 도움을 주지만, 모든 질병을 확정적으로 예측할 수는 없어요.'},
+  {text:'운동, 식습관, 수면 같은 생활 습관도 건강에 영향을 준다.',bin:'o',why:'건강에는 유전뿐 아니라 환경과 생활 습관도 함께 영향을 줘요.'},
+  {text:'유전적 위험이 있어도 생활 습관 관리와 정기 검진이 도움이 될 수 있다.',bin:'o',why:'위험을 미리 알면 생활 습관을 관리하고 검진을 받아 대비할 수 있어요.'},
+  {text:'유전체 정보가 같으면 환경과 관계없이 건강 상태도 똑같다.',bin:'x',why:'유전 정보가 같아도 환경과 생활 습관에 따라 건강 상태는 달라질 수 있어요.'},
+  {text:'개인의 유전 정보는 소중한 개인 정보이므로 보호해야 한다.',bin:'o',why:'유전 정보는 매우 민감한 개인 정보라서 함부로 공개되거나 이용되지 않도록 보호해야 해요.'}]});}}],
+ meaning:'<ul><li><b>유전체</b>는 한 생물이 가진 유전 정보 전체예요. 2003년 인간 유전체 연구의 주요 결과가 발표되었어요.</li><li>인간 유전체 연구는 <b>질병의 조기 진단</b>, <b>의약품 개발</b>, <b>유전자 치료</b> 등의 발전에 기여하고 있어요.</li><li>하지만 유전체 정보만으로 모든 질병을 확정적으로 예측할 수는 없어요. <b>환경과 생활 습관</b>도 건강에 함께 영향을 줘요.</li><li>개인의 유전 정보는 소중하므로 <b>보호</b>되어야 해요.</li></ul>',
+ quiz:{q:'인간 유전체 연구에 대한 설명으로 가장 알맞은 것은?',options:[
+  {t:'유전체 정보는 질병 위험을 예측하는 데 도움을 주지만, 생활 습관과 환경도 함께 고려해야 한다.',ok:true,why:'맞아요! 유전체 정보는 중요한 단서지만 건강을 결정하는 유일한 요인은 아니에요.'},
+  {t:'유전체 정보만 알면 어떤 병에 걸릴지 확정적으로 알 수 있다.',ok:false,why:'유전체 정보만으로는 모든 질병을 확정적으로 예측할 수 없어요.'},
+  {t:'인간 유전체 연구는 농작물의 생산량을 늘리기 위한 기술이다.',ok:false,why:'인간 유전체 연구는 주로 질병의 진단과 치료 등 의학 발전에 기여하고 있어요.'}]},
+ success:'인간 유전체 연구는 질병의 조기 진단과 새로운 치료 기술 개발의 중요한 기반이 되었어요!',
+ hintEra:'21세기 초(2003년)의 일이에요.',oneLine:'유전체 정보로 조기 진단·의약품·유전자 치료 발전'
+});
+
+/* ================= 쉬운 버전: 게임 활동만 남기고 글 줄이기 ================= */
+const SIMPLE=[
+ {keep:[0,1],story:'사람들이 농사를 짓기 시작했어요.<br>빵을 <b>폭신하게</b>, 작물을 <b>더 많이</b> 얻을 수 있을까요?',
+  inst:['재료를 그릇에 끌어 넣고, 반죽을 섞고, 발효시켜 보세요. <b>A에만 효모</b>를 넣어요!','씨앗 심기 → 물 주기 → 수확 → <b>좋은 작물 2그루 고르기</b>를 반복하세요.'],
+  meaning:'<ul><li>🍞 <b>발효</b>: 효모 같은 미생물로 음식을 만들어요.</li><li>🌾 <b>품종 개량</b>: 좋은 작물을 골라 여러 세대 길러요.</li></ul>',
+  quiz:{q:'좋은 작물을 골라 여러 세대 기르는 기술은?',options:[{t:'품종 개량',ok:true,why:'맞아요!'},{t:'발효',ok:false,why:'발효는 미생물로 음식을 만드는 기술이에요.'},{t:'백신',ok:false,why:'백신은 감염병을 예방하는 기술이에요.'}]}},
+ {keep:[0],story:'17세기, <b>현미경</b>이 발달했어요.<br>눈에 안 보이는 작은 세계를 들여다볼까요?',
+  inst:['표본을 재물대로 끌고, 조명·배율을 맞추고, <b>손잡이를 돌려</b> 초점을 맞추세요. <b>세포와 미생물</b>을 하나씩 찾아 기록해요.'],
+  meaning:'<ul><li>🔬 현미경으로 <b>세포</b>와 <b>미생물</b>을 처음 볼 수 있게 되었어요.</li></ul>',
+  quiz:{q:'현미경으로 처음 볼 수 있게 된 것은?',options:[{t:'세포와 미생물',ok:true,why:'맞아요!'},{t:'DNA의 모양',ok:false,why:'DNA 모양은 20세기에 밝혀졌어요.'},{t:'사람의 유전체 전체',ok:false,why:'유전체는 21세기에 밝혀졌어요.'}]}},
+ {keep:[2],story:'무서운 감염병 <b>천연두</b>가 퍼졌어요.<br>제너는 소의 병인 <b>우두</b>를 이용해 천연두를 막는 방법을 찾았어요.',
+  inst:['주사기를 끌어 <b>한 마을에만</b> 예방접종을 하고, 천연두 유행을 시뮬레이션해 보세요.'],
+  meaning:'<ul><li>💉 <b>백신</b>은 병에 걸리기 전에 미리 맞아 <b>감염병을 예방</b>해요.</li><li>단, 100% 막지는 못해요.</li></ul>',
+  quiz:{q:'백신의 가장 큰 목적은?',options:[{t:'감염병을 미리 예방하기',ok:true,why:'맞아요!'},{t:'세균 감염병 치료하기',ok:false,why:'세균 감염병 치료는 페니실린 같은 항생제가 해요.'},{t:'모든 감염을 100% 막기',ok:false,why:'백신도 100% 막지는 못해요.'}]}},
+ {keep:[0,1],story:'멘델은 완두를 길렀어요.<br>부모의 <b>꽃 색</b>은 자손에게 어떻게 전해질까요?',
+  inst:['<b>보라 꽃</b>과 <b>흰 꽃</b> 완두를 끌어 놓고 교배하세요. 자손 꽃을 세어 기록해요.','<b>잡종 1대</b>끼리 교배해 보세요. 어떤 꽃이 나올까요?'],
+  meaning:'<ul><li>🌸 잡종 1대: 모두 보라색 → 숨어 있던 흰색이 잡종 2대에 다시 나타나요(약 3 : 1).</li><li>형질은 <b>유전 요소</b>를 통해 자손에게 전해져요.</li></ul>',
+  quiz:{q:'잡종 2대에서 흰 꽃이 다시 나온 까닭은?',options:[{t:'흰 꽃 유전 요소가 숨어 있다가 전해져서',ok:true,why:'맞아요!'},{t:'흰 꽃이 약한 형질이라서',ok:false,why:'열성은 "약하다"는 뜻이 아니에요.'},{t:'날씨가 바뀌어서',ok:false,why:'꽃 색은 물려받은 유전 요소로 정해져요.'}]}},
+ {keep:[0,1,2],story:'플레밍의 세균 접시에 <b>푸른곰팡이</b>가 피었어요.<br>그런데 뭔가 이상한데…?',
+  inst:['<b>돋보기를 끌어</b> 접시를 살펴보고 단서 3개를 찾으세요.','세균이 <b>자라지 않은 곳</b>을 클릭하세요.','곰팡이를 <b>한 접시에만</b> 넣고, 시간을 3일까지 보내 비교하세요.'],
+  meaning:'<ul><li>🍄 푸른곰팡이가 만든 <b>페니실린</b>은 세균이 자라는 것을 막아요.</li><li>페니실린은 <b>세균 감염병</b> 치료제예요. 감기 바이러스엔 효과가 없어요.</li></ul>',
+  quiz:{q:'페니실린으로 치료할 수 있는 병은?',options:[{t:'세균 감염병',ok:true,why:'맞아요!'},{t:'감기 같은 바이러스 병',ok:false,why:'페니실린은 바이러스에는 효과가 없어요.'},{t:'모든 병',ok:false,why:'페니실린은 세균 감염병에만 써요.'}]}},
+ {keep:[0,1,2],story:'유전 정보가 담긴 <b>DNA</b>는 어떤 모양일까요?<br>X선 사진을 단서로 모형을 만들어 봐요!',
+  inst:['<b>돋보기를 끌어</b> X선 사진에서 단서 2개를 찾으세요.','짝이 맞는 염기를 빈칸으로 끌어 놓으세요. (A–T, G–C)','골격 2개를 양옆에 붙이고 <b>비틀기</b>를 끝까지 밀어 보세요.'],
+  meaning:'<ul><li>🧬 1953년, DNA가 <b>이중 나선</b> 모양이라는 것이 밝혀졌어요.</li><li>이 발견은 뒤에 <b>유전자 기술</b>이 발전하는 바탕이 되었어요.</li></ul>',
+  quiz:{q:'DNA에서 짝을 이루는 염기는?',options:[{t:'A–T, G–C',ok:true,why:'맞아요!'},{t:'A–G, T–C',ok:false,why:'A는 T와, G는 C와 짝이에요.'},{t:'A–C, G–T',ok:false,why:'A는 T와, G는 C와 짝이에요.'}]}},
+ {keep:[0,1,3],story:'과학자들은 다 자란 양의 <b>체세포</b>로 새 양을 만들 수 있을지 도전했어요.<br>그렇게 태어난 양이 <b>돌리</b>예요!',
+  inst:['난자를 작업대로 끌고, 난자의 <b>핵을 빼내</b> 접시로 옮기세요.','체세포의 <b>핵</b>을 끌어 빈 난자에 넣고 ⚡ 버튼을 누르세요.','돌리와 <b>핵 속 유전 정보가 같은 양</b>을 클릭하세요.'],
+  meaning:'<ul><li>🐑 <b>체세포 핵 이식</b>으로 복제 양 돌리가 태어났어요(1996년).</li><li>유전 정보는 같아도 성격까지 같지는 않아요.</li></ul>',
+  quiz:{q:'복제 양에 대해 옳은 것은?',options:[{t:'유전 정보는 같지만 성격까지 같지는 않다',ok:true,why:'맞아요! 자라는 환경도 영향을 줘요.'},{t:'성격과 행동까지 완전히 같다',ok:false,why:'환경과 경험에 따라 달라질 수 있어요.'},{t:'대리모와 유전 정보가 같다',ok:false,why:'핵은 체세포 제공 양에게서 왔어요.'}]}},
+ {keep:[0,'scan'],story:'여러 나라 과학자들이 사람의 유전 정보 전체, <b>인간 유전체</b>를 밝혀냈어요(2003년).<br>이 정보로 병을 미리 찾아볼까요?',
+  inst:['조각의 <b>겹치는 글자</b>를 찾아 왼쪽부터 이어 붙이세요.','<b>스캐너를 끌어</b> DNA를 훑으며 숨은 <b>질병 표지 3개</b>를 찾으세요.'],
+  meaning:'<ul><li>🩺 유전체 연구로 병을 <b>일찍 발견</b>하고 <b>새 약</b>과 <b>유전자 치료</b>를 연구해요.</li><li>하지만 유전체만으로 모든 병을 알 수는 없어요. 생활 습관도 중요해요.</li></ul>',
+  quiz:{q:'유전자 검사에서 "질병 위험이 높다"는 뜻은?',options:[{t:'걸릴 가능성이 있으니 미리 관리하면 좋다',ok:true,why:'맞아요! 정기 검진과 생활 습관 관리가 도움이 돼요.'},{t:'반드시 그 병에 걸린다',ok:false,why:'위험이 높다고 반드시 걸리는 것은 아니에요.'},{t:'생활 습관은 상관없다',ok:false,why:'생활 습관도 건강에 큰 영향을 줘요.'}]}}
+];
+const SCAN_STEP={title:'유전자 검사기',note:'※ 실제 유전자 검사가 아니라 개념을 이해하기 위한 교육용 모형이에요.',run(W,done){
+ const N=36,marks=shuffle([...Array(N-4).keys()].map(i=>i+2)).slice(0,3);const cols=['#ff8a8a','#ffd56b','#6fe39a','#7ec8ff'];
+ const box=h('div',{class:'fb'});let found=0;const tok=screenTok;
+ const bands=[...Array(N)].map((_,i)=>h('div',{class:'gband',style:`background:${cols[(i*7+3)%4]}`}));
+ const strip=h('div',{class:'gstrip'},bands);const scan=h('div',{class:'scanner'},h('span',{},'🔦 끌기'));
+ const tally=h('div',{class:'gtally'},'찾은 표지: 0 / 3');
+ const wrap=h('div',{class:'gwrap'},strip,scan);
+ W.append(h('div',{class:'patient panel'},h('div',{class:'av'},'🧑'),h('div',{html:'<b>가상 인물 하늘</b>의 DNA를 검사해요. 숨어 있는 <b>질병 표지</b>를 찾아 주세요!'})),wrap,tally,box);
+ let pos=.03;
+ const place=()=>{scan.style.left=(pos*100)+'%';const idx=Math.min(N-1,Math.floor(pos*N));bands.forEach((b,i)=>b.classList.toggle('lit',i===idx));
+  if(marks.includes(idx)&&!bands[idx].classList.contains('found')){bands[idx].classList.add('found');found++;tally.textContent=`찾은 표지: ${found} / 3`;SFX.ok();
+   if(found===3){fb(box,'ok','🎉 질병 표지를 모두 찾았어요! 위험을 미리 알면 <b>정기 검진</b>으로 병을 <b>일찍 발견</b>할 수 있어요.');done();}
+   else fb(box,'info','🚨 질병 표지 발견! 계속 찾아보세요.');}};
+ scan.addEventListener('pointerdown',e=>{e.preventDefault();scan.setPointerCapture(e.pointerId);scan.classList.add('on');const r=wrap.getBoundingClientRect();
+  const mv=ev=>{if(!alive(tok))return;pos=Math.max(0,Math.min(.999,(ev.clientX-r.left)/r.width));place();};
+  const up=()=>{scan.removeEventListener('pointermove',mv);scan.removeEventListener('pointerup',up);scan.classList.remove('on');};
+  scan.addEventListener('pointermove',mv);scan.addEventListener('pointerup',up);});
+ place();bands.forEach(b=>b.classList.remove('lit'));
+ fb(box,'info','노란 스캐너를 좌우로 끌어 DNA를 훑어보세요.');
+}};
+SIMPLE.forEach((o,i)=>{const st=STAGES[i];st.story=o.story;st.meaning=o.meaning;st.quiz=o.quiz;
+ st.steps=o.keep.map((k,j)=>Object.assign({},k==='scan'?SCAN_STEP:st.steps[k],{inst:o.inst[j]}));});
+/* ================= 화면 흐름 ================= */
+let curStage=-1,curStep=0,rerun=null;
+const isOpen=i=>i===0||S.done.includes(i-1);
+const fmtYear=v=>v<0?`기원전 ${-v}년`:`${v}년`;
+function updateTop(){const n=S.done.length;$('#pfill').style.width=(n/8*100)+'%';$('#ptext').textContent=`${n} / 8 완료`;
+ $('#where').textContent=curStage>=0?`현재: STAGE ${curStage+1} · ${STAGES[curStage].short}`:curStage===-2?'현재: 최종 미션':'';
+ $('#btnReset').style.display=rerun?'':'none';}
+function titleScreen(){curStage=-1;rerun=null;updateTop();const any=S.done.length>0;
+ show(h('div',{class:'title-screen'},h('div',{class:'tring'},h('div',{class:'tm-rings',html:RINGS}),h('div',{class:'core'},'🧬')),h('h1',{},'BIO TIME MACHINE'),h('p',{class:'sub'},'생명 기술 시간 여행'),h('p',{class:'lead'},'아주 먼 옛날부터 21세기까지 시간 여행을 하며, 생명 기술이 발전해 온 과정을 직접 실험으로 체험해 보세요. 실험에 성공해야 다음 시대로 갈 수 있어요!'),
+  h('div',{class:'row center'},h('button',{class:'btn big',onclick:()=>{SFX.warp();mapScreen();}},any?'▶ 이어 하기':'▶ 시간 여행 시작'),any?h('button',{class:'btn ghost',onclick:resetAll},'↺ 처음부터 다시'):null,h('button',{class:'btn ghost',onclick:help},'❓ 조작 방법')),
+  h('p',{class:'tiny'},'진행 상황은 지금 사용하는 이 컴퓨터의 이 브라우저에만 자동 저장돼요.')));}
+function mapScreen(){curStage=-1;rerun=null;updateTop();
+ const grid=h('div',{class:'tl-grid'});
+ STAGES.forEach((st,i)=>{const done=S.done.includes(i),open=isOpen(i);
+  grid.append(h('button',{class:`tl-node ${done?'done':open?'open':'locked'}`,onclick:()=>{if(!open){toast('🔒 이전 시대의 실험을 먼저 성공해야 열려요!');SFX.bad();return;}startStage(i);}},
+   h('div',{class:'tl-icon'},open?h('div',{class:'map-art',html:STAGE_ART[i]}):'🔒'),h('div',{class:'tl-n'},`STAGE ${i+1}`),h('div',{class:'tl-t'},st.short),h('div',{class:'tl-era'},`${st.era} · ${st.yearShort}`),h('div',{class:'tl-s'},done?'✔ 완료 (다시 도전 가능)':open?(S.step[i]?`▶ 활동 ${String.fromCharCode(65+S.step[i])}부터 이어 하기`:'▶ 도전 가능'):'잠김')));});
+ const all=S.done.length===8;
+ grid.append(h('button',{class:`tl-node final ${S.finalDone?'done':all?'open':'locked'}`,onclick:()=>{if(!all){toast('🔒 8개 스테이지를 모두 완료하면 열려요!');SFX.bad();return;}showTimeline();}},h('div',{class:'tl-icon'},all?'🏆':'🔒'),h('div',{class:'tl-n'},'FINAL'),h('div',{class:'tl-t'},'생명 기술 연대표'),h('div',{class:'tl-era'},'8개 시대 모두 완료하면 열려요'),h('div',{class:'tl-s'},all?(S.finalDone?'▶ 완성한 연대표 보기':'▶ 최종 미션 도전'):'잠김')));
+ show(h('div',{},h('div',{class:'map-head'},h('h2',{},'⏳ 시간 여행 지도'),h('p',{class:'tiny'},'시대 순서대로 여행해요. 실험에 성공하면 다음 시대가 열려요.'),h('div',{class:'row center'},h('button',{class:'btn',onclick:continueGame},'▶ 이어 하기'),S.finalDone?h('button',{class:'btn ghost',onclick:endingScreen},'🏆 생명 기술 연대표'):null,h('button',{class:'btn ghost',onclick:resetAll},'↺ 처음부터 다시'))),grid));}
+function continueGame(){const i=[...Array(8).keys()].find(k=>!S.done.includes(k));if(i===undefined)showTimeline();else startStage(i);}
+function showTimeline(){if(S.finalDone){endingScreen();return;}finalMission();}
+function startStage(i){curStage=i;introScreen(i);}
+
+const STAGE_ART=[
+`<svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${STAGES[0].short} 삽화"><defs><linearGradient id="bg0" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff1cc"/><stop offset="1" stop-color="#ffd5a0"/></linearGradient><linearGradient id="pl0" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d6e7f1"/></linearGradient></defs><ellipse cx="140" cy="211" rx="100" ry="15" fill="#4a7992" opacity=".15"/><rect x="21" y="12" width="238" height="190" rx="39" fill="url(#bg0)" stroke="#ffffff" stroke-width="5"/><circle cx="60" cy="45" r="7" fill="#fff" opacity=".85"/><circle cx="225" cy="55" r="5" fill="#fff" opacity=".9"/><path d="M65 169L140 133L215 169L140 203Z" fill="#f6fbff" stroke="#b8d2e1" stroke-width="2"/><path d="M65 169L140 203V217L65 184Z" fill="#d1e5f2"/><path d="M140 203L215 169V184L140 217Z" fill="#b5d4e5"/><text x="140" y="151" font-size="83" text-anchor="middle">🌾</text><text x="70" y="111" font-size="47" text-anchor="middle">🍞</text><text x="213" y="110" font-size="43" text-anchor="middle">🌱</text><path d="M42 72l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".9"/><path d="M231 132l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#fff" opacity=".9"/></svg>`,
+`<svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${STAGES[1].short} 삽화"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9f5ff"/><stop offset="1" stop-color="#b7e4fa"/></linearGradient><linearGradient id="pl1" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d6e7f1"/></linearGradient></defs><ellipse cx="140" cy="211" rx="100" ry="15" fill="#4a7992" opacity=".15"/><rect x="21" y="12" width="238" height="190" rx="39" fill="url(#bg1)" stroke="#ffffff" stroke-width="5"/><circle cx="60" cy="45" r="7" fill="#fff" opacity=".85"/><circle cx="225" cy="55" r="5" fill="#fff" opacity=".9"/><path d="M65 169L140 133L215 169L140 203Z" fill="#f6fbff" stroke="#b8d2e1" stroke-width="2"/><path d="M65 169L140 203V217L65 184Z" fill="#d1e5f2"/><path d="M140 203L215 169V184L140 217Z" fill="#b5d4e5"/><text x="140" y="151" font-size="83" text-anchor="middle">🔬</text><text x="70" y="111" font-size="47" text-anchor="middle">🦠</text><text x="213" y="110" font-size="43" text-anchor="middle">🧫</text><path d="M42 72l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".9"/><path d="M231 132l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#fff" opacity=".9"/></svg>`,
+`<svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${STAGES[2].short} 삽화"><defs><linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe4ee"/><stop offset="1" stop-color="#ffd4bc"/></linearGradient><linearGradient id="pl2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d6e7f1"/></linearGradient></defs><ellipse cx="140" cy="211" rx="100" ry="15" fill="#4a7992" opacity=".15"/><rect x="21" y="12" width="238" height="190" rx="39" fill="url(#bg2)" stroke="#ffffff" stroke-width="5"/><circle cx="60" cy="45" r="7" fill="#fff" opacity=".85"/><circle cx="225" cy="55" r="5" fill="#fff" opacity=".9"/><path d="M65 169L140 133L215 169L140 203Z" fill="#f6fbff" stroke="#b8d2e1" stroke-width="2"/><path d="M65 169L140 203V217L65 184Z" fill="#d1e5f2"/><path d="M140 203L215 169V184L140 217Z" fill="#b5d4e5"/><text x="140" y="151" font-size="83" text-anchor="middle">🐄</text><text x="70" y="111" font-size="47" text-anchor="middle">💉</text><text x="213" y="110" font-size="43" text-anchor="middle">🛡️</text><path d="M42 72l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".9"/><path d="M231 132l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#fff" opacity=".9"/></svg>`,
+`<svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${STAGES[3].short} 삽화"><defs><linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e4f7d8"/><stop offset="1" stop-color="#c8edbd"/></linearGradient><linearGradient id="pl3" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d6e7f1"/></linearGradient></defs><ellipse cx="140" cy="211" rx="100" ry="15" fill="#4a7992" opacity=".15"/><rect x="21" y="12" width="238" height="190" rx="39" fill="url(#bg3)" stroke="#ffffff" stroke-width="5"/><circle cx="60" cy="45" r="7" fill="#fff" opacity=".85"/><circle cx="225" cy="55" r="5" fill="#fff" opacity=".9"/><path d="M65 169L140 133L215 169L140 203Z" fill="#f6fbff" stroke="#b8d2e1" stroke-width="2"/><path d="M65 169L140 203V217L65 184Z" fill="#d1e5f2"/><path d="M140 203L215 169V184L140 217Z" fill="#b5d4e5"/><text x="140" y="151" font-size="83" text-anchor="middle">🪴</text><text x="70" y="111" font-size="47" text-anchor="middle">🫛</text><text x="213" y="110" font-size="43" text-anchor="middle">🌸</text><path d="M42 72l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".9"/><path d="M231 132l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#fff" opacity=".9"/></svg>`,
+`<svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${STAGES[4].short} 삽화"><defs><linearGradient id="bg4" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e3f5ec"/><stop offset="1" stop-color="#b9e5d5"/></linearGradient><linearGradient id="pl4" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d6e7f1"/></linearGradient></defs><ellipse cx="140" cy="211" rx="100" ry="15" fill="#4a7992" opacity=".15"/><rect x="21" y="12" width="238" height="190" rx="39" fill="url(#bg4)" stroke="#ffffff" stroke-width="5"/><circle cx="60" cy="45" r="7" fill="#fff" opacity=".85"/><circle cx="225" cy="55" r="5" fill="#fff" opacity=".9"/><path d="M65 169L140 133L215 169L140 203Z" fill="#f6fbff" stroke="#b8d2e1" stroke-width="2"/><path d="M65 169L140 203V217L65 184Z" fill="#d1e5f2"/><path d="M140 203L215 169V184L140 217Z" fill="#b5d4e5"/><text x="140" y="151" font-size="83" text-anchor="middle">🧫</text><text x="70" y="111" font-size="47" text-anchor="middle">🔎</text><text x="213" y="110" font-size="43" text-anchor="middle">🦠</text><path d="M42 72l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".9"/><path d="M231 132l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#fff" opacity=".9"/></svg>`,
+`<svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${STAGES[5].short} 삽화"><defs><linearGradient id="bg5" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e5e6ff"/><stop offset="1" stop-color="#cdd4ff"/></linearGradient><linearGradient id="pl5" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d6e7f1"/></linearGradient></defs><ellipse cx="140" cy="211" rx="100" ry="15" fill="#4a7992" opacity=".15"/><rect x="21" y="12" width="238" height="190" rx="39" fill="url(#bg5)" stroke="#ffffff" stroke-width="5"/><circle cx="60" cy="45" r="7" fill="#fff" opacity=".85"/><circle cx="225" cy="55" r="5" fill="#fff" opacity=".9"/><path d="M65 169L140 133L215 169L140 203Z" fill="#f6fbff" stroke="#b8d2e1" stroke-width="2"/><path d="M65 169L140 203V217L65 184Z" fill="#d1e5f2"/><path d="M140 203L215 169V184L140 217Z" fill="#b5d4e5"/><text x="140" y="151" font-size="83" text-anchor="middle">🧬</text><text x="70" y="111" font-size="47" text-anchor="middle">🔬</text><text x="213" y="110" font-size="43" text-anchor="middle">✨</text><path d="M42 72l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".9"/><path d="M231 132l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#fff" opacity=".9"/></svg>`,
+`<svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${STAGES[6].short} 삽화"><defs><linearGradient id="bg6" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff1dc"/><stop offset="1" stop-color="#f3ddbd"/></linearGradient><linearGradient id="pl6" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d6e7f1"/></linearGradient></defs><ellipse cx="140" cy="211" rx="100" ry="15" fill="#4a7992" opacity=".15"/><rect x="21" y="12" width="238" height="190" rx="39" fill="url(#bg6)" stroke="#ffffff" stroke-width="5"/><circle cx="60" cy="45" r="7" fill="#fff" opacity=".85"/><circle cx="225" cy="55" r="5" fill="#fff" opacity=".9"/><path d="M65 169L140 133L215 169L140 203Z" fill="#f6fbff" stroke="#b8d2e1" stroke-width="2"/><path d="M65 169L140 203V217L65 184Z" fill="#d1e5f2"/><path d="M140 203L215 169V184L140 217Z" fill="#b5d4e5"/><text x="140" y="151" font-size="83" text-anchor="middle">🐑</text><text x="70" y="111" font-size="47" text-anchor="middle">🧫</text><text x="213" y="110" font-size="43" text-anchor="middle">🐑</text><path d="M42 72l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".9"/><path d="M231 132l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#fff" opacity=".9"/></svg>`,
+`<svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${STAGES[7].short} 삽화"><defs><linearGradient id="bg7" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dff7f5"/><stop offset="1" stop-color="#c4e9f2"/></linearGradient><linearGradient id="pl7" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d6e7f1"/></linearGradient></defs><ellipse cx="140" cy="211" rx="100" ry="15" fill="#4a7992" opacity=".15"/><rect x="21" y="12" width="238" height="190" rx="39" fill="url(#bg7)" stroke="#ffffff" stroke-width="5"/><circle cx="60" cy="45" r="7" fill="#fff" opacity=".85"/><circle cx="225" cy="55" r="5" fill="#fff" opacity=".9"/><path d="M65 169L140 133L215 169L140 203Z" fill="#f6fbff" stroke="#b8d2e1" stroke-width="2"/><path d="M65 169L140 203V217L65 184Z" fill="#d1e5f2"/><path d="M140 203L215 169V184L140 217Z" fill="#b5d4e5"/><text x="140" y="151" font-size="83" text-anchor="middle">🧬</text><text x="70" y="111" font-size="47" text-anchor="middle">💊</text><text x="213" y="110" font-size="43" text-anchor="middle">🩺</text><path d="M42 72l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".9"/><path d="M231 132l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#fff" opacity=".9"/></svg>`
+];
+function introScreen(i){const st=STAGES[i];curStage=i;rerun=()=>introScreen(i);updateTop();
+ const yr=h('div',{class:'yr'},'');const resume=S.step[i]||0;
+ const info=h('div',{class:'intro-info hidden'},h('div',{class:'row'},h('span',{class:'chip'},`STAGE ${i+1}`),h('span',{class:'chip gold'},st.era)),h('h2',{},st.title),
+  h('div',{class:'panel story'},h('h4',{},'📜 시대 배경과 문제 상황'),h('p',{html:st.story})),
+  h('div',{class:'row'},h('button',{class:'btn big',onclick:()=>runStep(i,resume)},resume?`▶ 활동 ${String.fromCharCode(65+resume)}부터 이어 하기`:'🔬 실험실 입장'),resume?h('button',{class:'btn ghost',onclick:()=>{S.step[i]=0;save();runStep(i,0);}},'처음 활동부터'):null,h('button',{class:'btn ghost',onclick:mapScreen},'🗺️ 지도')));
+ show(h('div',{class:'intro'},h('div',{class:'tm'},h('div',{class:'tm-rings',html:RINGS}),h('div',{class:'era-art',html:STAGE_ART[i]}),yr,h('div',{class:'tm-era'},st.eraLabel)),info));
+ const from=i?STAGES[i-1].yearNum:-10000,to=st.yearNum,t0=performance.now(),D=1500,tok=screenTok;SFX.warp();
+ (function f(t){if(!alive(tok))return;const p=Math.min(1,(t-t0)/D),e=1-Math.pow(1-p,3);yr.textContent=fmtYear(Math.round(from+(to-from)*e));if(p<1)requestAnimationFrame(f);else{yr.textContent=st.yearText;info.classList.remove('hidden');}})(t0);}
+function runStep(i,k){const st=STAGES[i],sp=st.steps[k];curStage=i;curStep=k;S.step[i]=k;save();rerun=()=>runStep(i,k);updateTop();
+ const work=h('div',{class:'work'});const last=k===st.steps.length-1;
+ const next=h('button',{class:'btn big',disabled:true,onclick:()=>{if(!last)runStep(i,k+1);else meaningScreen(i);}},last?'결과 정리하기 ▶':'다음 활동 ▶');
+ const tabs=h('div',{class:'steps'},st.steps.map((s,j)=>h('div',{class:`stp ${j<k?'done':j===k?'cur':''}`},h('b',{},j<k?'✔':String.fromCharCode(65+j)),h('span',{},s.title))));
+ show(h('div',{class:'stage'},h('div',{class:'stagebar'},h('span',{class:'chip'},`STAGE ${i+1} · ${st.era}`),tabs),h('div',{class:'steph'},h('div',{class:'stage-mini-art',html:STAGE_ART[i]}),h('h2',{},`활동 ${String.fromCharCode(65+k)}. ${sp.title}`),h('p',{class:'inst',html:sp.inst})),work,h('div',{class:'stepfoot'},h('span',{class:'note'},sp.note||NOTE),next)));
+ let fired=false;sp.run(work,()=>{if(fired)return;fired=true;next.disabled=false;next.classList.add('pulse');toast(last?'✨ 모든 활동 성공! 결과를 정리해 봐요.':'✨ 활동 성공! 다음 활동으로 넘어갈 수 있어요.');});}
+function meaningScreen(i){const st=STAGES[i];curStage=i;rerun=()=>meaningScreen(i);updateTop();
+ const qhost=h('div');const clearBtn=h('button',{class:'btn big',disabled:true,onclick:()=>clearStage(i)},i===7?'🏁 스테이지 완료':'🏁 다음 시대 잠금 해제');
+ show(h('div',{class:'stage'},h('div',{class:'stagebar'},h('span',{class:'chip'},`STAGE ${i+1} · ${st.era}`),h('span',{class:'chip gold'},'결과 관찰 · 핵심 개념 정리')),h('div',{class:'steph'},h('h2',{},st.title)),
+  h('div',{class:'mean-grid'},h('div',{class:'panel'},h('h3',{},'🔎 실험으로 알게 된 것'),h('div',{class:'mean',html:st.meaning})),h('div',{class:'panel'},h('h3',{},'✅ 핵심 개념 확인'),qhost,h('div',{class:'row',style:'margin-top:10px'},clearBtn)))));
+ Quiz(qhost,{...st.quiz,onDone:()=>{clearBtn.disabled=false;clearBtn.classList.add('pulse');}});}
+function clearStage(i){const st=STAGES[i];if(!S.done.includes(i))S.done.push(i);S.done.sort();S.step[i]=0;save();rerun=null;curStage=i;updateTop();SFX.win();confetti();const last=i===7;
+ show(h('div',{class:'clear'},h('div',{class:'clear-badge'},st.icon),h('span',{class:'chip'},`STAGE ${i+1} 클리어`),h('h2',{},st.title),h('p',{class:'clear-msg'},`"${st.success}"`),
+  h('p',{class:'unlock'},last?'🔓 최종 연대표 배열 미션이 열렸어요!':`🔓 다음 시대 「${STAGES[i+1].short}」이(가) 열렸어요!`),
+  h('div',{class:'row center'},h('button',{class:'btn big',onclick:()=>last?showTimeline():startStage(i+1)},last?'🏆 최종 연대표 미션 도전':'⏳ 다음 시대로 시간 여행'),h('button',{class:'btn ghost',onclick:mapScreen},'🗺️ 지도 보기'))));}
+function finalMission(){curStage=-2;rerun=finalMission;updateTop();
+ const items=STAGES.map((s,i)=>({id:'s'+i,text:s.icon+' '+s.short,hint:s.hintEra}));const host=h('div');
+ show(h('div',{class:'stage'},h('div',{class:'stagebar'},h('span',{class:'chip gold'},'🏆 최종 미션')),h('div',{class:'steph'},h('h2',{},'생명 기술 연대표 완성'),h('p',{class:'inst',html:'카드를 끌어 생명 기술이 발달한 <b>순서대로</b> 1번부터 8번 칸에 배열하세요. <b>가장 먼저 시작된 기술이 1번</b>이에요.'})),host));
+ SortTask(host,{items,cols:4,btnText:'연대표 확인',onDone:()=>{S.finalDone=true;S.finishedAt=new Date().toISOString();save();setTimeout(endingScreen,700);}});}
+function endingScreen(){curStage=-1;rerun=null;updateTop();SFX.win();confetti();const d=S.finishedAt?new Date(S.finishedAt):new Date();
+ show(h('div',{class:'ending'},h('span',{class:'chip gold'},'🏆 학습 완료'),h('h1',{},'생명 기술 시간 여행 완료!'),h('p',{class:'clear-msg'},'생명 기술은 식량 생산에서 시작해 질병 예방과 치료, 유전 정보 연구까지 발전해 왔습니다.'),
+  h('div',{class:'tl-line'},STAGES.map((s,i)=>h('div',{class:'tl-item',style:`animation-delay:${.3+i*.35}s`},h('div',{class:'tl-dot'},s.icon),h('div',{class:'tl-y'},s.yearShort),h('div',{class:'tl-tt'},s.short),h('div',{class:'tl-d'},s.oneLine)))),
+  h('p',{class:'tiny'},`완료 일시: ${d.toLocaleString('ko-KR')}`),
+  h('div',{class:'row center'},h('button',{class:'btn',onclick:()=>window.print()},'🖨️ 완료 화면 인쇄'),h('button',{class:'btn ghost',onclick:mapScreen},'🗺️ 지도'),h('button',{class:'btn ghost',onclick:resetAll},'↺ 처음부터 다시'))));}
+function resetAll(){modal('<h3>처음부터 다시 시작할까요?</h3><p>완료한 스테이지 기록이 모두 지워지고, 1단계만 열린 상태로 돌아가요.</p>',[{t:'취소',cls:'ghost'},{t:'처음부터 다시',fn:()=>{S.done=[];S.step={};S.finalDone=false;S.finishedAt=null;save();titleScreen();toast('기록을 지우고 처음 상태로 돌아갔어요.');}}]);}
+function help(){modal(`<h3>❓ 조작 방법</h3><ul>
+<li><b>끌어 놓기</b>: 재료·카드·도구를 마우스 왼쪽 버튼으로 누른 채 원하는 곳으로 옮긴 뒤 놓아요. 노란 테두리가 보이는 곳에 놓을 수 있어요.</li>
+<li><b>돋보기·스캐너</b>: 누른 채 움직여 숨은 단서를 찾아요.</li>
+<li><b>돌리기·섞기</b>: 현미경 초점 손잡이나 반죽 그릇을 누른 채 마우스를 빙글빙글 움직여요.</li>
+<li><b>슬라이더</b>: 동그란 조절점을 끌어 온도·시간·밝기 등을 정해요.</li>
+<li>틀려도 괜찮아요! 힌트를 보고 <b>몇 번이든</b> 다시 도전할 수 있어요.</li>
+<li>화면이 이상하면 위쪽 <b>↺ 실험 초기화</b>를 누르면 지금 활동만 처음 상태로 돌아가요.</li>
+<li>진행 상황은 <b>이 컴퓨터의 이 브라우저에만</b> 저장돼요. 다른 컴퓨터에서는 이어 할 수 없어요.</li></ul>`,[{t:'알겠어요'}]);}
+
+/* ================= 시작 ================= */
+load();
+$('#logo').onclick=titleScreen;
+$('#btnMap').onclick=mapScreen;
+$('#btnHelp').onclick=help;
+$('#btnReset').onclick=()=>{if(rerun){rerun();toast('↺ 지금 활동을 처음 상태로 되돌렸어요.');}};
+const sndBtn=$('#btnSound');const paintSnd=()=>sndBtn.textContent=S.sound?'🔊 소리':'🔇 소리';
+sndBtn.onclick=()=>{S.sound=!S.sound;save();paintSnd();if(S.sound)SFX.ok();};paintSnd();
+$('#btnFull').onclick=()=>{try{if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}catch(e){toast('이 브라우저에서는 전체 화면을 사용할 수 없어요. F11 키를 눌러 보세요.');}};
+document.addEventListener('dragstart',e=>e.preventDefault());
+titleScreen();
+</script>
+</body>
+</html>
