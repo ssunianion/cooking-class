@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SMART FARM — 나만의 스마트팜 연구소</title>
+<style>
+:root{
+  --page:#e1ede4; --bar:#fbfdfb; --ink:#173a2f; --muted:#5b7568; --line:#cfe0d4; --chip:#eef6f0;
+  --pine:#17463a; --leaf:#2f9e5b; --sun:#f5b82e; --water:#2f8fe0; --heat:#f07a2c; --cool:#3cb6d8; --nutri:#5bb04a; --bad:#d9443a;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --page:#0f1c16; --bar:#15261e; --ink:#e3f0e7; --muted:#97b2a2; --line:#28403a; --chip:#1c3128; color-scheme: dark; }
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--page);color:var(--ink);font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden;font-size:14px}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+button:disabled{cursor:not-allowed}
+
+/* ---------- top bar ---------- */
+#topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bar);border-bottom:1px solid var(--line);flex-wrap:wrap;min-height:58px}
+.brand{display:flex;align-items:center;gap:8px;margin-right:4px}
+.brand svg{width:34px;height:34px}
+.brand b{display:block;font-size:16px;letter-spacing:.02em;color:var(--pine)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .brand b{color:#8fe0ae} }
+.brand span{font-size:11.5px;color:var(--muted)}
+.farmname{display:flex;align-items:center;gap:6px;background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:4px 8px}
+.farmname small{color:var(--muted);font-size:11px}
+.farmname input{border:0;background:transparent;color:var(--ink);font:inherit;font-weight:700;width:130px;outline:none}
+.stats{display:flex;gap:6px}
+.stat{background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:3px 10px;min-width:70px;line-height:1.25}
+.stat small{display:block;font-size:10.5px;color:var(--muted)}
+.stat b{font-size:14px}
+.stat .sub{font-size:11px;color:var(--muted);margin-left:4px}
+.stat.env.good b{color:var(--leaf)} .stat.env.warn b{color:#c98a00} .stat.env.bad b{color:var(--bad)}
+.speed{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.speed button{border:0;background:var(--chip);color:var(--ink);padding:7px 10px;font-weight:700;font-size:13px}
+.speed button.on{background:var(--pine);color:#fff}
+.switch{display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;user-select:none}
+.switch input{appearance:none;width:36px;height:20px;border-radius:20px;background:#b9c8bf;position:relative;cursor:pointer;transition:background .2s;margin:0}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.switch input:checked{background:var(--leaf)}
+.switch input:checked::after{left:18px}
+.tbtn{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:10px;padding:7px 12px;font-weight:700;font-size:13px}
+.tbtn:hover{border-color:var(--leaf)}
+.tbtn.danger{color:var(--bad)}
+.spacer{flex:1}
+
+.askbox{max-width:400px;text-align:center}
+.askbox p{font-size:16px;font-weight:700;line-height:1.6;margin:6px 0 0}
+.askicon{font-size:46px}
+/* ---------- title screen ---------- */
+#titleScreen{position:fixed;inset:0;z-index:80;overflow:hidden;background:#cfeeff;transition:opacity .6s,transform .6s}
+#titleScreen.out{opacity:0;transform:scale(1.04);pointer-events:none}
+#titleScreen .tbg{position:absolute;inset:0;width:100%;height:100%}
+.tcloud{animation:tdrift 40s linear infinite}
+.tcloud.slow{animation-duration:65s}
+@keyframes tdrift{from{transform:translateX(-300px)}to{transform:translateX(1700px)}}
+.tdrops ellipse{animation:tfall 1s linear infinite}
+.tdrops ellipse:nth-child(2){animation-delay:-.25s}.tdrops ellipse:nth-child(3){animation-delay:-.5s}.tdrops ellipse:nth-child(4){animation-delay:-.75s}
+@keyframes tfall{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(30px);opacity:0}}
+.tcontent{position:absolute;left:50%;top:6vh;transform:translateX(-50%);text-align:center;width:min(92vw,900px)}
+.tlogo svg{width:min(12vh,100px);height:min(12vh,100px);filter:drop-shadow(0 8px 14px rgba(23,70,58,.35));animation:tbob 3s ease-in-out infinite}
+@keyframes tbob{50%{transform:translateY(-8px)}}
+.ttitle{margin:10px 0 0;white-space:nowrap;font-size:clamp(38px,min(6.8vw,11vh),120px);font-weight:900;letter-spacing:.03em;color:#fff;font-family:"Segoe UI Black","Arial Black","Malgun Gothic",sans-serif;line-height:1;
+  -webkit-text-stroke:3px #17463a;paint-order:stroke fill;text-shadow:0 6px 0 #17463a,0 14px 26px rgba(23,70,58,.35)}
+.tsub{margin:16px 0 0;font-size:clamp(20px,2.8vw,34px);font-weight:900;color:#17463a;letter-spacing:.08em}
+.tplay{position:absolute;left:50%;bottom:6vh;translate:-50% 0;border:0;border-radius:999px;padding:clamp(14px,2.2vh,22px) clamp(44px,5vw,72px);font-size:clamp(22px,2.6vw,32px);font-weight:900;color:#3d2c00;
+  background:linear-gradient(180deg,#ffe07a,#f5b82e);box-shadow:0 7px 0 #c98d10,0 14px 30px rgba(0,0,0,.2);animation:tpulse 1.6s ease-in-out infinite;font-family:inherit}
+.tplay:hover{filter:brightness(1.05)}
+.tplay:active{transform:translateY(5px);box-shadow:0 2px 0 #c98d10}
+@keyframes tpulse{50%{transform:scale(1.05)}}
+@media (prefers-reduced-motion: reduce){.tcloud,.tdrops ellipse,.tlogo svg,.tplay{animation:none}}
+
+/* ---------- shop / orders / weather ---------- */
+.shopbtn{background:#fff3cf!important;border-color:#efd889!important;color:#6d5000!important;position:relative}
+.shopbtn.can::after{content:"";position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:#e8304a;border:2px solid var(--bar)}
+.shopbox{max-width:860px}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.sitem{border:2px solid var(--line);background:var(--chip);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.sitem .si{display:flex;align-items:center;gap:10px}
+.sitem .si span{font-size:30px;width:46px;height:46px;border-radius:12px;background:var(--bar);display:grid;place-items:center;flex:none}
+.sitem b{font-size:15px}
+.sitem p{margin:0;font-size:12.5px;line-height:1.55;color:var(--muted)}
+.sitem .eff{color:var(--ink);font-weight:700}
+.sitem button{margin-top:auto;border:0;border-radius:12px;padding:10px;font-weight:800;font-size:14px;background:var(--sun);color:#3d2c00}
+.sitem button:disabled{background:#d9e2dc;color:#7d9186}
+.sitem.own{border-color:var(--leaf);background:rgba(47,158,91,.1)}
+.sitem.own button{background:var(--leaf);color:#fff;opacity:1}
+.uplist{display:flex;flex-wrap:wrap;gap:5px;font-size:12px}
+.uplist span{background:#eef6f0;border-radius:20px;padding:3px 9px;color:#3f5a4d}
+.uplist em{font-style:normal;color:#8aa196}
+.tabs button{position:relative}
+.tbadge{position:absolute;top:1px;right:8px;min-width:16px;height:16px;border-radius:8px;background:#f5b82e;color:#3d2c00;font-size:10px;font-weight:900;display:grid;place-items:center;padding:0 4px}
+.tbadge.hot{background:#e8304a;color:#fff}
+.order{border:2px solid #f1e2ad;background:linear-gradient(170deg,#fffbea,#fff 60%)}
+.order.match{border-color:#2f9e5b}
+.ohead{display:flex;align-items:center;gap:9px}
+.oav{font-size:24px;width:40px;height:40px;border-radius:12px;background:#fff3cf;display:grid;place-items:center;flex:none}
+.ohead b{font-size:13.5px;display:block}
+.ohead small{font-size:11.5px;color:#6b8075}
+.ohead small.late{color:#d9443a;font-weight:800}
+.orew{margin-left:auto;font-weight:900;color:#b47a00;font-size:16px;white-space:nowrap}
+.oreq{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;margin:8px 0 2px;color:#173a2f}
+.oreq svg{width:24px;height:24px}
+.sechead{margin:4px 2px 8px;font-size:13px;color:var(--pine)}
+.invrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed #e3ebe6}
+.invrow:last-child{border:0}
+.invrow svg{width:32px;height:32px;flex:none}
+.invrow.empty svg{filter:grayscale(1) opacity(.4)}
+.invmid{flex:1;min-width:0}
+.invmid b{font-size:13px;display:block}
+.invmid small{font-size:11px;color:#6b8075}
+.sellbtn{border:0;border-radius:10px;padding:5px 9px;font-size:11px;font-weight:700;background:#dcecfb;color:#1d65a8;line-height:1.3;min-width:78px}
+.sellbtn b{font-size:12.5px}
+.sellbtn:disabled{background:#eef2ef;color:#9aaba1}
+.order .act{margin-top:8px}
+.oline{font-size:11.5px;color:#6b8075;margin:4px 0 0;font-style:italic}
+#wxBanner{position:absolute;left:12px;top:12px;z-index:4;background:rgba(255,255,255,.94);border-radius:14px;padding:7px 12px;font-size:13px;font-weight:800;color:#173a2f;box-shadow:0 4px 14px rgba(0,0,0,.15);max-width:46%;line-height:1.4}
+#wxBanner small{display:block;font-weight:600;color:#5b7568;font-size:11.5px}
+#wxBanner.active{background:rgba(255,236,230,.96);color:#a62a20;animation:wxpulse 1.4s ease-in-out infinite}
+@keyframes wxpulse{50%{box-shadow:0 0 0 5px rgba(217,68,58,.25)}}
+.wxbox{font-size:12.5px;line-height:1.55}
+.wxbox b{font-size:14px}
+.wxbox.active{color:#a62a20}
+.snow{animation:snow linear infinite}
+@keyframes snow{from{transform:translate(0,-30px)}to{transform:translate(30px,650px)}}
+.rain{animation:rain linear infinite}
+@keyframes rain{from{transform:translate(0,-40px)}to{transform:translate(-40px,660px)}}
+.wind{stroke-dasharray:60 40;animation:wind 1.1s linear infinite}
+@keyframes wind{to{stroke-dashoffset:-200}}
+.heatwave{animation:heatw 1.6s ease-in-out infinite}
+@keyframes heatw{50%{transform:translateY(-6px)}}
+
+/* ---------- main ---------- */
+main{flex:1;display:grid;grid-template-columns:65% 35%;min-height:0}
+#farmPanel{display:flex;flex-direction:column;min-height:0;padding:10px 6px 10px 12px;gap:8px}
+#farmWrap{flex:1;min-height:0;position:relative;border-radius:18px;overflow:hidden;background:#bfe3f7;box-shadow:0 1px 0 rgba(0,0,0,.05),0 8px 24px rgba(23,70,58,.12)}
+#farm{width:100%;height:100%;display:block}
+#toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;z-index:5}
+.toast{background:rgba(23,58,47,.92);color:#fff;padding:8px 14px;border-radius:12px;font-size:13px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.2);animation:tin .25s ease-out}
+.toast.warn{background:rgba(176,112,0,.95)} .toast.bad{background:rgba(190,48,40,.95)} .toast.ok{background:rgba(31,128,74,.95)}
+@keyframes tin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* flow strip */
+#flow{background:var(--bar);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+.flow-nodes{display:flex;align-items:center;gap:4px}
+.fnode{flex:1;display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:10px;background:var(--chip);border:1px solid var(--line);font-size:12.5px;font-weight:700;color:var(--muted);transition:background .25s,color .25s,border-color .25s;white-space:nowrap;min-width:0}
+.fnode i{font-style:normal;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:#c7d8cd;color:#fff;font-size:11px;flex:none}
+.fnode.ping{border-color:#8cc9a3}
+.fnode.on{background:var(--pine);color:#fff;border-color:var(--pine)}
+.fnode.on i{background:var(--sun);color:var(--pine)}
+.farrow{color:#9db3a6;font-size:12px;flex:none}
+#flowMsg{margin-top:6px;font-size:13px;min-height:19px;color:var(--ink)}
+#flowMsg b{color:var(--leaf)}
+
+/* ---------- phone ---------- */
+#phonePanel{display:flex;align-items:center;justify-content:center;padding:10px 12px 10px 6px;min-height:0}
+.phone{height:min(100%,800px);aspect-ratio:9/18.6;max-width:100%;background:linear-gradient(145deg,#3c4a52,#1d262b);border-radius:46px;padding:11px;box-shadow:0 18px 40px rgba(16,45,36,.35),inset 0 0 0 2px #5d6c74;position:relative}
+.phone::before{content:"";position:absolute;right:-3px;top:120px;width:3px;height:60px;background:#2c363b;border-radius:0 3px 3px 0}
+.screen{height:100%;background:#f3f7f4;border-radius:36px;overflow:hidden;display:flex;flex-direction:column;position:relative;color:#173a2f}
+.island{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:84px;height:22px;background:#0d1214;border-radius:14px;z-index:3}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:9px 22px 2px;font-size:12px;font-weight:700;color:#fff;background:var(--pine)}
+.sbar .icons{display:flex;gap:5px;align-items:center}
+.apphead{background:var(--pine);color:#fff;padding:8px 16px 12px}
+.apphead .t{display:flex;justify-content:space-between;align-items:center}
+.apphead h1{margin:0;font-size:15px;letter-spacing:.04em}
+.apphead .live{font-size:10.5px;display:flex;align-items:center;gap:5px;color:#bfe8cf}
+.apphead .live i{width:7px;height:7px;border-radius:50%;background:#5fe08f;box-shadow:0 0 0 0 rgba(95,224,143,.7)}
+.apphead .live i.blink{animation:blink .6s ease-out}
+@keyframes blink{0%{box-shadow:0 0 0 0 rgba(95,224,143,.9)}100%{box-shadow:0 0 0 8px rgba(95,224,143,0)}}
+.apphead .fn{font-size:11.5px;color:#cde7d8;margin-top:1px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
+.tile{background:rgba(255,255,255,.1);border-radius:12px;padding:6px 9px}
+.tile small{font-size:10.5px;color:#c2ddcf;display:block}
+.tile b{font-size:17px}
+.tile.alert{background:rgba(240,122,44,.32)}
+.fstate{margin-top:7px;background:#fff;color:var(--pine);border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:700;display:flex;justify-content:space-between}
+.fstate.warn{background:#fff3d6;color:#8a5a00} .fstate.bad{background:#ffe1dd;color:#a62a20}
+.pbody{flex:1;overflow-y:auto;padding:10px 12px 12px;scrollbar-width:thin}
+.panel{display:none}
+.panel.on{display:block}
+.card{background:#fff;border-radius:16px;padding:11px 12px;margin-bottom:9px;box-shadow:0 1px 2px rgba(23,70,58,.08)}
+.card h4{margin:0 0 7px;font-size:13px;color:var(--pine)}
+.row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:3px 0}
+.row span{color:#5b7568}
+.metric{display:flex;justify-content:space-between;align-items:baseline}
+.metric span{font-size:12.5px;color:#5b7568}
+.metric b{font-size:26px;color:var(--pine)}
+.pill{font-size:11.5px;font-weight:700;border-radius:20px;padding:3px 9px;background:#e7eee9;color:#6b8075;white-space:nowrap}
+.pill.on{background:#d8f2e1;color:#1d7a45}
+.pill.blue{background:#dcecfb;color:#1d65a8}
+.pill.heat{background:#ffe6d4;color:#b4531a}
+.pill.cool{background:#d7f1f8;color:#1c7d97}
+.pill.warn{background:#fff0c9;color:#8a5a00}
+.gauge{position:relative;height:16px;border-radius:9px;background:#e9efeb;margin:9px 0 4px;overflow:visible}
+.gauge .band{position:absolute;top:0;bottom:0;background:rgba(47,158,91,.22);border-radius:9px}
+.gauge .fill{position:absolute;left:0;top:4px;bottom:4px;border-radius:6px;transition:width .3s}
+.gauge .mk{position:absolute;top:-5px;width:3px;height:26px;border-radius:2px;transform:translateX(-1.5px)}
+.mk.start{background:var(--water)} .mk.stop{background:#173a2f} .mk.thr{background:var(--nutri)} .mk.lo{background:var(--heat)} .mk.hi{background:var(--cool)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:10.5px;color:#5b7568}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:3px}
+.seg{display:flex;background:#e2ebe5;border-radius:12px;padding:3px;margin-bottom:9px}
+.seg button{flex:1;border:0;background:transparent;padding:7px;border-radius:9px;font-weight:700;color:#5b7568;font-size:13px}
+.seg button.on{background:#fff;color:var(--pine);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.btnrow{display:flex;gap:7px}
+.act{flex:1;border:0;border-radius:12px;padding:11px 8px;font-weight:800;font-size:13.5px;color:#fff;transition:transform .08s,filter .15s}
+.act:active{transform:scale(.97)}
+.act:disabled{filter:grayscale(1);opacity:.45}
+.act.blue{background:var(--water)} .act.green{background:var(--leaf)} .act.heat{background:var(--heat)} .act.cool{background:#1fa3c7} .act.ghost{background:#e2ebe5;color:var(--pine)} .act.sun{background:var(--sun);color:#3d2c00}
+.act.wide{width:100%;margin-top:8px}
+.hint{font-size:11.5px;color:#6b8075;margin:7px 0 0;line-height:1.5}
+.sl{display:block;margin:8px 0}
+.sl span{display:flex;justify-content:space-between;font-size:12.5px;color:#3f5a4d}
+.sl input{width:100%;accent-color:var(--leaf)}
+.err{font-size:12px;color:var(--bad);font-weight:700;min-height:16px}
+.badge{margin-top:8px;text-align:center;font-weight:800;font-size:13px;padding:7px;border-radius:10px;background:#e7eee9;color:#6b8075}
+.badge.on{background:#d8f2e1;color:#1d7a45}
+.rule{font-size:11.5px;color:#3f5a4d;background:#f2f7f3;border-radius:8px;padding:6px 8px;margin-top:6px;line-height:1.5}
+.note{font-size:11.5px;line-height:1.55;background:#fff8e3;color:#6d5000;border-radius:12px;padding:9px 11px;margin-bottom:9px}
+.loopmini{display:flex;flex-wrap:wrap;gap:3px;font-size:10.5px;color:#5b7568}
+.loopmini span{background:#eef4f0;border-radius:6px;padding:2px 5px}
+.loopmini span.on{background:var(--pine);color:#fff}
+.devlist{list-style:none;margin:0;padding:0}
+.devlist li{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12.5px;border-bottom:1px dashed #e3ebe6}
+.devlist li:last-child{border:0}
+.crophead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.crophead svg{width:42px;height:42px;flex:none}
+.crophead b{font-size:16px;display:block}
+.crophead small{color:#5b7568;font-size:12px}
+.crophead .pill{margin-left:auto}
+.hbar{display:grid;grid-template-columns:44px 1fr 38px;align-items:center;gap:7px;font-size:12px;margin:5px 0}
+.hbar span{color:#5b7568}
+.hbar .tr{height:9px;border-radius:6px;background:#e9efeb;overflow:hidden}
+.hbar .tr i{display:block;height:100%;border-radius:6px;transition:width .3s}
+.hbar em{font-style:normal;font-weight:700;text-align:right}
+.ranges{font-size:11.5px;color:#5b7568;background:#f2f7f3;border-radius:8px;padding:6px 8px;line-height:1.5}
+.cropsel{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cropsel button{border:2px solid #e2ebe5;background:#f6faf7;border-radius:12px;padding:6px 2px;font-size:12px;font-weight:700;color:#3f5a4d;display:flex;flex-direction:column;align-items:center;gap:2px}
+.cropsel button svg{width:30px;height:30px}
+.cropsel button.on{border-color:var(--leaf);background:#ecf8f0}
+.cropsel button small{font-weight:400;color:#6b8075;font-size:10.5px}
+#logList{margin:0;padding-left:0;list-style:none;font-size:11.5px;color:#3f5a4d;max-height:150px;overflow:auto}
+#logList li{padding:3px 0;border-bottom:1px dashed #e3ebe6;line-height:1.45}
+#logList li em{font-style:normal;color:#8aa196;margin-right:5px}
+.harvbtn{width:100%;border:0;border-radius:20px;padding:18px 10px;font-size:17px;font-weight:900;color:#3d2c00;background:linear-gradient(180deg,#ffd76a,#f5b82e);box-shadow:0 5px 0 #c98d10;margin:4px 0 10px;transition:transform .08s}
+.harvbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #c98d10}
+.harvbtn:disabled{background:#dfe6e2;color:#8aa196;box-shadow:0 5px 0 #c3cec8}
+.steps{list-style:none;margin:0;padding:0;counter-reset:st}
+.steps li{display:flex;gap:8px;align-items:center;font-size:12.5px;padding:4px 0;color:#8aa196}
+.steps li i{font-style:normal;width:20px;height:20px;border-radius:50%;background:#e2ebe5;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.steps li.cur{color:var(--pine);font-weight:800}
+.steps li.cur i{background:var(--sun);color:#3d2c00}
+.steps li.done{color:#3f5a4d}
+.steps li.done i{background:var(--leaf);color:#fff}
+.result{background:linear-gradient(160deg,#fff7dc,#fff);border:2px solid #f5d27a}
+.result .big{font-size:22px;font-weight:900;color:#b47a00}
+.tabs{display:flex;background:#fff;border-top:1px solid #e1e9e4;padding:6px 6px 14px}
+.tabs button{flex:1;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:700;color:#8aa196;padding:4px 0;border-radius:10px}
+.tabs button svg{width:22px;height:22px}
+.tabs button.on{color:var(--pine);background:#e8f3ec}
+.hidden{display:none!important}
+
+/* ---------- SVG farm animation ---------- */
+.spin{transform-box:fill-box;transform-origin:center}
+.spin.run{animation:spin .5s linear infinite}
+.spin.slow.run{animation-duration:1.1s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flowline{stroke-dasharray:10 12;opacity:0;transition:opacity .4s}
+.flowline.run{opacity:1;animation:dash .7s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-22}}
+.fx{opacity:0;transition:opacity .5s}
+.fx.run{opacity:1}
+.drop{transform-box:fill-box;animation:fall 0.9s linear infinite}
+@keyframes fall{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}100%{transform:translate(var(--dx,0px),158px);opacity:0}}
+.splash{transform-box:fill-box;transform-origin:center;animation:splash .9s ease-out infinite}
+@keyframes splash{0%{transform:scale(.3);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+.ndrop{transform-box:fill-box;animation:nfall .8s ease-in infinite}
+@keyframes nfall{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(12px);opacity:0}}
+.warm{stroke-dasharray:14 10;animation:dash2 1s linear infinite}
+@keyframes dash2{to{stroke-dashoffset:48}}
+.coolair{stroke-dasharray:16 12;animation:dash2 .8s linear infinite}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 4.5s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+.cloud{animation:drift 60s linear infinite}
+@keyframes drift{from{transform:translateX(-120px)}to{transform:translateX(1120px)}}
+.wifi path{opacity:0}
+.wifi.send path{animation:wifi .7s ease-out}
+.wifi.send path:nth-child(2){animation-delay:.12s}
+.wifi.send path:nth-child(3){animation-delay:.24s}
+@keyframes wifi{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.tag rect{fill:rgba(255,255,255,.88);stroke:rgba(23,70,58,.18)}
+.tag text{font-size:11px;font-weight:700;fill:#24493c;font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+.floattxt{font-weight:900;font-size:22px;fill:#d48d00;stroke:#fff;stroke-width:4px;paint-order:stroke;animation:floatup 1.8s ease-out forwards;font-family:"Malgun Gothic",sans-serif}
+@keyframes floatup{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-60px);opacity:0}}
+.ledw{transition:fill .3s}
+
+/* ---------- modals ---------- */
+.modal{position:fixed;inset:0;background:rgba(10,30,22,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.hidden{display:none}
+.mbox{background:var(--bar);color:var(--ink);border-radius:22px;max-width:680px;width:100%;max-height:92vh;overflow:auto;padding:24px 26px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.mbox h2{margin:0 0 4px;font-size:24px;color:var(--leaf)}
+.mbox .lead{color:var(--muted);margin:0 0 16px;line-height:1.6}
+.mbox label.fl{display:block;font-weight:700;margin:14px 0 6px}
+.mbox input.ti{width:100%;padding:11px 13px;border-radius:12px;border:2px solid var(--line);background:var(--chip);color:var(--ink);font:inherit;font-size:16px;font-weight:700}
+.choose{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.choose.two{grid-template-columns:1fr 1fr}
+.choose button{border:2px solid var(--line);background:var(--chip);color:var(--ink);border-radius:14px;padding:10px 8px;text-align:center;font-size:13px;line-height:1.45}
+.choose button svg{width:46px;height:46px;display:block;margin:0 auto 2px}
+.choose button b{font-size:15px;display:block}
+.choose button.on{border-color:var(--leaf);background:rgba(47,158,91,.12)}
+.mact{display:flex;gap:10px;margin-top:20px}
+.mact button{flex:1;border:0;border-radius:14px;padding:13px;font-size:16px;font-weight:800}
+.mact .go{background:var(--leaf);color:#fff}
+.mact .alt{background:var(--chip);color:var(--ink);border:2px solid var(--line)}
+.notebox h3{margin:18px 0 6px;font-size:16px;color:var(--leaf)}
+.notebox ol,.notebox ul{margin:0;padding-left:20px;line-height:1.7}
+.notebox table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.notebox th,.notebox td{border:1px solid var(--line);padding:6px 7px;text-align:center}
+.notebox th{background:var(--chip)}
+.notebox .loop{background:var(--chip);border-radius:12px;padding:10px 12px;font-weight:700;line-height:1.7}
+.notebox p.small{font-size:12.5px;color:var(--muted);line-height:1.6}
+#celebrate{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) scale(.6);text-align:center;pointer-events:none;opacity:0;z-index:6}
+#celebrate.show{animation:cele 2.4s ease-out forwards}
+@keyframes cele{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}20%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+#celebrate .c1{font-size:clamp(26px,3.6vw,46px);font-weight:900;color:#fff;-webkit-text-stroke:2px #17463a;paint-order:stroke;text-shadow:0 4px 0 #17463a,0 8px 18px rgba(0,0,0,.3)}
+#celebrate .c2{display:inline-block;margin-top:6px;background:#fff;color:#b47a00;font-weight:900;border-radius:20px;padding:5px 14px;font-size:16px}
+#celebrate .c3{font-size:clamp(30px,4vw,52px);font-weight:900;color:#ffd23f;-webkit-text-stroke:2px #8a5a00;text-shadow:0 4px 0 #8a5a00}
+.floattxt.small{font-size:16px;fill:#fff;stroke:#2f7a32}
+.spark,.conf{transform-box:fill-box;transform-origin:center}
+.spark{animation:spark .7s ease-out forwards}
+@keyframes spark{0%{opacity:1;translate:0 0;scale:.4}100%{opacity:0;translate:var(--sx) var(--sy);scale:1.2}}
+.conf{animation:conf 1.6s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes conf{0%{opacity:1;translate:0 0;rotate:0deg}60%{opacity:1}100%{opacity:0;translate:var(--cx) calc(var(--cy) + 220px);rotate:var(--cr)}}
+.plant.ripe .pin,g.ripe>.pin{animation:none}
+g.ripe{animation:ripebob 1.2s ease-in-out infinite}
+@keyframes ripebob{0%,100%{translate:0 0}50%{translate:0 -3px}}
+.tabs button.ready{position:relative;color:#b47a00;animation:tabpulse 1s ease-in-out infinite}
+.tabs button.ready::after{content:"";position:absolute;top:3px;right:16px;width:9px;height:9px;border-radius:50%;background:#e8304a;border:2px solid #fff}
+@keyframes tabpulse{50%{background:#fff3cf}}
+.harvbtn.glow{animation:hglow 1.1s ease-in-out infinite}
+@keyframes hglow{50%{box-shadow:0 5px 0 #c98d10,0 0 0 8px rgba(245,184,46,.3)}}
+.grade{font-size:24px;color:#f5b82e;font-weight:900;margin:2px 0 4px}
+.grade span{font-size:14px;color:#b47a00;margin-left:8px}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.bd svg{width:40px;height:40px;filter:grayscale(1) opacity(.35)}
+.bd small{display:block;font-size:10.5px;color:#8aa196}
+.bd.got svg{filter:none}
+.bd.got small{color:#173a2f;font-weight:700}
+@media (prefers-reduced-motion: reduce){ .cloud,.sway{animation:none} }
+@media (max-width:1500px){ #topbar{gap:6px;padding:8px 10px} .brand span{display:none} .farmname input{width:104px} .stat{min-width:0;padding:3px 8px} .tbtn{padding:7px 9px} .speed button{padding:7px 8px} }
+@media (max-width:1100px){ .farmname small{display:none} .stat .sub{display:none} }
+
+/* Playful, friendly opening screen; gameplay styling remains unchanged */
+#titleScreen{background:#bfeaff}
+#titleScreen .tcontent{top:5vh;width:min(94vw,900px)}
+#titleScreen .ttitle{font-family:"Arial Rounded MT Bold","Malgun Gothic",system-ui,sans-serif;font-size:clamp(46px,min(9vw,12vh),128px);letter-spacing:.045em;color:#fffdf4;-webkit-text-stroke:3px #17614c;text-shadow:0 7px 0 #17614c,0 14px 24px rgba(19,82,59,.22)}
+#titleScreen .tsub{font-size:clamp(17px,2.5vw,30px);color:#1c684e;margin-top:20px}
+#titleScreen .tlogo svg{width:min(11vh,94px);height:min(11vh,94px)}
+#titleScreen .tplay{background:linear-gradient(180deg,#ffe685,#ffc746);border:4px solid #fff8d7;box-shadow:0 7px 0 #d9951b,0 13px 24px rgba(0,0,0,.15);bottom:5vh}
+@media(max-height:650px){#titleScreen .tcontent{top:2vh}#titleScreen .tsub{margin-top:8px}#titleScreen .tplay{bottom:2vh}}
+/* 상단 창고: 누적 수확량이 아닌 현재 보유 수량 */
+.stock-summary{display:flex;align-items:stretch;gap:5px;flex-wrap:wrap}
+.stock-item{display:flex;align-items:center;gap:5px;background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:4px 7px;white-space:nowrap}
+.stock-item small{font-size:11px;color:var(--muted);font-weight:700}
+.stock-item b{font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+.stock-item button{border:0;background:#dcecfb;color:#1d65a8;border-radius:7px;padding:4px 6px;font-size:10px;font-weight:800}
+.stock-item button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:1400px){.stock-item{padding:3px 5px;gap:3px}.stock-item small{font-size:10px}}
+</style>
+</head>
+<body>
+<!-- ===== title screen ===== -->
+<div id="titleScreen">
+  <svg class="tbg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="tSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6cc4ff"/><stop offset=".65" stop-color="#c9ecff"/><stop offset="1" stop-color="#eefaff"/></linearGradient>
+      <linearGradient id="tGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#dff4ff" stop-opacity=".25"/></linearGradient>
+    </defs>
+    <rect width="1600" height="900" fill="url(#tSky)"/>
+    <g transform="translate(1320 150)"><circle r="92" fill="#fff3b0" opacity=".48"/><circle r="63" fill="#ffdb56"/><path d="M-27 -6 Q-20 -14 -13 -6 M13 -6 Q20 -14 27 -6" stroke="#865b19" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M-18 17 Q0 35 18 17" stroke="#865b19" stroke-width="5" stroke-linecap="round" fill="none"/><ellipse cx="-37" cy="13" rx="11" ry="6" fill="#ff9e96" opacity=".65"/><ellipse cx="37" cy="13" rx="11" ry="6" fill="#ff9e96" opacity=".65"/></g>
+    <g class="tcloud" fill="#fff" opacity=".9"><ellipse cx="260" cy="150" rx="80" ry="28"/><ellipse cx="310" cy="128" rx="54" ry="32"/><ellipse cx="210" cy="138" rx="44" ry="24"/></g>
+    <g class="tcloud slow" fill="#fff" opacity=".75"><ellipse cx="1000" cy="90" rx="64" ry="22"/><ellipse cx="1040" cy="72" rx="40" ry="24"/></g>
+    <path d="M0 640 Q260 540 520 610 T1060 590 T1600 600 V900 H0Z" fill="#a9d98c"/>
+    <path d="M0 720 Q360 640 760 712 T1600 690 V900 H0Z" fill="#7cc46a"/>
+    <!-- cute flowers and butterflies -->
+    <g fill="#fff8d7"><circle cx="195" cy="742" r="10"/><circle cx="178" cy="742" r="10"/><circle cx="187" cy="729" r="10"/><circle cx="187" cy="754" r="10"/></g><circle cx="187" cy="742" r="8" fill="#ffcf56"/>
+    <g fill="#fff1f7"><circle cx="1400" cy="710" r="13"/><circle cx="1377" cy="710" r="13"/><circle cx="1389" cy="693" r="13"/><circle cx="1389" cy="726" r="13"/></g><circle cx="1389" cy="710" r="10" fill="#ffd45b"/>
+    <g transform="translate(315 330)"><ellipse cx="-14" cy="-7" rx="18" ry="24" fill="#ffb4d4"/><ellipse cx="14" cy="-7" rx="18" ry="24" fill="#ffcce2"/><ellipse cx="-11" cy="17" rx="13" ry="16" fill="#f9a5cd"/><ellipse cx="11" cy="17" rx="13" ry="16" fill="#ffbbda"/><path d="M0 -10 V28" stroke="#79534b" stroke-width="4"/></g>
+    <!-- greenhouse -->
+    <g transform="translate(560,470)">
+      <ellipse cx="240" cy="262" rx="300" ry="18" fill="#000" opacity=".1"/>
+      <path d="M0 110 Q240 -40 480 110 Z" fill="url(#tGlass)" stroke="#f7fcff" stroke-width="7"/>
+      <rect x="0" y="110" width="480" height="150" fill="url(#tGlass)" stroke="#f7fcff" stroke-width="7"/>
+      <g stroke="#f7fcff" stroke-width="4" opacity=".9"><line x1="120" y1="72" x2="120" y2="260"/><line x1="240" y1="34" x2="240" y2="260"/><line x1="360" y1="72" x2="360" y2="260"/></g>
+      <rect x="40" y="200" width="400" height="44" rx="6" fill="#b47a45"/><rect x="44" y="196" width="392" height="10" fill="#6e4a2b"/>
+      <g transform="translate(100,198)"><ellipse cx="0" cy="-14" rx="26" ry="16" fill="#5fb84a"/><ellipse cx="0" cy="-20" rx="16" ry="12" fill="#c9f08e"/></g>
+      <g transform="translate(190,198)"><path d="M0 0 V-80" stroke="#548f38" stroke-width="5"/><ellipse cx="-14" cy="-50" rx="16" ry="8" fill="#4caf50"/><ellipse cx="14" cy="-66" rx="16" ry="8" fill="#4caf50"/><circle cx="-12" cy="-34" r="9" fill="#e53b2c"/><circle cx="12" cy="-48" r="9" fill="#e53b2c"/><circle cx="-4" cy="-72" r="7" fill="#f2a531"/></g>
+      <g transform="translate(290,198)"><ellipse cx="-14" cy="-20" rx="14" ry="10" fill="#4caf50"/><ellipse cx="14" cy="-24" rx="14" ry="10" fill="#4caf50"/><ellipse cx="0" cy="-32" rx="14" ry="10" fill="#5fbf4f"/><path d="M-20 -6 C-14 -6 -12 2 -20 10 C-28 2 -26 -6 -20 -6Z" fill="#e8304a"/><path d="M20 -8 C26 -8 28 0 20 8 C12 0 14 -8 20 -8Z" fill="#e8304a"/></g>
+      <g transform="translate(380,198)"><ellipse cx="0" cy="-14" rx="26" ry="16" fill="#5fb84a"/><ellipse cx="0" cy="-20" rx="16" ry="12" fill="#c9f08e"/></g>
+      <path d="M60 150 L420 150" stroke="#9fb4c2" stroke-width="6" stroke-linecap="round"/>
+      <g class="tdrops" fill="#59b8ff"><ellipse cx="100" cy="162" rx="2" ry="5"/><ellipse cx="190" cy="162" rx="2" ry="5"/><ellipse cx="290" cy="162" rx="2" ry="5"/><ellipse cx="380" cy="162" rx="2" ry="5"/></g>
+      <!-- cute crop faces -->
+      <g fill="#24493c"><circle cx="93" cy="184" r="2.8"/><circle cx="107" cy="184" r="2.8"/><circle cx="373" cy="184" r="2.8"/><circle cx="387" cy="184" r="2.8"/></g>
+      <g stroke="#24493c" stroke-width="2" stroke-linecap="round" fill="none"><path d="M95 191 Q100 196 105 191"/><path d="M375 191 Q380 196 385 191"/></g>
+      <!-- robot -->
+      <g transform="translate(470,250)"><rect x="-24" y="-36" width="48" height="28" rx="8" fill="#fff" stroke="#2f8fe0" stroke-width="3"/><circle cx="-14" cy="-6" r="8" fill="#2d3438"/><circle cx="14" cy="-6" r="8" fill="#2d3438"/><rect x="-22" y="-56" width="20" height="14" rx="4" fill="#2c3e48"/><circle cx="-12" cy="-49" r="4" fill="#5ff2ff"/></g>
+    </g>
+  </svg>
+  <div class="tcontent">
+    <div class="tlogo">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#17463a"/><path d="M8 28 Q20 6 32 28Z" fill="none" stroke="#bfe8cf" stroke-width="2.4"/><path d="M20 29 V18" stroke="#f5b82e" stroke-width="2.6" stroke-linecap="round"/><path d="M20 21 Q14 19 13 14 Q19 14 20 21Z M20 19 Q25 15 29 16 Q27 21 20 19Z" fill="#5fe08f"/></svg>
+    </div>
+    <h1 class="ttitle">SMART FARM</h1>
+    <p class="tsub">나만의 스마트팜 연구소 🌱</p>
+  </div>
+  <button id="btnPlay" class="tplay">▶ 게임하기</button>
+</div>
+
+<header id="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#17463a"/><path d="M8 28 Q20 6 32 28Z" fill="none" stroke="#bfe8cf" stroke-width="2.4"/><path d="M20 29 V18" stroke="#f5b82e" stroke-width="2.6" stroke-linecap="round"/><path d="M20 21 Q14 19 13 14 Q19 14 20 21Z M20 19 Q25 15 29 16 Q27 21 20 19Z" fill="#5fe08f"/></svg>
+    <div><b>SMART FARM</b><span>나만의 스마트팜 연구소</span></div>
+  </div>
+  <label class="farmname"><small>농장 이름</small><input id="farmName" maxlength="16" placeholder="농장 이름 입력"></label>
+  <div class="stats">
+    <div class="stat"><small>진행</small><b id="tDay">재배 1일 차</b><span class="sub" id="tClock">08:00</span></div>
+    <div class="stat"><small>보유 자금</small><b id="tMoney">300금</b></div>
+    <div class="stock-summary" id="topStock" aria-label="작물별 창고 보유 수량">
+      <div class="stock-item"><small>🥬 상추 · 창고</small><b id="stockLettuce">0</b><button type="button" data-sell="lettuce" disabled>판매</button></div>
+      <div class="stock-item"><small>🍅 토마토 · 창고</small><b id="stockTomato">0</b><button type="button" data-sell="tomato" disabled>판매</button></div>
+      <div class="stock-item"><small>🍓 딸기 · 창고</small><b id="stockStrawberry">0</b><button type="button" data-sell="strawberry" disabled>판매</button></div>
+    </div>
+    <div class="stat"><small>수확 횟수</small><b id="tHarv">0회</b><span class="sub" id="tLv">Lv.1</span></div>
+    <div class="stat env good" id="tEnv"><small>환경 상태</small><b id="tEnvTxt">양호</b></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="speed" id="speedGroup" role="group" aria-label="게임 속도">
+    <button data-s="0" title="일시 정지">❚❚</button><button data-s="1" class="on">1배</button><button data-s="2">2배</button><button data-s="3">3배</button>
+  </div>
+  <label class="switch" title="장치 사용 비용이 들지 않아요"><input type="checkbox" id="learnMode">학습 모드</label>
+  <label class="switch"><input type="checkbox" id="soundOn" checked>소리</label>
+  <button class="tbtn shopbtn" id="btnShop">🛒 상점</button>
+  <button class="tbtn" id="btnNote">개념 노트</button>
+  <button class="tbtn" id="btnSave">저장</button>
+  <button class="tbtn danger" id="btnReset">초기화</button>
+</header>
+
+<main>
+<section id="farmPanel">
+  <div id="farmWrap">
+    <svg id="farm" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet" role="img" aria-label="스마트팜 온실">
+      <defs>
+        <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1"><stop id="sky1" offset="0" stop-color="#7cc6ff"/><stop id="sky2" offset="1" stop-color="#e2f5ff"/></linearGradient>
+        <linearGradient id="gGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".42"/><stop offset=".5" stop-color="#e3f6ff" stop-opacity=".2"/><stop offset="1" stop-color="#ffffff" stop-opacity=".36"/></linearGradient>
+        <linearGradient id="gWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd0ff"/><stop offset="1" stop-color="#2683d4"/></linearGradient>
+        <linearGradient id="gNutri" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6e57f"/><stop offset="1" stop-color="#3c9a46"/></linearGradient>
+        <linearGradient id="gMetal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f2f6f8"/><stop offset=".55" stop-color="#cfd9df"/><stop offset="1" stop-color="#a8b6c0"/></linearGradient>
+        <linearGradient id="gWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cf9459"/><stop offset="1" stop-color="#9a6234"/></linearGradient>
+        <linearGradient id="gSoil" x1="0" y1="0" x2="0" y2="1"><stop id="soil1" offset="0" stop-color="#9c7046"/><stop id="soil2" offset="1" stop-color="#6e4a2b"/></linearGradient>
+        <linearGradient id="gLetD" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#3f9a36"/><stop offset="1" stop-color="#7ccf55"/></linearGradient>
+        <linearGradient id="gLetL" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#7ccf55"/><stop offset="1" stop-color="#c9f08e"/></linearGradient>
+        <linearGradient id="gLeaf" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#2f8a3a"/><stop offset="1" stop-color="#5fbf4f"/></linearGradient>
+        <linearGradient id="gFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcd6c8"/><stop offset="1" stop-color="#c6bead"/></linearGradient>
+        <radialGradient id="gGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffb35c" stop-opacity=".7"/><stop offset="1" stop-color="#ffb35c" stop-opacity="0"/></radialGradient>
+        <clipPath id="clipTank"><rect x="58" y="253" width="74" height="144" rx="11"/></clipPath>
+        <clipPath id="clipNTank"><rect x="58" y="428" width="74" height="94" rx="10"/></clipPath>
+        <clipPath id="clipDoor"><rect x="875" y="468" width="70" height="82"/></clipPath>
+        <filter id="fStress" x="-20%" y="-20%" width="140%" height="140%"><feColorMatrix id="stressMx" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0"/></filter>
+        <pattern id="pShade" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#1f5e3a" opacity=".35"/><line x1="0" y1="0" x2="0" y2="8" stroke="#123d26" stroke-width="3" opacity=".6"/></pattern>
+        <filter id="fSoft" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0b2a1e" flood-opacity=".22"/></filter>
+      </defs>
+
+      <!-- sky & outside -->
+      <rect width="1000" height="620" fill="url(#gSky)"/>
+      <g id="stars" opacity="0"><circle cx="90" cy="40" r="1.6" fill="#fff"/><circle cx="210" cy="22" r="1.2" fill="#fff"/><circle cx="330" cy="55" r="1.4" fill="#fff"/><circle cx="640" cy="30" r="1.5" fill="#fff"/><circle cx="760" cy="62" r="1.2" fill="#fff"/><circle cx="900" cy="26" r="1.7" fill="#fff"/><circle cx="520" cy="16" r="1.1" fill="#fff"/></g>
+      <g id="sun"><circle r="34" fill="#fff3b0" opacity=".35"/><circle r="22" fill="#ffd54a"/></g>
+      <g id="moon" opacity="0"><circle r="18" fill="#f3f1dc"/><circle cx="-7" cy="-5" r="4" fill="#dcd8bd"/><circle cx="6" cy="6" r="3" fill="#dcd8bd"/></g>
+      <g class="cloud"><g transform="translate(0,62)" fill="#fff" opacity=".85"><ellipse cx="0" cy="0" rx="34" ry="13"/><ellipse cx="22" cy="-8" rx="22" ry="14"/><ellipse cx="-20" cy="-4" rx="18" ry="11"/></g></g>
+      <g class="cloud" style="animation-delay:-28s;animation-duration:80s"><g transform="translate(0,34)" fill="#fff" opacity=".7"><ellipse cx="0" cy="0" rx="28" ry="10"/><ellipse cx="16" cy="-7" rx="18" ry="11"/></g></g>
+      <path d="M0 470 Q140 380 290 450 T600 430 T1000 440 V620 H0Z" fill="#a9d98c" id="hill1"/>
+      <path d="M0 520 Q200 460 420 515 T1000 500 V620 H0Z" fill="#82c46a" id="hill2"/>
+      <rect x="0" y="588" width="1000" height="32" fill="#6db556"/>
+
+      <!-- greenhouse back glass -->
+      <path d="M40 130 Q500 10 960 130 Z" fill="url(#gGlass)"/>
+      <rect x="40" y="130" width="920" height="460" fill="url(#gGlass)"/>
+      <g stroke="#f4fbff" stroke-width="4" opacity=".85">
+        <line x1="155" y1="130" x2="155" y2="590"/><line x1="270" y1="130" x2="270" y2="590"/><line x1="385" y1="130" x2="385" y2="590"/><line x1="500" y1="130" x2="500" y2="590"/><line x1="615" y1="130" x2="615" y2="590"/><line x1="730" y1="130" x2="730" y2="590"/><line x1="845" y1="130" x2="845" y2="590"/>
+        <line x1="40" y1="300" x2="960" y2="300"/>
+        <path d="M155 106 L155 130 M270 86 L270 130 M385 74 L385 130 M500 70 L500 130 M615 74 L615 130 M730 86 L730 130 M845 106 L845 130" />
+      </g>
+      <!-- floor -->
+      <rect x="40" y="540" width="920" height="50" fill="url(#gFloor)"/>
+      <g stroke="#b9b09d" stroke-width="1.5" opacity=".7"><line x1="40" y1="565" x2="960" y2="565"/><line x1="120" y1="540" x2="110" y2="590"/><line x1="240" y1="540" x2="232" y2="590"/><line x1="360" y1="540" x2="355" y2="590"/><line x1="480" y1="540" x2="478" y2="590"/><line x1="600" y1="540" x2="601" y2="590"/><line x1="720" y1="540" x2="724" y2="590"/><line x1="840" y1="540" x2="846" y2="590"/></g>
+
+      <!-- signal paths (wireless) -->
+      <path id="sigSoil" d="M730 394 Q520 300 262 196" fill="none" stroke="#2f9e5b" stroke-width="1.5" stroke-dasharray="3 6" opacity=".35"/>
+      <path id="sigTemp" d="M800 186 Q540 120 262 172" fill="none" stroke="#2f9e5b" stroke-width="1.5" stroke-dasharray="3 6" opacity=".35"/>
+
+      <!-- control box -->
+      <g id="ctrl" filter="url(#fSoft)">
+        <line x1="258" y1="150" x2="258" y2="126" stroke="#53636e" stroke-width="3"/><circle cx="258" cy="124" r="4" fill="#f5b82e"/>
+        <rect x="200" y="150" width="66" height="56" rx="9" fill="#2c3e48" stroke="#1b2830" stroke-width="2"/>
+        <rect x="207" y="157" width="52" height="22" rx="4" fill="#0f2b1f"/>
+        <text id="ctrlTxt" x="233" y="172" text-anchor="middle" font-size="10" font-weight="700" fill="#5fe08f" font-family="Consolas,monospace">READY</text>
+        <circle id="ledW" class="ledw" cx="212" cy="192" r="4" fill="#4b5a63"/><circle id="ledH" class="ledw" cx="225" cy="192" r="4" fill="#4b5a63"/><circle id="ledC" class="ledw" cx="238" cy="192" r="4" fill="#4b5a63"/><circle id="ledN" class="ledw" cx="251" cy="192" r="4" fill="#4b5a63"/>
+      </g>
+      <g id="wifi" class="wifi" fill="none" stroke="#2f9e5b" stroke-width="2.5" stroke-linecap="round">
+        <path d="M266 116 Q274 124 266 132"/><path d="M272 110 Q284 124 272 138"/><path d="M278 104 Q294 124 278 144"/>
+      </g>
+
+      <!-- water tank & pump -->
+      <ellipse cx="120" cy="404" rx="70" ry="7" fill="#000" opacity=".12"/>
+      <rect x="55" y="250" width="80" height="150" rx="14" fill="#eef8fd" stroke="#86a9bd" stroke-width="3"/>
+      <g clip-path="url(#clipTank)"><rect id="waterLevel" x="55" y="282" width="80" height="130" fill="url(#gWater)"/><path id="waterWave" d="M55 282 Q75 276 95 282 T135 282 V292 H55Z" fill="#9edbff" opacity=".8"/></g>
+      <rect x="62" y="258" width="7" height="132" rx="3.5" fill="#fff" opacity=".55"/>
+      <rect x="55" y="320" width="80" height="3" fill="#86a9bd" opacity=".55"/><rect x="55" y="360" width="80" height="3" fill="#86a9bd" opacity=".55"/>
+      <rect x="133" y="380" width="10" height="9" fill="#86a9bd"/>
+      <g id="pump" filter="url(#fSoft)">
+        <rect x="140" y="362" width="52" height="40" rx="9" fill="url(#gMetal)" stroke="#7d8f9b" stroke-width="2"/>
+        <circle cx="166" cy="382" r="13" fill="#2b6fb0"/>
+        <g id="impeller" class="spin"><path d="M166 372 L169 382 L166 392 L163 382Z M156 382 L166 379 L176 382 L166 385Z" fill="#cfe7ff"/></g>
+        <circle id="pumpLed" cx="185" cy="369" r="3.5" fill="#9aa8b0"/>
+      </g>
+      <!-- main water pipe -->
+      <path d="M166 362 L166 240 Q166 232 174 232 L752 232" fill="none" stroke="#9fb4c2" stroke-width="10" stroke-linecap="round"/>
+      <path d="M166 362 L166 240 Q166 232 174 232 L752 232" fill="none" stroke="#c9d8e1" stroke-width="3" stroke-linecap="round" opacity=".7" transform="translate(-2,-2)"/>
+      <path id="waterFlow" class="flowline" d="M166 362 L166 240 Q166 232 174 232 L752 232" fill="none" stroke="#3da8ff" stroke-width="4.5" stroke-linecap="round"/>
+      <g id="nozzles"></g>
+      <g id="spray" class="fx"></g>
+
+      <!-- nutrient tank & doser -->
+      <rect x="55" y="425" width="80" height="100" rx="13" fill="#f2fbef" stroke="#84ad83" stroke-width="3"/>
+      <g clip-path="url(#clipNTank)"><rect id="nutLevel" x="55" y="460" width="80" height="70" fill="url(#gNutri)"/></g>
+      <rect x="62" y="432" width="7" height="84" rx="3.5" fill="#fff" opacity=".5"/>
+      <rect x="133" y="482" width="10" height="9" fill="#84ad83"/>
+      <g id="doser" filter="url(#fSoft)">
+        <rect x="140" y="470" width="44" height="34" rx="8" fill="url(#gMetal)" stroke="#7d8f9b" stroke-width="2"/>
+        <g id="gear" class="spin slow"><circle cx="160" cy="487" r="9" fill="#4a9a4d"/><path d="M160 476 V498 M149 487 H171 M152 479 L168 495 M168 479 L152 495" stroke="#cdeec7" stroke-width="2.4"/></g>
+        <circle id="doserLed" cx="178" cy="476" r="3" fill="#9aa8b0"/>
+      </g>
+
+      <!-- temperature sensor -->
+      <g id="tSensor" filter="url(#fSoft)">
+        <line x1="800" y1="132" x2="800" y2="160" stroke="#8aa0ad" stroke-width="2"/>
+        <rect x="778" y="160" width="44" height="48" rx="8" fill="#fff" stroke="#9db4c0" stroke-width="2"/>
+        <rect x="785" y="166" width="7" height="30" rx="3.5" fill="#e7edf0"/>
+        <rect id="tsMerc" x="786.5" y="180" width="4" height="18" fill="#e5483d"/>
+        <circle cx="788.5" cy="199" r="5.5" fill="#e5483d"/>
+        <text id="tsTxt" x="807" y="188" text-anchor="middle" font-size="11" font-weight="800" fill="#24493c" font-family="Segoe UI,sans-serif">17°</text>
+        <circle id="tsPing" cx="815" cy="166" r="3" fill="#5fe08f" opacity="0"/>
+      </g>
+
+      <!-- fan -->
+      <g id="fan" filter="url(#fSoft)">
+        <circle cx="912" cy="212" r="33" fill="#e3ebf0" stroke="#93a6b4" stroke-width="4"/>
+        <g id="fanBlades" class="spin"><path d="M912 212 Q900 186 912 182 Q926 190 912 212Z M912 212 Q938 202 940 214 Q930 228 912 212Z M912 212 Q900 238 888 230 Q886 214 912 212Z" fill="#5f8fb0"/></g>
+        <circle cx="912" cy="212" r="6" fill="#33505f"/>
+        <circle cx="912" cy="212" r="29" fill="none" stroke="#93a6b4" stroke-width="1.5" opacity=".7"/>
+      </g>
+      <g id="coolFx" class="fx" fill="none" stroke="#5cc8ee" stroke-width="3" stroke-linecap="round">
+        <path class="coolair" d="M872 200 Q820 190 770 214 Q720 236 660 220"/>
+        <path class="coolair" d="M872 224 Q810 236 760 260 Q700 284 640 270" style="animation-delay:-.3s"/>
+        <path class="coolair" d="M876 246 Q830 280 780 300 Q730 318 690 312" style="animation-delay:-.55s"/>
+      </g>
+
+      <!-- heater -->
+      <circle id="heatGlow" cx="912" cy="338" r="70" fill="url(#gGlow)" opacity="0"/>
+      <g id="heater" filter="url(#fSoft)">
+        <rect x="878" y="300" width="68" height="74" rx="11" fill="#f6f1e8" stroke="#b9a98f" stroke-width="2.5"/>
+        <g id="coils"><rect x="886" y="312" width="44" height="6" rx="3" fill="#cdbfa7"/><rect x="886" y="324" width="44" height="6" rx="3" fill="#cdbfa7"/><rect x="886" y="336" width="44" height="6" rx="3" fill="#cdbfa7"/><rect x="886" y="348" width="44" height="6" rx="3" fill="#cdbfa7"/></g>
+        <circle id="heatLed" cx="937" cy="364" r="3.5" fill="#9aa8b0"/>
+      </g>
+      <g id="heatFx" class="fx" fill="none" stroke="#ff9a4d" stroke-width="3" stroke-linecap="round" opacity=".8">
+        <path class="warm" d="M876 318 Q850 306 830 318 T784 318 T740 312"/>
+        <path class="warm" d="M876 338 Q852 326 830 338 T784 338 T730 334" style="animation-delay:-.35s"/>
+        <path class="warm" d="M876 358 Q852 346 830 358 T784 358 T740 356" style="animation-delay:-.7s"/>
+      </g>
+
+      <!-- robot station (back) -->
+      <rect x="860" y="442" width="100" height="12" rx="5" fill="#2f8fe0"/>
+      <rect x="865" y="452" width="90" height="98" rx="8" fill="#e7edf2" stroke="#93a6b4" stroke-width="3"/>
+      <rect x="875" y="468" width="70" height="82" fill="#2b3945"/>
+      <rect x="902" y="472" width="16" height="6" rx="2" fill="#5fe08f" id="chargeLed"/>
+
+      <!-- grow bed -->
+      <ellipse cx="485" cy="487" rx="290" ry="8" fill="#000" opacity=".12"/>
+      <rect x="205" y="413" width="560" height="14" rx="4" fill="#7a4b26"/>
+      <rect id="soilTop" x="209" y="417" width="552" height="15" fill="url(#gSoil)"/>
+      <g id="puddles" opacity="0"><ellipse cx="300" cy="425" rx="22" ry="3" fill="#bfe4ff" opacity=".6"/><ellipse cx="460" cy="426" rx="26" ry="3" fill="#bfe4ff" opacity=".6"/><ellipse cx="640" cy="425" rx="20" ry="3" fill="#bfe4ff" opacity=".6"/></g>
+      <g id="plants" filter="url(#fStress)"></g>
+      <g id="splashes" class="fx"></g>
+      <rect x="205" y="429" width="560" height="54" rx="6" fill="url(#gWood)" stroke="#7d4f2a" stroke-width="2"/>
+      <g stroke="#8a5a32" stroke-width="1.6" opacity=".55"><line x1="209" y1="447" x2="761" y2="447"/><line x1="209" y1="465" x2="761" y2="465"/></g>
+      <g fill="#7a4b26"><circle cx="216" cy="438" r="2"/><circle cx="754" cy="438" r="2"/><circle cx="216" cy="474" r="2"/><circle cx="754" cy="474" r="2"/></g>
+      <!-- drip (nutrient) line -->
+      <path d="M184 488 L196 488 L196 433 L765 433" fill="none" stroke="#5d7a5a" stroke-width="5" stroke-linecap="round"/>
+      <path id="nutFlow" class="flowline" d="M184 488 L196 488 L196 433 L765 433" fill="none" stroke="#8be36a" stroke-width="3" stroke-linecap="round"/>
+      <g id="emitters"></g>
+      <g id="nutDrops" class="fx"></g>
+
+      <!-- soil moisture sensor -->
+      <g id="mSensor">
+        <line x1="725" y1="414" x2="725" y2="432" stroke="#9aa6ad" stroke-width="2.5"/><line x1="735" y1="414" x2="735" y2="432" stroke="#9aa6ad" stroke-width="2.5"/>
+        <rect x="712" y="388" width="36" height="28" rx="6" fill="#2c3e48" stroke="#1b2830" stroke-width="1.5"/>
+        <rect x="716" y="392" width="28" height="13" rx="2" fill="#0f2b1f"/>
+        <text id="msTxt" x="730" y="402" text-anchor="middle" font-size="9.5" font-weight="700" fill="#5fe08f" font-family="Consolas,monospace">32%</text>
+        <circle id="msPing" cx="742" cy="411" r="2.5" fill="#5fe08f" opacity="0"/>
+        <path d="M719 411 h4 M725 411 h4" stroke="#5fe08f" stroke-width="1.5"/>
+      </g>
+
+      <!-- rail -->
+      <line x1="200" y1="551" x2="952" y2="551" stroke="#8f9aa2" stroke-width="4"/>
+      <g fill="#a8b2b9" id="sleepers"></g>
+
+      <!-- robot -->
+      <path id="arm" d="" fill="none" stroke="#5d6d7a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle id="grip" r="5" fill="#f5b82e" stroke="#5d6d7a" stroke-width="2"/>
+      <g id="robot">
+        <ellipse cx="0" cy="551" rx="36" ry="4" fill="#000" opacity=".15"/>
+        <polygon id="scanBeam" points="-21,465 -62,360 2,360" fill="#5ff2ff" opacity="0"/>
+        <circle cx="-21" cy="538" r="11" fill="#2d3438"/><circle cx="-21" cy="538" r="4.5" fill="#97a3aa"/>
+        <circle cx="21" cy="538" r="11" fill="#2d3438"/><circle cx="21" cy="538" r="4.5" fill="#97a3aa"/>
+        <rect x="-34" y="496" width="68" height="40" rx="11" fill="#fff" stroke="#2f8fe0" stroke-width="3"/>
+        <rect id="robotStripe" x="-32" y="521" width="64" height="6" fill="#2f8fe0"/>
+        <rect x="6" y="484" width="26" height="14" rx="3" fill="#c98d55" stroke="#8d5a2c" stroke-width="1.5"/>
+        <g id="basket"></g>
+        <rect x="-26" y="470" width="6" height="28" fill="#9aa9b4"/>
+        <rect x="-36" y="455" width="28" height="19" rx="6" fill="#2c3e48"/>
+        <circle id="robotEye" cx="-22" cy="464.5" r="5" fill="#5ff2ff"/>
+        <circle id="robotLed" cx="0" cy="510" r="3.5" fill="#5fe08f"/>
+        <text x="-14" y="513" font-size="8" font-weight="800" fill="#2f8fe0" font-family="Segoe UI,sans-serif">SF-1</text>
+      </g>
+      <circle id="flyItem" r="6" fill="#e53b2c" opacity="0"/>
+      <!-- station door (front) -->
+      <g clip-path="url(#clipDoor)"><g id="door"><rect x="875" y="468" width="70" height="82" fill="#c9d6e0" stroke="#93a6b4" stroke-width="2"/><line x1="875" y1="489" x2="945" y2="489" stroke="#aebfcb" stroke-width="2"/><line x1="875" y1="509" x2="945" y2="509" stroke="#aebfcb" stroke-width="2"/><line x1="875" y1="529" x2="945" y2="529" stroke="#aebfcb" stroke-width="2"/><rect x="900" y="536" width="20" height="5" rx="2" fill="#93a6b4"/></g></g>
+
+      <!-- crate -->
+      <g id="crate">
+        <ellipse cx="820" cy="603" rx="40" ry="4" fill="#000" opacity=".15"/>
+        <g id="crateItems"></g>
+        <rect x="784" y="568" width="72" height="34" rx="4" fill="#d69a5c" stroke="#8d5a2c" stroke-width="2"/>
+        <line x1="784" y1="580" x2="856" y2="580" stroke="#a46d39" stroke-width="2"/><line x1="784" y1="591" x2="856" y2="591" stroke="#a46d39" stroke-width="2"/>
+      </g>
+
+      <!-- greenhouse front frame -->
+      <path d="M40 130 Q500 10 960 130" fill="none" stroke="#f7fcff" stroke-width="7"/>
+      <rect x="40" y="130" width="920" height="460" fill="none" stroke="#f7fcff" stroke-width="7"/>
+      <path d="M90 140 L150 140 L60 520 L40 520Z" fill="#fff" opacity=".07"/><path d="M560 60 L600 58 L540 130 L500 130Z" fill="#fff" opacity=".12"/>
+
+      <g id="upShade" opacity="0"><path d="M48 132 Q500 18 952 132 L952 140 Q500 28 48 140Z" fill="url(#pShade)"/><path d="M48 132 Q500 18 952 132" fill="none" stroke="#1f5e3a" stroke-width="2"/></g>
+      <g id="upCurtain" opacity="0"></g>
+      <g id="upSolar" opacity="0"></g>
+      <g id="upLed" opacity="0"></g>
+      <g id="upSensor" opacity="0">
+        <g transform="translate(822,152)"><rect x="-14" y="-8" width="28" height="14" rx="7" fill="#2f8fe0"/><text y="3" text-anchor="middle" font-size="9" font-weight="900" fill="#fff" font-family="Segoe UI,sans-serif">PRO</text></g>
+        <g transform="translate(752,384)"><rect x="-14" y="-8" width="28" height="14" rx="7" fill="#2f8fe0"/><text y="3" text-anchor="middle" font-size="9" font-weight="900" fill="#fff" font-family="Segoe UI,sans-serif">PRO</text></g>
+      </g>
+      <rect id="night" x="0" y="0" width="1000" height="620" fill="#0a1734" opacity="0" pointer-events="none"/>
+      <g id="ledGlow" opacity="0"></g>
+      <rect id="wxTint" x="0" y="0" width="1000" height="620" fill="#ff7a2c" opacity="0" pointer-events="none"/>
+      <g id="wxSnow" opacity="0"></g>
+      <g id="wxRain" opacity="0"></g>
+      <g id="wxWind" opacity="0"></g>
+      <g id="wxHeat" opacity="0"></g>
+      <g id="lamps" opacity="0"><circle cx="330" cy="268" r="3" fill="#ffe9a8"/><circle cx="500" cy="268" r="3" fill="#ffe9a8"/><circle cx="670" cy="268" r="3" fill="#ffe9a8"/></g>
+      <g id="packets"></g>
+      <g id="tags"></g>
+      <g id="floats"></g>
+    </svg>
+    <div id="toast"></div>
+    <div id="celebrate"></div>
+    <div id="wxBanner" class="hidden"></div>
+  </div>
+
+  <div id="flow" aria-live="polite">
+    <div class="flow-nodes" id="flowNodes"></div>
+    <div id="flowMsg">센서가 농장 상태를 측정하고 있어요.</div>
+  </div>
+</section>
+
+<section id="phonePanel">
+  <div class="phone">
+    <div class="screen">
+      <div class="island"></div>
+      <div class="sbar"><span id="pClock">08:00</span><span class="icons">
+        <svg width="16" height="11" viewBox="0 0 16 11"><rect x="0" y="7" width="3" height="4" rx="1" fill="#fff"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="#fff"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#fff"/><rect x="13" y="0" width="3" height="11" rx="1" fill="#fff"/></svg>
+        <svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 10.5 L5 7.8 Q7.5 5.6 10 7.8Z" fill="#fff"/><path d="M2.8 5.6 Q7.5 1.4 12.2 5.6" stroke="#fff" stroke-width="1.6" fill="none"/><path d="M.6 3.3 Q7.5 -2.4 14.4 3.3" stroke="#fff" stroke-width="1.6" fill="none"/></svg>
+        <svg width="24" height="11" viewBox="0 0 24 11"><rect x=".5" y=".5" width="20" height="10" rx="3" stroke="#fff" fill="none"/><rect x="2.5" y="2.5" width="14" height="6" rx="1.5" fill="#fff"/><rect x="21.5" y="3.5" width="2" height="4" rx="1" fill="#fff"/></svg>
+      </span></div>
+      <div class="apphead">
+        <div class="t"><h1>SMART FARM CONTROL</h1><span class="live"><i id="liveDot"></i>실시간 연결</span></div>
+        <div class="fn" id="pFarm">써니의 스마트팜</div>
+        <div class="tiles">
+          <div class="tile" id="tlM"><small>토양 습도</small><b id="rM">32%</b></div>
+          <div class="tile" id="tlT"><small>온실 온도</small><b id="rT">17.0℃</b></div>
+          <div class="tile" id="tlN"><small>영양 상태</small><b id="rN">65%</b></div>
+          <div class="tile"><small>작물 성장도</small><b id="rG">0%</b></div>
+        </div>
+        <div class="fstate" id="fState"><span>농장 상태</span><span id="fStateTxt">수분 부족</span></div>
+      </div>
+
+      <div class="pbody">
+        <!-- HOME -->
+        <div class="panel on" id="pn-home">
+          <div class="card">
+            <div class="crophead"><span id="cropIco"></span><div><b id="cropName">상추</b><small id="cropStage">1단계 · 모종</small></div><span class="pill" id="cropPill">성장 중</span></div>
+            <div class="hbar"><span>성장도</span><div class="tr"><i id="barG" style="background:#2f9e5b;width:0"></i></div><em id="vG">0%</em></div>
+            <div class="hbar"><span>건강도</span><div class="tr"><i id="barH" style="background:#f5b82e;width:100%"></i></div><em id="vH">100%</em></div>
+            <div class="ranges" id="cropRanges"></div>
+          </div>
+          <div class="card"><h4>장치 작동 상태</h4>
+            <ul class="devlist">
+              <li>워터 펌프<span class="pill" id="dvPump">정지</span></li>
+              <li>온풍기(난방)<span class="pill" id="dvHeat">정지</span></li>
+              <li>환기 팬(냉방)<span class="pill" id="dvCool">정지</span></li>
+              <li>영양 공급 장치<span class="pill" id="dvNut">대기</span></li>
+              <li>수확 로봇<span class="pill" id="dvBot">충전 중</span></li>
+            </ul>
+          </div>
+          <div class="card" id="wxCard"><h4>날씨 예보</h4><div id="wxInfo"></div></div>
+          <div class="card"><h4>설치한 기술</h4><div id="upList" class="uplist"></div></div>
+          <div class="card"><h4>작물 새로 심기</h4>
+            <div class="cropsel" id="cropSel"></div>
+            <button class="act green wide" id="btnPlant">새로 심기</button>
+            <p class="hint">지금 자라는 작물을 정리하고 새 모종을 심어요.</p>
+          </div>
+          <div class="card"><h4>제어 기록</h4><ul id="logList"></ul></div>
+        </div>
+
+        <!-- WATER -->
+        <div class="panel" id="pn-water">
+          <div class="card">
+            <div class="metric"><span>현재 토양 습도</span><b id="wNow">32%</b></div>
+            <div class="gauge"><div class="band" id="wBand"></div><div class="fill" id="wFill" style="background:var(--water)"></div><div class="mk start" id="wMkS"></div><div class="mk stop" id="wMkP"></div></div>
+            <div class="legend"><span><i style="background:rgba(47,158,91,.35)"></i>작물 적정 범위</span><span><i style="background:var(--water)"></i>급수 시작 기준</span><span><i style="background:#173a2f"></i>급수 중지 기준</span></div>
+            <div class="row" style="margin-top:6px"><span>목표 토양 습도</span><b id="wTarget">40~60%</b></div>
+            <div class="row"><span>워터 펌프</span><span class="pill" id="wPump">정지</span></div>
+          </div>
+          <div class="seg" id="wMode"><button data-m="manual" class="on">수동 급수</button><button data-m="auto">자동 급수</button></div>
+          <div class="card" id="wManual">
+            <div class="btnrow"><button class="act blue" id="wGo">급수 시작</button><button class="act ghost" id="wHalt">급수 중지</button></div>
+            <p class="hint">급수 시작을 누르면 중지를 누를 때까지 펌프가 계속 돌아요. 물 사용료는 습도 10%마다 1금이에요.</p>
+          </div>
+          <div class="card hidden" id="wAuto">
+            <label class="sl"><span>급수 시작 기준 <b id="wsV">40%</b></span><input type="range" id="wsR" min="10" max="90" value="40"></label>
+            <label class="sl"><span>급수 중지 기준 <b id="wpV">60%</b></span><input type="range" id="wpR" min="15" max="100" value="60"></label>
+            <div class="err" id="wErr"></div>
+            <button class="act green wide" id="wApply">설정 적용하고 자동 급수 켜기</button>
+            <div class="badge" id="wBadge">자동 급수 OFF</div>
+            <div class="rule" id="wRule"></div>
+          </div>
+          <div class="card"><h4>자동 급수가 일하는 순서</h4>
+            <div class="loopmini" id="wLoop"><span>센서 측정</span><span>기준값 비교</span><span>자동 급수 명령</span><span>워터 펌프 작동</span><span>습도 상승</span><span>펌프 정지</span></div>
+          </div>
+        </div>
+
+        <!-- TEMP -->
+        <div class="panel" id="pn-temp">
+          <div class="card">
+            <div class="metric"><span>현재 온실 온도</span><b id="tNow">17.0℃</b></div>
+            <div class="gauge"><div class="band" id="tBand"></div><div class="fill" id="tFill" style="background:linear-gradient(90deg,#3cb6d8,#f5b82e,#f07a2c)"></div><div class="mk lo" id="tMkL"></div><div class="mk hi" id="tMkH"></div></div>
+            <div class="legend"><span><i style="background:rgba(47,158,91,.35)"></i>작물 적정 범위</span><span><i style="background:var(--heat)"></i>최저 기준</span><span><i style="background:var(--cool)"></i>최고 기준</span><span>(눈금 0~40℃)</span></div>
+            <div class="row" style="margin-top:6px"><span>외부 온도</span><b id="tOut">15℃</b></div>
+            <div class="row"><span>목표 온도</span><b id="tTarget">20~26℃</b></div>
+            <div class="row"><span>난방 장치(온풍기)</span><span class="pill" id="tHeat">정지</span></div>
+            <div class="row"><span>냉방·환기 장치(팬)</span><span class="pill" id="tCool">정지</span></div>
+          </div>
+          <div class="seg" id="tMode"><button data-m="manual" class="on">수동 제어</button><button data-m="auto">자동 온도 관리</button></div>
+          <div class="card" id="tManual">
+            <div class="btnrow"><button class="act heat" id="tHeatGo">난방 시작</button><button class="act cool" id="tCoolGo">환기·냉방 시작</button></div>
+            <button class="act ghost wide" id="tStop">모든 장치 정지</button>
+            <p class="hint">난방과 냉방은 동시에 켜지지 않아요. 전기 요금은 난방 2시간에 1금, 환기 4시간에 1금이에요.</p>
+          </div>
+          <div class="card hidden" id="tAuto">
+            <label class="sl"><span>최저 기준 <b id="tlV">20℃</b></span><input type="range" id="tlR" min="5" max="35" value="20"></label>
+            <label class="sl"><span>최고 기준 <b id="thV">26℃</b></span><input type="range" id="thR" min="8" max="40" value="26"></label>
+            <div class="err" id="tErr"></div>
+            <button class="act green wide" id="tApply">설정 적용하고 자동 관리 켜기</button>
+            <div class="badge" id="tBadge">자동 온도 관리 OFF</div>
+            <div class="rule" id="tRule"></div>
+          </div>
+        </div>
+
+        <!-- NUTRIENT -->
+        <div class="panel" id="pn-nut">
+          <div class="note">이 게임의 ‘영양 상태’는 수업용으로 단순화한 지표예요. 실제 스마트팜은 양액의 EC(전기전도도)·pH 같은 값을 재서 영양액 농도를 간접적으로 판단해요. 작물이 영양분을 얼마나 흡수했는지 센서 하나로 정확히 알 수 있는 것은 아니에요.</div>
+          <div class="card">
+            <div class="metric"><span>현재 영양 상태(지표)</span><b id="nNow">65%</b></div>
+            <div class="gauge"><div class="band" id="nBand"></div><div class="fill" id="nFill" style="background:var(--nutri)"></div><div class="mk thr" id="nMk"></div></div>
+            <div class="legend"><span><i style="background:rgba(47,158,91,.35)"></i>작물 적정 범위</span><span><i style="background:var(--nutri)"></i>자동 공급 기준</span></div>
+            <div class="row" style="margin-top:6px"><span>영양액 저장량</span><b id="nStock">100%</b></div>
+            <div class="row"><span>공급 장치</span><span class="pill" id="nState">대기</span></div>
+            <div class="err" id="nWarn"></div>
+          </div>
+          <div class="card">
+            <div class="btnrow"><button class="act green" id="nFeed">영양액 공급</button><button class="act sun" id="nRefill">영양액 보충 (20금)</button></div>
+            <p class="hint">한 번 공급하면 영양 상태가 15만큼 오르고 저장량이 8% 줄어요. 보충하면 저장량이 50% 늘어요.</p>
+          </div>
+          <div class="card"><h4>자동 공급</h4>
+            <label class="switch" style="justify-content:space-between;font-size:13px;color:#173a2f"><span>영양액 자동 공급</span><input type="checkbox" id="nAuto"></label>
+            <label class="sl"><span>공급 시작 기준 <b id="ntV">45%</b></span><input type="range" id="ntR" min="20" max="70" value="45"></label>
+            <div class="rule" id="nRule"></div>
+          </div>
+        </div>
+
+        <!-- ORDERS -->
+        <div class="panel" id="pn-order">
+          <div class="card">
+            <div class="row"><span>농장 평판</span><b id="oRep" style="color:#d48d00">★ 0</b></div>
+            <div class="row"><span>완료한 주문</span><b id="oDone">0건</b></div>
+            <p class="hint">주문에 납품하면 시장에 파는 것보다 더 많은 돈과 평판을 받아요. 어느 주문에 보낼지 직접 골라 보세요!</p>
+          </div>
+          <h4 class="sechead">📋 손님 주문</h4>
+          <div id="orderList"></div>
+        </div>
+
+        <!-- HARVEST -->
+        <div class="panel" id="pn-harv">
+          <div class="card">
+            <div class="row"><span>재배 작물</span><b id="hvCrop">상추</b></div>
+            <div class="row"><span>성장도</span><b id="hvG">0%</b></div>
+            <div class="row"><span>수확 가능 여부</span><span class="pill" id="hvReady">아직 자라는 중</span></div>
+            <div class="row"><span>지금 품질</span><b id="hvGrade">★★★ 최상품</b></div>
+            <div class="row"><span>예상 수확</span><b id="hvExp">-</b></div>
+            <p class="hint">작물을 건강하게 키울수록 품질이 올라가 더 비싸게 팔려요.</p>
+          </div>
+          <button class="harvbtn" id="btnHarvest" disabled>로봇 수확 시작</button>
+          <div class="card"><h4>수확 로봇 작업 순서</h4>
+            <ol class="steps" id="botSteps"></ol>
+          </div>
+          <div class="card result hidden" id="hvResult"></div>
+          <div class="card"><h4 id="lvTxt">농장 레벨 1</h4>
+            <div class="hbar" style="grid-template-columns:1fr"><div class="tr" style="height:12px"><i id="lvBar" style="background:linear-gradient(90deg,#f5b82e,#f07a2c);width:0"></i></div></div>
+            <div class="row"><span id="lvNext">다음 레벨까지 60금</span></div>
+          </div>
+          <div class="card"><h4>수확 도감</h4><div class="badges" id="badges"></div></div>
+          <div class="card"><h4>누적 기록</h4>
+            <div class="row"><span>총 수확 횟수</span><b id="hvCount">0회</b></div>
+            <div class="row"><span>누적 판매·납품 수익</span><b id="hvIncome">0금</b></div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="tabs" id="tabs">
+        <button data-p="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11 V20 H3Z"/><path d="M9 20 V14 H15 V20"/></svg>농장 현황</button>
+        <button data-p="water"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 C12 3 5 11 5 15 A7 7 0 0 0 19 15 C19 11 12 3 12 3Z"/></svg>급수 관리</button>
+        <button data-p="temp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14 V5 A2 2 0 0 1 14 5 V14 A4 4 0 1 1 10 14Z"/><path d="M12 10 V17"/></svg>온도 관리</button>
+        <button data-p="nut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 H15 M10 3 V9 L5 19 A1.5 1.5 0 0 0 6.5 21 H17.5 A1.5 1.5 0 0 0 19 19 L14 9 V3"/><path d="M7.5 15 H16.5"/></svg>영양 관리</button>
+        <button data-p="harv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="8" width="12" height="10" rx="3"/><path d="M12 8 V4 M10 4 H14"/><circle cx="10" cy="13" r="1.2" fill="currentColor"/><circle cx="14" cy="13" r="1.2" fill="currentColor"/><path d="M6 13 H3 M18 13 H21"/></svg>로봇 수확</button>
+        <button data-p="order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4 V3 H15 V4 M8.5 10 H15.5 M8.5 14 H15.5 M8.5 18 H12.5"/></svg>손님 주문<span class="tbadge" id="oBadge">0</span></button>
+      </nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- start modal -->
+<div class="modal" id="startModal">
+  <div class="mbox">
+    <h2>SMART FARM</h2>
+    <p class="lead"><b>🎯 미션: 상추·딸기·토마토를 모두 한 번씩 수확해 보세요!</b><br>📦 손님 주문을 채우고, ⚠️ 돌발 날씨를 이겨 내고, 🛒 번 돈으로 새 기술을 설치해 농장을 키워 보세요.<br>스마트폰 앱으로 온실 속 펌프, 온풍기, 환기 팬, 영양 공급 장치, 수확 로봇을 조종해 보세요. 센서가 잰 값을 보고 기준값을 정하면 장치가 스스로 작동하는 모습도 볼 수 있어요.</p>
+    <label class="fl" for="startName">우리 농장 이름</label>
+    <input class="ti" id="startName" maxlength="16" placeholder="예: 써니의 스마트팜, 미래 농업 연구소">
+    <label class="fl">처음 키울 작물</label>
+    <div class="choose" id="startCrops"></div>
+    <label class="fl">게임 모드 선택</label>
+    <div class="choose two" id="startMode">
+      <button data-m="biz" class="on"><b>경영 모드</b>물·전기·영양액에 비용이 들어요. 자금을 아껴 쓰며 수익을 내 보세요.</button>
+      <button data-m="learn"><b>학습 모드</b>장치를 비용 없이 마음껏 써 보며 원리를 익혀요.</button>
+    </div>
+    <div class="mact">
+      <button class="alt hidden" id="btnContinue">저장된 농장 이어 하기</button>
+      <button class="go" id="btnStart">농장 시작하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- in-game confirm (브라우저 confirm 창은 일부 환경에서 막혀서 직접 만든 확인 창 사용) -->
+<div class="modal hidden" id="askModal">
+  <div class="mbox askbox">
+    <div id="askIcon" class="askicon">🌱</div>
+    <p id="askMsg"></p>
+    <div class="mact"><button class="alt" id="askNo">취소</button><button class="go" id="askYes">네, 할게요</button></div>
+  </div>
+</div>
+
+<!-- shop -->
+<div class="modal hidden" id="shopModal">
+  <div class="mbox shopbox">
+    <h2>🛒 장치 업그레이드 상점</h2>
+    <p class="lead">수확과 주문으로 번 돈으로 새로운 기술을 설치해 보세요. 설치한 장치는 온실에 바로 나타나요. 상점은 학습 모드에서도 돈이 들어요. <b>보유 자금: <span id="shopMoney">0금</span></b></p>
+    <div class="shopgrid" id="shopGrid"></div>
+    <div class="mact"><button class="go" id="btnShopClose">닫기</button></div>
+  </div>
+</div>
+
+<!-- concept note -->
+<div class="modal hidden" id="noteModal">
+  <div class="mbox notebox">
+    <h2>개념 노트</h2>
+    <p class="lead">게임을 하면서 확인해 볼 스마트팜의 핵심 원리예요.</p>
+    <h3>스마트팜 자동 제어의 순서</h3>
+    <div class="loop">센서 측정 → 데이터 전송 → 기준값 비교 → 제어 명령 → 장치 작동 → 환경 변화 → 센서 재측정</div>
+    <p class="small">아래쪽 ‘자동 제어 흐름’ 막대에서 이 순서가 실제로 진행되는 모습을 볼 수 있어요. 게임 속 센서는 게임 시간 약 24분(1배속 기준 1초)마다 값을 측정해 제어 장치로 보냅니다.</p>
+    <h3>꼭 알아 둘 개념</h3>
+    <ol>
+      <li><b>스마트팜</b>은 정보 통신 기술 등을 농업에 활용해 작물이 자라는 환경을 관리하는 농업 시스템이에요.</li>
+      <li><b>토양 습도 센서</b>는 흙 속 수분 상태를 측정해요.</li>
+      <li><b>온도 센서</b>는 농장(온실)의 온도를 측정해요.</li>
+      <li><b>제어 장치</b>는 센서 정보를 설정된 기준값과 비교해 장치를 작동시켜요.</li>
+      <li><b>워터 펌프</b>는 물을 공급하는 장치예요.</li>
+      <li><b>스마트폰</b>으로 농장 상태를 확인하고 멀리서도 장치를 제어할 수 있어요.</li>
+      <li><b>자동화 시스템</b>은 센서 측정값과 설정 조건에 따라 장치를 스스로 작동시켜요.</li>
+    </ol>
+    <h3>게임 수치와 실제 수치는 달라요</h3>
+    <table>
+      <tr><th>작물</th><th>게임 적정 온도</th><th>게임 적정 습도</th><th>실제 재배 참고(대략)</th></tr>
+      <tr><td>상추</td><td>14~24℃</td><td>45~75%</td><td>서늘한 기온을 좋아함, 생육 적온 약 15~20℃</td></tr>
+      <tr><td>토마토</td><td>18~28℃</td><td>50~78%</td><td>따뜻한 기온을 좋아함, 낮 약 20~27℃·밤은 더 낮게</td></tr>
+      <tr><td>딸기</td><td>16~26℃</td><td>55~80%</td><td>낮 약 18~23℃, 밤은 서늘하게</td></tr>
+    </table>
+    <p class="small">게임 속 습도(%)와 영양 상태(%)는 수업용으로 만든 가상 지표예요. 실제 토양 습도 센서의 값은 센서 종류와 흙의 성질에 따라 다르게 읽히고, 실제 적정 환경은 품종·생육 단계·재배 방식에 따라 달라져요. 작물의 성장 시간, 수확량, 가격(금)도 게임 진행을 위해 정한 가상 값이에요. 현실 시간 60초가 게임 속 하루이고, 작물은 실제보다 훨씬 빨리 자라요.</p>
+    <h3>돌발 날씨와 기술</h3>
+    <p class="small">한파·폭염·건조한 바람·장마가 가끔 찾아와요. 날씨 예보가 뜨면 자동 제어 기준값을 미리 확인해 보세요. 사람이 계속 지켜보지 않아도 센서와 제어 장치가 농장을 지켜 주는 것이 자동화의 장점이에요. 보온 커튼, 차광막, LED 생장등, 태양광 패널처럼 실제 스마트팜에서 쓰는 기술을 상점에서 설치할 수 있어요(효과의 크기는 게임용으로 단순화했어요).</p>
+    <div class="mact"><button class="go" id="btnNoteClose">닫기</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const NS="http://www.w3.org/2000/svg";
+
+/* ================== DATA ================== */
+const CROPS={
+  lettuce:{name:"상추",temp:[14,24],moist:[45,75],nutr:[35,80],days:1.2,price:20,yield:6,unit:"포기",seed:5,regrow:0,
+    harvestDesc:"포기째 수확"},
+  tomato:{name:"토마토",temp:[18,28],moist:[50,78],nutr:[40,85],days:2,price:50,yield:5,unit:"개",seed:15,regrow:72,
+    harvestDesc:"익은 열매만 따기"},
+  strawberry:{name:"딸기",temp:[16,26],moist:[55,80],nutr:[40,80],days:1.6,price:40,yield:8,unit:"개",seed:12,regrow:74,
+    harvestDesc:"붉게 익은 열매만 따기"}
+};
+const STAGES=["모종","본잎","생장","성숙"];
+const PX=[250,335,420,505,590,675], PY=428;
+const SAVE_KEY="smartFarmLab_v1";
+const ROBOT_HOME=910;
+const BOT_STEPS=["충전소 문 열림","로봇 이동 시작","재배 구역으로 이동","성숙한 작물 탐지","로봇팔로 수확","운반 상자에 담기","충전소로 복귀"];
+const FLOW=["센서 측정","데이터 전송","기준값 비교","제어 명령","장치 작동","환경 변화","센서 재측정"];
+
+function freshState(name,crop,learn){
+  return {
+    farm:name||"나의 스마트팜", crop:crop||"lettuce", learn:!!learn,
+    time:1/3, speed:1, money:300, harvests:0, totalQty:0, income:0,
+    moist:32, temp:17, nutr:65, stock:100, growth:0, health:100, alerted:false,
+    drift:0, driftT:0, lastDay:0,
+    pump:false, heater:false, cooler:false, feedLeft:0,
+    wMode:"manual", wAuto:false, wStart:40, wStop:60,
+    tMode:"manual", tAuto:false, tMin:20, tMax:26,
+    nAuto:false, nThr:45, best:0, badges:{},
+    acc:{water:0,heat:0,cool:0},
+    read:{m:32,t:17,n:65,g:0},
+    log:[], sound:true,
+    up:{}, inv:{lettuce:[0,0,0],tomato:[0,0,0],strawberry:[0,0,0]}, orders:[], oseq:0, orderNext:0, rep:0, ordersDone:0,
+    wx:null, wxNext:2.0, wxLast:null, wxAmt:0, wxWins:0
+  };
+}
+let S=freshState();
+let started=false;
+
+/* ================== PLANT ART ================== */
+function leaf(ang,len,w,fill,tx=0,ty=0,rib=true){
+  return `<g transform="translate(${tx},${ty}) rotate(${ang})"><path d="M0 0 Q${w} ${-len*.45} 0 ${-len} Q${-w} ${-len*.45} 0 0Z" fill="${fill}"/>${rib?`<path d="M0 0 L0 ${-len*.85}" stroke="rgba(255,255,255,.35)" stroke-width="1"/>`:""}</g>`;
+}
+function frill(ang,len,w,fill,stroke){
+  // wavy-edged lettuce leaf
+  const a=len, b=w;
+  return `<g transform="rotate(${ang})"><path d="M0 0 C${b} ${-a*.2} ${b*1.15} ${-a*.55} ${b*.75} ${-a*.78} Q${b*.6} ${-a*.9} ${b*.3} ${-a*.92} Q${b*.15} ${-a*1.02} 0 ${-a} Q${-b*.15} ${-a*1.02} ${-b*.3} ${-a*.92} Q${-b*.6} ${-a*.9} ${-b*.75} ${-a*.78} C${-b*1.15} ${-a*.55} ${-b} ${-a*.2} 0 0Z" fill="${fill}" stroke="${stroke}" stroke-width="1"/><path d="M0 0 L0 ${-a*.8}" stroke="rgba(255,255,255,.45)" stroke-width="1.3"/></g>`;
+}
+function tomLeaf(x,y,ang,s){
+  let g=`<g transform="translate(${x},${y}) rotate(${ang}) scale(${s})"><path d="M0 0 L0 -30" stroke="#4f9a3a" stroke-width="1.8"/>`;
+  [[-8,-10,-50],[8,-12,50],[-7,-20,-45],[7,-22,45]].forEach(([lx,ly,a])=>{g+=leaf(a,11,5,"url(#gLeaf)",lx*0.15,ly,false);});
+  g+=leaf(0,12,5,"url(#gLeaf)",0,-28,false)+`</g>`;
+  return g;
+}
+function tri(x,y,s){
+  let g=`<path d="M0 0 Q${x*.4} ${y*.6} ${x} ${y}" stroke="#5a9b3c" stroke-width="2" fill="none"/><g transform="translate(${x},${y}) scale(${s})">`;
+  [[-9,-3,-40],[0,-8,0],[9,-3,40]].forEach(([lx,ly,a])=>{g+=`<g transform="translate(${lx},${ly}) rotate(${a})"><ellipse rx="7" ry="9" cy="-5" fill="url(#gLeaf)" stroke="#2f7a32" stroke-width=".8" stroke-dasharray="2 1.5"/><path d="M0 2 L0 -12" stroke="rgba(255,255,255,.35)" stroke-width="1"/></g>`;});
+  return g+`</g>`;
+}
+function berry(x,y,rot){
+  return `<g transform="translate(${x},${y}) rotate(${rot})"><path d="M0 -6 C5 -6 7 -2 6 2 C5 7 1 11 0 12 C-1 11 -5 7 -6 2 C-7 -2 -5 -6 0 -6Z" class="fruitc" fill="#e8304a"/><g fill="#ffe28a" opacity=".85"><circle cx="-2.5" cy="0" r=".8"/><circle cx="2.5" cy="0" r=".8"/><circle cx="0" cy="4" r=".8"/><circle cx="-2" cy="7" r=".7"/><circle cx="2" cy="7" r=".7"/></g><path d="M-5 -6 L0 -9 L5 -6 L2 -5 L0 -7 L-2 -5Z" fill="#3d9a3a"/></g>`;
+}
+function tomato(x,y,r){
+  return `<g transform="translate(${x},${y})"><circle r="${r}" class="fruitc" fill="#e53b2c"/><ellipse cx="${-r*.35}" cy="${-r*.35}" rx="${r*.3}" ry="${r*.2}" fill="#fff" opacity=".45"/><path d="M0 ${-r} l-3 -2 M0 ${-r} l3 -2 M0 ${-r} l0 -3" stroke="#3d8a2e" stroke-width="1.6"/></g>`;
+}
+function flower(x,y,c,center){
+  let g=`<g transform="translate(${x},${y})">`;
+  for(let i=0;i<5;i++){g+=`<ellipse rx="2.6" ry="4" cy="-3.5" transform="rotate(${i*72})" fill="${c}"/>`;}
+  return g+`<circle r="2" fill="${center}"/></g>`;
+}
+function plantSVG(crop){
+  if(crop==="lettuce"){
+    let s1=`<path d="M0 0 L0 -6" stroke="#7cbf4a" stroke-width="2"/>`+leaf(-55,12,5,"#a6dc6e",0,-5)+leaf(55,12,5,"#a6dc6e",0,-5);
+    let s2="";[-62,-22,22,62].forEach((a,i)=>s2+=leaf(a,22,9,i%2?"url(#gLetL)":"url(#gLetD)"));
+    let s3="";[-80,-52,-26,26,52,80].forEach(a=>s3+=frill(a,32,13,"url(#gLetD)","#3c8c33"));[-30,0,30].forEach(a=>s3+=frill(a,26,11,"url(#gLetL)","#5aa83f"));
+    let s4="";[-86,-68,-50,-32,32,50,68,86].forEach(a=>s4+=frill(a,44,18,"url(#gLetD)","#357f2e"));[-56,-34,-12,12,34,56].forEach(a=>s4+=frill(a,38,16,"url(#gLetL)","#4f9c38"));[-18,0,18].forEach(a=>s4+=frill(a,26,12,"#d8f5a2","#9ccf6a"));
+    return `<g class="s1">${s1}</g><g class="s2">${s2}</g><g class="s3">${s3}</g><g class="s4">${s4}</g><g class="fr"></g><g class="fl"></g><g class="stk"></g>`;
+  }
+  if(crop==="tomato"){
+    const stk=`<rect x="10" y="-138" width="3.5" height="138" rx="1.5" fill="#b88a5a"/><circle cx="11.7" cy="-138" r="2.5" fill="#a07448"/>`;
+    const s1=`<path d="M0 0 Q2 -8 0 -16" stroke="#6aa84f" stroke-width="2.5" fill="none"/>`+leaf(-60,10,4,"#8fd06a",0,-15)+leaf(60,10,4,"#8fd06a",0,-15);
+    let s2=`<path d="M0 0 C3 -15 -3 -28 0 -46" stroke="#5c9a3e" stroke-width="3.5" fill="none"/>`;
+    s2+=tomLeaf(0,-14,-62,.8)+tomLeaf(0,-24,58,.85)+tomLeaf(0,-34,-48,.75)+tomLeaf(0,-42,44,.7);
+    let s3=`<path d="M0 0 C5 -30 -5 -60 1 -95 C4 -110 -2 -120 0 -130" stroke="#548f38" stroke-width="4.5" fill="none"/>`;
+    [[-15,-62,1.05],[-28,62,1.05],[-44,-58,1.1],[-58,60,1.05],[-74,-56,1],[-88,58,1],[-102,-50,.9],[-114,48,.85],[-124,-30,.7]].forEach(([y,a,s])=>s3+=tomLeaf(0,y,a,s));
+    s3+=`<path d="M1 -40 L11 -40 M0 -80 L11 -80 M1 -115 L11 -115" stroke="#e9d8a6" stroke-width="2"/>`;
+    const fl=flower(-16,-70,"#ffd84a","#e09b00")+flower(17,-92,"#ffd84a","#e09b00")+flower(-12,-108,"#ffd84a","#e09b00");
+    const fr=`<path d="M0 -52 Q-10 -50 -16 -46 M0 -78 Q10 -76 16 -70 M0 -96 Q-8 -95 -14 -92" stroke="#4f8f36" stroke-width="1.5" fill="none"/>`+
+      tomato(-18,-42,7.5)+tomato(-9,-37,6.5)+tomato(-23,-33,6)+tomato(17,-66,7.5)+tomato(23,-57,6.5)+tomato(10,-58,6)+tomato(-14,-88,6.5)+tomato(-21,-80,5.5);
+    return `<g class="stk">${stk}</g><g class="s1">${s1}</g><g class="s2">${s2}</g><g class="s3">${s3}</g><g class="fl">${fl}</g><g class="fr">${fr}</g><g class="s4"></g>`;
+  }
+  // strawberry
+  const s1=tri(0,-12,.6)+tri(-4,-8,.45);
+  const s2=tri(-14,-22,.8)+tri(0,-30,.85)+tri(14,-22,.8);
+  const s3=tri(-30,-26,1)+tri(-14,-44,1.05)+tri(4,-50,1.1)+tri(22,-40,1.05)+tri(34,-22,.95)+tri(-4,-30,.9);
+  const fl=flower(-24,-14,"#fff","#f2c230")+flower(22,-12,"#fff","#f2c230")+flower(4,-22,"#fff","#f2c230");
+  const fr=`<path d="M0 -6 Q-18 -14 -26 -8 M0 -6 Q-10 -12 -14 -2 M0 -6 Q16 -16 26 -10 M0 -6 Q12 -10 15 0 M0 -6 Q22 -24 34 -18" stroke="#5a9b3c" stroke-width="1.4" fill="none"/>`+
+    berry(-26,-2,10)+berry(-14,4,-6)+berry(26,-4,-12)+berry(15,6,8)+berry(34,-12,-20)+berry(-34,-10,18);
+  return `<g class="s1">${s1}</g><g class="s2">${s2}</g><g class="s3">${s3}</g><g class="fl">${fl}</g><g class="fr">${fr}</g><g class="s4"></g><g class="stk"></g>`;
+}
+const plantEls=[]; const picked=[false,false,false,false,false,false];
+function buildPlants(){
+  const g=$("plants"); g.innerHTML="";
+  plantEls.length=0;
+  PX.forEach((x,i)=>{
+    const outer=document.createElementNS(NS,"g");
+    outer.setAttribute("transform",`translate(${x},${PY})`);
+    outer.innerHTML=`<g class="pin"><g class="sway" style="animation-delay:${-i*0.7}s">${plantSVG(S.crop)}</g></g>`;
+    g.appendChild(outer);
+    const pin=outer.querySelector(".pin");
+    const parts={}; ["s1","s2","s3","s4","fl","fr","stk"].forEach(k=>parts[k]=outer.querySelector("."+k));
+    plantEls.push({outer,pin,parts,fruits:[...outer.querySelectorAll(".fruitc")]});
+  });
+  picked.fill(false);
+}
+function fadeIn(g,s){return clamp((g-s+3)/6,0,1);}
+const RIPEN={tomato:["#7bbf3a","#f2a531","#e53b2c"],strawberry:["#cfe7a6","#f6efcf","#e8304a"]};
+function hex2rgb(h){h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.substr(i,2),16));}
+function mix(c1,c2,t){const a=hex2rgb(c1),b=hex2rgb(c2);return `rgb(${a.map((v,i)=>Math.round(lerp(v,b[i],t))).join(",")})`;}
+function mix3(arr,t){return t<.5?mix(arr[0],arr[1],t*2):mix(arr[1],arr[2],(t-.5)*2);}
+let lastPlantKey="";
+function renderPlants(){
+  const g=S.growth, crop=S.crop;
+  const dryness=clamp((CROPS[crop].moist[0]-8-S.moist)/25,0,1);
+  const dead=S.health<=0;
+  const wilt=dead?1:Math.max(dryness,clamp((60-S.health)/60,0,1)*.6);
+  const key=[Math.round(g*4),Math.round(wilt*20),picked.join(""),dead].join("|");
+  if(key===lastPlantKey) return; lastPlantKey=key;
+  const sc=.62+.38*Math.min(g,100)/100;
+  let a;
+  if(crop==="lettuce"){
+    a={s1:1-fadeIn(g,25),s2:fadeIn(g,25)*(1-fadeIn(g,50)),s3:fadeIn(g,50)*(1-fadeIn(g,75)),s4:fadeIn(g,75),fl:0,fr:0,stk:0};
+  }else{
+    a={s1:1-fadeIn(g,25),s2:fadeIn(g,25)*(1-fadeIn(g,50)),s3:fadeIn(g,50),s4:0,fl:fadeIn(g,50)*(1-fadeIn(g,82)),fr:fadeIn(g,76),stk:crop==="tomato"?fadeIn(g,22):0};
+  }
+  const ripe=clamp((g-80)/20,0,1);
+  const fcol=crop==="lettuce"?null:mix3(RIPEN[crop],ripe);
+  plantEls.forEach((p,i)=>{
+    const lean=(i%2?1:-1)*3*wilt;
+    p.pin.setAttribute("transform",`rotate(${lean}) scale(${sc},${sc*(1-.16*wilt)})`);
+    for(const k in a){ if(p.parts[k]) p.parts[k].setAttribute("opacity",a[k].toFixed(2)); }
+    if(picked[i]){ if(crop==="lettuce") p.outer.setAttribute("opacity","0"); else p.parts.fr.setAttribute("opacity","0"); }
+    else p.outer.setAttribute("opacity","1");
+    if(fcol) p.fruits.forEach(f=>f.setAttribute("fill",fcol));
+    p.outer.classList.toggle("ripe",g>=100&&!picked[i]);
+  });
+}
+let lastStress=-1;
+function renderStress(){
+  const k=Math.round(clamp((100-S.health)/100,0,1)*.85*40)/40;
+  if(k===lastStress) return; lastStress=k;
+  const I=[1,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0,1,0];
+  const SEP=[.5,.62,.15,0,.02, .4,.56,.13,0,.01, .25,.4,.1,0,0, 0,0,0,1,0];
+  $("stressMx").setAttribute("values",I.map((v,i)=>(lerp(v,SEP[i],k)).toFixed(3)).join(" "));
+}
+
+/* ================== STATIC SVG BITS ================== */
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function buildStatics(){
+  const nz=$("nozzles"), sp=$("spray"), spl=$("splashes"), em=$("emitters"), nd=$("nutDrops"), sl=$("sleepers");
+  PX.forEach((x,i)=>{
+    svgEl("rect",{x:x-3,y:236,width:6,height:10,fill:"#7e95a3"},nz);
+    svgEl("path",{d:`M${x-7} 252 L${x+7} 252 L${x+3} 245 L${x-3} 245Z`,fill:"#5d7584"},nz);
+    for(let k=0;k<6;k++){
+      const dx=(k-2.5)*9;
+      const d=svgEl("ellipse",{cx:x+(k-2.5)*2,cy:256,rx:1.6,ry:4.2,fill:"#59b8ff",class:"drop",style:`--dx:${dx}px;animation-delay:${-(k*0.15+i*0.07)}s`},sp);
+    }
+    svgEl("ellipse",{cx:x-14,cy:424,rx:7,ry:2.2,fill:"none",stroke:"#9fd8ff","stroke-width":1.5,class:"splash",style:`animation-delay:${-i*.13}s`},spl);
+    svgEl("ellipse",{cx:x+12,cy:425,rx:6,ry:2,fill:"none",stroke:"#9fd8ff","stroke-width":1.5,class:"splash",style:`animation-delay:${-i*.13-.45}s`},spl);
+    svgEl("circle",{cx:x+18,cy:433,r:3,fill:"#4f6b4c"},em);
+    svgEl("circle",{cx:x+18,cy:437,r:2.2,fill:"#8be36a",class:"ndrop",style:`animation-delay:${-i*.11}s`},nd);
+  });
+  for(let x=210;x<952;x+=26) svgEl("rect",{x:x,y:551,width:12,height:4,rx:1},sl);
+  // tags
+  const tg=$("tags");
+  [["물탱크",95,240],["워터 펌프",166,416],["영양액 탱크",95,538],["영양 공급 장치",166,460],["스마트 제어 장치",233,220],["온도 센서",800,222],["환기 팬",912,258],["온풍기",912,388],["토양 습도 센서",730,378],["급수 배관·스프링클러",460,218],["수확 로봇 충전소",910,434],["수확 상자",820,614]]
+  .forEach(([t,x,y])=>{const g=svgEl("g",{class:"tag"},tg);const w=t.length*11+12;svgEl("rect",{x:x-w/2,y:y-12,width:w,height:17,rx:8.5},g);const tx=svgEl("text",{x:x,y:y+1,"text-anchor":"middle"},g);tx.textContent=t;});
+  // flow nodes
+  const fnodes=$("flowNodes");
+  FLOW.forEach((t,i)=>{ if(i) {const s=document.createElement("span");s.className="farrow";s.textContent="›";fnodes.appendChild(s);} const d=document.createElement("div");d.className="fnode";d.innerHTML=`<i>${i+1}</i>${t}`;fnodes.appendChild(d);});
+  // bot steps
+  $("botSteps").innerHTML=BOT_STEPS.map((t,i)=>`<li><i>${i+1}</i>${t}</li>`).join("");
+}
+
+/* ================== CROP ICONS ================== */
+function cropIcon(c){
+  if(c==="lettuce") return `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#eaf7e1"/><g transform="translate(24,36)">${[-70,-35,0,35,70].map(a=>frill(a,22,10,"url(#gLetD)","#357f2e")).join("")}${[-25,0,25].map(a=>frill(a,15,7,"#d8f5a2","#9ccf6a")).join("")}</g></svg>`;
+  if(c==="tomato") return `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#fdeae6"/><circle cx="24" cy="27" r="13" fill="#e53b2c"/><ellipse cx="19" cy="22" rx="4" ry="2.6" fill="#fff" opacity=".45"/><path d="M24 14 l-6 -3 l5 4 l-1 -6 l2 5 l5 -4 l-3 6 l6 1z" fill="#3d9a3a"/></svg>`;
+  return `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#fde6ea"/><path d="M24 15 C33 15 36 22 34 28 C32 35 26 40 24 41 C22 40 16 35 14 28 C12 22 15 15 24 15Z" fill="#e8304a"/><g fill="#ffe28a"><circle cx="20" cy="23" r="1.1"/><circle cx="28" cy="23" r="1.1"/><circle cx="24" cy="29" r="1.1"/><circle cx="20" cy="33" r="1"/><circle cx="28" cy="33" r="1"/></g><path d="M16 15 L24 10 L32 15 L27 17 L24 13 L21 17Z" fill="#3d9a3a"/></svg>`;
+}
+
+/* ================== UI HELPERS ================== */
+function toast(msg,type=""){
+  const t=document.createElement("div"); t.className="toast "+type; t.textContent=msg; $("toast").appendChild(t);
+  setTimeout(()=>{t.style.transition="opacity .4s";t.style.opacity="0";setTimeout(()=>t.remove(),400);},2600);
+  while($("toast").children.length>3) $("toast").firstChild.remove();
+}
+function clock(){const f=S.time%1;const m=Math.floor(f*1440);return `${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`;}
+function dayNum(){return Math.floor(S.time)+1;}
+function addLog(msg){S.log.unshift({t:`${dayNum()}일 ${clock()}`,m:msg}); if(S.log.length>30) S.log.pop(); renderLog();}
+function renderLog(){$("logList").innerHTML=S.log.slice(0,12).map(l=>`<li><em>${l.t}</em>${l.m}</li>`).join("")||`<li>아직 기록이 없어요. 장치를 작동해 보세요.</li>`;}
+
+/* flow animation */
+let flowTimer=null;
+function runFlow(msg,steps){
+  steps=steps||[0,1,2,3,4,5,6];
+  const nodes=[...document.querySelectorAll(".fnode")];
+  clearInterval(flowTimer); nodes.forEach(n=>n.classList.remove("on","ping"));
+  $("flowMsg").innerHTML=msg;
+  let k=0;
+  flowTimer=setInterval(()=>{
+    if(k<steps.length){nodes[steps[k]].classList.add("on");k++;}
+    else if(k<steps.length+8){k++;}
+    else{clearInterval(flowTimer);flowTimer=null;nodes.forEach(n=>n.classList.remove("on"));}
+  },330);
+}
+function pingFlow(){
+  if(flowTimer) return;
+  const nodes=document.querySelectorAll(".fnode");
+  nodes[0].classList.add("ping");nodes[1].classList.add("ping");nodes[6].classList.add("ping");
+  setTimeout(()=>{nodes[0].classList.remove("ping");nodes[1].classList.remove("ping");nodes[6].classList.remove("ping");},450);
+}
+function wifiPulse(){const w=$("wifi");w.classList.remove("send");void w.getBoundingClientRect();w.classList.add("send");const d=$("liveDot");d.classList.remove("blink");void d.offsetWidth;d.classList.add("blink");}
+function ctrlText(t){$("ctrlTxt").textContent=t;}
+
+/* ================== MONEY ================== */
+let brokeWarned=false;
+function spend(n){
+  if(S.learn) return true;
+  if(S.money>=n){S.money-=n;return true;}
+  return false;
+}
+function broke(){
+  S.pump=false;S.heater=false;S.cooler=false;S.feedLeft=0;
+  if(!brokeWarned){toast("자금이 부족해 장치가 멈췄어요. 위쪽 ‘학습 모드’를 켜면 비용 없이 계속 체험할 수 있어요.","bad");addLog("자금 부족으로 장치 정지");brokeWarned=true;setTimeout(()=>brokeWarned=false,8000);}
+}
+function payAcc(key,amount){
+  S.acc[key]+=amount;
+  while(S.acc[key]>=1){ if(!spend(1)){broke();S.acc[key]=0;return false;} S.acc[key]-=1; }
+  return true;
+}
+
+/* ================== DEVICES ================== */
+function setPump(on,src){
+  if(on&&!S.learn&&S.money<=0){broke();return;}
+  if(S.pump===on) return; S.pump=on;
+  addLog(`${src==="auto"?"[자동] ":"[수동] "}워터 펌프 ${on?"작동":"정지"}`);
+}
+function setHeater(on,src){
+  if(on&&!S.learn&&S.money<=0){broke();return;}
+  if(on) S.cooler=false;
+  if(S.heater===on) return; S.heater=on;
+  addLog(`${src==="auto"?"[자동] ":"[수동] "}온풍기 ${on?"작동":"정지"}`);
+}
+function setCooler(on,src){
+  if(on&&!S.learn&&S.money<=0){broke();return;}
+  if(on) S.heater=false;
+  if(S.cooler===on) return; S.cooler=on;
+  addLog(`${src==="auto"?"[자동] ":"[수동] "}환기 팬 ${on?"작동":"정지"}`);
+}
+function feed(src){
+  if(S.feedLeft>0) return false;
+  if(S.stock<8){ toast("영양액 저장량이 부족해요. ‘영양액 보충’을 눌러 채워 주세요.","warn"); return false; }
+  S.stock-=8; S.feedLeft=15;
+  addLog(`${src==="auto"?"[자동] ":"[수동] "}영양액 공급 (+15)`);
+  return true;
+}
+
+/* ================== UPGRADES ================== */
+const UPGRADES=[
+  {id:"sensor",icon:"📡",name:"정밀 센서",price:60,eff:"센서가 2배 자주 측정해요.",desc:"측정이 잦아지면 자동 제어가 더 빨리 반응해 기준값을 넘는 시간이 줄어요."},
+  {id:"solar",icon:"☀️",name:"태양광 패널",price:120,eff:"물·전기 사용 비용이 절반으로 줄어요.",desc:"햇빛으로 전기를 만들어 펌프와 냉난방 장치에 써요. 신재생 에너지 기술이에요."},
+  {id:"curtain",icon:"🧣",name:"보온 커튼",price:80,eff:"밤에 온실 열이 덜 빠져나가요.",desc:"밤이 되면 커튼이 펼쳐져 난방 효율이 좋아지고 한파에 강해져요."},
+  {id:"shade",icon:"🕶️",name:"차광막",price:80,eff:"햇빛 열을 절반으로 줄여요.",desc:"강한 햇빛을 가려 낮과 폭염 때 온실이 덜 뜨거워져요."},
+  {id:"led",icon:"💡",name:"LED 생장등",price:150,eff:"밤과 흐린 날에도 성장이 느려지지 않아요.",desc:"식물이 광합성에 쓰는 빛을 비춰 줘요. 빛이 부족한 장마에 특히 좋아요."},
+  {id:"turbo",icon:"⚡",name:"고속 수확 로봇",price:70,eff:"수확 로봇이 1.7배 빨라져요.",desc:"모터와 경로 계획 프로그램을 업그레이드한 로봇이에요."}
+];
+const has=id=>!!(S.up&&S.up[id]);
+function buildUpgradeArt(){
+  const roofY=x=>{const t=(x-40)/920;return 130-240*t*(1-t);};
+  // solar panels on left roof
+  let sp="";
+  for(let i=0;i<5;i++){const x1=110+i*58,x2=x1+52;const y1=roofY(x1),y2=roofY(x2);
+    sp+=`<polygon points="${x1},${y1-3} ${x2},${y2-3} ${x2},${y2-17} ${x1},${y1-17}" fill="#1e3a6b" stroke="#8fb4ea" stroke-width="1.5"/><line x1="${(x1+x2)/2}" y1="${(y1+y2)/2-3}" x2="${(x1+x2)/2}" y2="${(y1+y2)/2-17}" stroke="#6f9be0"/><line x1="${x1}" y1="${y1-10}" x2="${x2}" y2="${y2-10}" stroke="#6f9be0"/>`;}
+  $("upSolar").innerHTML=sp;
+  // curtain under roof
+  let cp=`<path d="M50 136 Q500 26 950 136 L950 160 Q500 52 50 160Z" fill="#efe2c4" opacity=".95"/>`;
+  for(let x=70;x<950;x+=26){const y=roofY(x);cp+=`<line x1="${x}" y1="${y+6}" x2="${x}" y2="${y+28}" stroke="#d6c39b" stroke-width="2"/>`;}
+  $("upCurtain").innerHTML=cp;
+  // LED bars
+  let lp="", lg="";
+  [292,377,462,547,632].forEach(x=>{lp+=`<rect x="${x-24}" y="262" width="48" height="6" rx="3" fill="#5a3d7a"/><rect x="${x-22}" y="264" width="44" height="3" rx="1.5" fill="#e3b8ff"/>`;
+    lg+=`<polygon points="${x-22},267 ${x+22},267 ${x+46},420 ${x-46},420" fill="#d68cff" opacity=".16"/><rect x="${x-22}" y="264" width="44" height="3" rx="1.5" fill="#f3dcff"/>`;});
+  [262].forEach(()=>{});
+  $("upLed").innerHTML=`<line x1="268" y1="232" x2="268" y2="262" stroke="#8a9aa5" stroke-width="2"/><line x1="656" y1="232" x2="656" y2="262" stroke="#8a9aa5" stroke-width="2"/>`+lp;
+  $("ledGlow").innerHTML=lg;
+}
+function renderShop(){
+  $("shopMoney").textContent=Math.floor(S.money)+"금";
+  $("shopGrid").innerHTML=UPGRADES.map(u=>{const own=has(u.id);const short=u.price-Math.floor(S.money);
+    return `<div class="sitem ${own?"own":""}"><div class="si"><span>${u.icon}</span><div><b>${u.name}</b><br><small>${u.price}금</small></div></div><p class="eff">${u.eff}</p><p>${u.desc}</p><button data-u="${u.id}" ${own||short>0?"disabled":""}>${own?"✅ 설치 완료":short>0?`${short}금 더 필요해요`:`설치하기 (${u.price}금)`}</button></div>`;}).join("");
+}
+function buyUpgrade(id){
+  const u=UPGRADES.find(x=>x.id===id); if(!u||has(id)||S.money<u.price) return;
+  S.money-=u.price; S.up[id]=true;
+  addLog(`${u.name} 설치 (-${u.price}금)`); toast(`${u.icon} ${u.name} 설치 완료! ${u.eff}`,"ok"); sfx("level");
+  renderShop(); renderUpList();
+  if(id==="sensor") wifiPulse();
+}
+function renderUpList(){
+  const own=UPGRADES.filter(u=>has(u.id));
+  $("upList").innerHTML=own.length?own.map(u=>`<span>${u.icon} ${u.name}</span>`).join(""):`<em>아직 없어요. 위쪽 ‘🛒 상점’에서 설치해 보세요.</em>`;
+}
+
+/* ================== WEATHER ================== */
+const WX={
+  cold:{name:"한파",icon:"❄️",dOut:-16,tip:"난방이 필요해요. 자동 온도 관리의 최저 기준을 확인하세요. 보온 커튼이 있으면 더 든든해요."},
+  heat:{name:"폭염",icon:"🔥",dOut:9,sunK:1.5,dryK:1.4,tip:"온실이 뜨거워져요. 환기 팬과 자동 온도 관리를 준비하세요. 차광막이 햇빛을 가려 줘요."},
+  dry:{name:"건조한 바람",icon:"🌬️",dryK:2.3,tip:"흙이 평소보다 2배 빨리 말라요. 자동 급수 기준값을 확인하세요."},
+  rain:{name:"장마",icon:"🌧️",dOut:-3,sunK:.15,dryK:.5,growK:.6,tip:"햇빛이 부족해 성장이 느려져요. LED 생장등이 있으면 괜찮아요."}
+};
+function wxNow(){const W=WX[S.wx?S.wx.t:S.wxLast]||{};const a=S.wxAmt||0;
+  return {a,W,dOut:(W.dOut||0)*a,sunK:lerp(1,W.sunK||1,a),dryK:lerp(1,W.dryK||1,a),growK:lerp(1,W.growK||1,a)};}
+function wxTick(dt){
+  if(!S.wx){
+    if(S.time>=S.wxNext-0.35){const ks=Object.keys(WX);let t=ks[Math.floor(Math.random()*ks.length)];if(t===S.wxLast)t=ks[(ks.indexOf(t)+1)%ks.length];
+      S.wx={t,start:S.wxNext,end:S.wxNext+0.8,minH:100,on:false};S.wxLast=t;
+      toast(`📡 날씨 예보: 곧 ${WX[t].icon} ${WX[t].name}! 미리 대비하세요.`,"warn");addLog(`날씨 예보: ${WX[t].name}`);sfx("ready");}
+  } else {
+    const w=S.wx;
+    if(!w.on&&S.time>=w.start){w.on=true;toast(`${WX[w.t].icon} ${WX[w.t].name} 시작! 작물 건강도 80% 이상을 지켜 내면 보너스!`,"bad");addLog(`${WX[w.t].name} 시작`);}
+    if(w.on) w.minH=Math.min(w.minH,S.health);
+    if(S.time>=w.end){
+      if(w.minH>=80){S.money+=20;S.income+=20;S.wxWins++;celebrate("위기 극복!",`${WX[w.t].icon} ${WX[w.t].name} 속에서도 작물을 지켜 냈어요`,"+20금");confetti(500,260,34);sfx("win");addLog(`${WX[w.t].name} 극복 보너스 +20금`);}
+      else{toast(`${WX[w.t].name} 끝. 작물이 힘들었어요. 다음에는 자동 제어로 미리 대비해 봐요!`,"warn");addLog(`${WX[w.t].name} 끝 (작물 피해)`);}
+      S.wx=null;S.wxNext=S.time+1.6+Math.random()*1.2;
+    }
+  }
+  S.wxAmt+=((S.wx&&S.wx.on?1:0)-S.wxAmt)*Math.min(1,dt*8);
+}
+function buildWeatherArt(){
+  let sn="";for(let i=0;i<45;i++){const x=Math.random()*1000,y=Math.random()*-600;sn+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1.5+Math.random()*2.5).toFixed(1)}" fill="#fff" class="snow" style="animation-duration:${(5+Math.random()*5).toFixed(1)}s;animation-delay:${(-Math.random()*8).toFixed(1)}s"/>`;}
+  $("wxSnow").innerHTML=sn;
+  let rn="";for(let i=0;i<60;i++){const x=Math.random()*1040;rn+=`<line x1="${x.toFixed(0)}" y1="0" x2="${(x-6).toFixed(0)}" y2="18" stroke="#a8c8e8" stroke-width="2" stroke-linecap="round" class="rain" style="animation-duration:${(0.6+Math.random()*.5).toFixed(2)}s;animation-delay:${(-Math.random()).toFixed(2)}s"/>`;}
+  $("wxRain").innerHTML=`<rect width="1000" height="620" fill="#5d6b7c" opacity=".22"/>`+rn;
+  let wd="";for(let i=0;i<9;i++){const y=60+i*62;wd+=`<path class="wind" d="M-20 ${y} Q250 ${y-18} 500 ${y} T1020 ${y}" fill="none" stroke="#f3e2b8" stroke-width="2.5" stroke-linecap="round" opacity=".75" style="animation-delay:${(-i*.17).toFixed(2)}s"/>`;}
+  $("wxWind").innerHTML=wd;
+  let ht="";for(let i=0;i<6;i++){const x=120+i*150;ht+=`<path class="heatwave" d="M${x} 580 q10 -12 0 -24 q-10 -12 0 -24 q10 -12 0 -24" fill="none" stroke="#ffb36b" stroke-width="3" stroke-linecap="round" opacity=".7" style="animation-delay:${(-i*.3).toFixed(1)}s"/>`;}
+  $("wxHeat").innerHTML=ht;
+}
+function renderWeatherUI(){
+  const b=$("wxBanner"), w=S.wx;
+  if(!w){b.classList.add("hidden");
+    $("wxInfo").innerHTML=`<div class="wxbox">☀️ <b>당분간 맑음</b><br>다음 날씨 변화까지 약 ${Math.max(0,S.wxNext-S.time).toFixed(1)}일<br><small>위기 극복 ${S.wxWins}회</small></div>`;return;}
+  const W=WX[w.t];
+  if(!w.on){const left=Math.max(0,w.start-S.time);
+    b.className="";b.innerHTML=`📡 예보: ${left.toFixed(1)}일 뒤 ${W.icon} ${W.name}<small>${W.tip}</small>`;
+    $("wxInfo").innerHTML=`<div class="wxbox">📡 <b>${W.icon} ${W.name} 예보</b> (${left.toFixed(1)}일 뒤)<br>${W.tip}</div>`;}
+  else{const left=Math.max(0,w.end-S.time);
+    b.className="active";b.innerHTML=`${W.icon} ${W.name} 경보 · ${left.toFixed(1)}일 남음<small>작물 건강도 80% 이상 지키면 +20금 (현재 최저 ${Math.round(w.minH)}%)</small>`;
+    $("wxInfo").innerHTML=`<div class="wxbox active">${W.icon} <b>${W.name} 진행 중</b> · ${left.toFixed(1)}일 남음<br>${W.tip}</div>`;}
+}
+
+/* ================== ORDERS ================== */
+const CUSTOMERS={
+  lettuce:[["🏫","학교 급식실","비빔밥에 넣을 상추가 필요해요!"],["🥗","샐러드 카페","아삭한 샐러드를 만들고 싶어요."],["👵","반찬 가게 할머니","쌈 채소로 팔 거란다."],["🛒","동네 마트","채소 코너를 채워 주세요."]],
+  tomato:[["🍕","피자 가게","직접 토마토소스를 끓일 거예요!"],["🏫","학교 급식실","샐러드용 토마토 부탁해요."],["🛒","동네 마트","빨갛게 익은 토마토가 필요해요."],["🍝","파스타 식당","생토마토 파스타 재료예요."]],
+  strawberry:[["🍰","케이크 가게","생크림 케이크에 올릴 딸기예요!"],["🧃","과일 주스 가게","딸기 주스를 만들 거예요."],["🛒","동네 마트","딸기 특가 행사를 해요."],["🎁","선물 가게","예쁜 딸기 선물 상자를 만들어요."]]
+};
+const GRADE_REQ=["★★★ 최상품만","★★☆ 상품 이상","품질 상관없음"];
+const GSTAR=["★★★","★★☆","★☆☆"];
+function newOrder(force){
+  const ks=Object.keys(CROPS);const crop=force||ks[Math.floor(Math.random()*ks.length)];const c=CROPS[crop];
+  const mult=Math.random()<.6?1:2; const r=Math.random(); const g=r<.3?2:r<.72?1:0;
+  const cu=CUSTOMERS[crop][Math.floor(Math.random()*CUSTOMERS[crop].length)];
+  const reward=Math.round((c.price*mult*(1.3+[0.6,0.3,0][g])+Math.random()*10)/5)*5;
+  return {id:++S.oseq,crop,qty:c.yield*mult,prog:0,g,reward,av:cu[0],who:cu[1],say:cu[2]};
+}
+function orderTick(){
+  if(S.orders.length<3&&S.time>=S.orderNext){S.orders.push(newOrder());S.orderNext=S.time+0.35;}
+}
+/* 창고 */
+function inv(c){if(!S.inv)S.inv={};if(!S.inv[c])S.inv[c]=[0,0,0];return S.inv[c];}
+function invTotal(c){return inv(c).reduce((a,b)=>a+b,0);}
+function unitPrice(c,gi){return CROPS[c].price/CROPS[c].yield*GRADES[gi].k;}
+function marketValue(c){return Math.round(inv(c).reduce((a,n,gi)=>a+n*unitPrice(c,gi),0));}
+function availFor(o){const v=inv(o.crop);let n=0;for(let gi=0;gi<=o.g;gi++)n+=v[gi];return n;}
+function earn(n){const b=levelOf(S.income);S.money+=n;S.income+=n;const a=levelOf(S.income);
+  if(a>b) setTimeout(()=>{toast(`🎉 농장 레벨 ${a} 달성!`,"ok");addLog(`농장 레벨 ${a} 달성`);sfx("level");},900);}
+function deliver(id){
+  const o=S.orders.find(x=>x.id===id); if(!o) return;
+  const c=CROPS[o.crop], v=inv(o.crop); let need=o.qty-o.prog, put=0;
+  // 조건을 만족하는 것 중 품질이 낮은 것부터 사용 → 좋은 품질은 아껴 둬요
+  for(let gi=o.g;gi>=0&&need>0;gi--){const k=Math.min(v[gi],need);v[gi]-=k;need-=k;put+=k;}
+  if(!put){toast(`창고에 ${GRADE_REQ[o.g]} ${c.name}가 없어요.`,"warn");return;}
+  o.prog+=put; sfx("pick",2);
+  if(o.prog>=o.qty){
+    S.orders=S.orders.filter(x=>x!==o); S.orderNext=Math.max(S.orderNext,S.time+0.3);
+    earn(o.reward); S.rep+=3-o.g; S.ordersDone++;
+    celebrate("주문 완료!",`${o.av} ${o.who} · 평판 +${3-o.g}`,`+${o.reward}금`); confetti(500,300,34); sfx("win");
+    addLog(`주문 완료: ${o.who} ${c.name} ${o.qty}${c.unit}, +${o.reward}금`);
+  } else { toast(`📦 ${o.who}에 ${c.name} ${put}${c.unit} 납품 (${o.prog}/${o.qty}) — 다 채우면 보상을 받아요.`,"ok"); addLog(`납품: ${o.who} ${put}${c.unit}`); }
+  lastOrderKey="";
+}
+function sellCrop(cr){
+  const val=marketValue(cr), n=invTotal(cr); if(!n) return;
+  S.inv[cr]=[0,0,0]; earn(val); sfx("pick",4);
+  toast(`🏪 시장에 ${CROPS[cr].name} ${n}${CROPS[cr].unit}를 팔았어요. +${val}금`,"ok"); floatText(`+${val}금`,820,550);
+  addLog(`시장 판매: ${CROPS[cr].name} ${n}${CROPS[cr].unit}, +${val}금`); lastOrderKey="";
+}
+let lastOrderKey="";
+function renderOrders(){
+  const ks=Object.keys(CROPS);
+  const key=JSON.stringify(S.inv)+S.orders.map(o=>o.id+":"+o.prog).join("|");
+  const ready=S.orders.filter(o=>availFor(o)>0).length;
+  $("oBadge").textContent=ready||S.orders.length; $("oBadge").classList.toggle("hot",ready>0);
+  $("oRep").textContent="★ "+S.rep; $("oDone").textContent=S.ordersDone+"건";
+  if(key===lastOrderKey) return; lastOrderKey=key;
+  $("orderList").innerHTML=S.orders.length?S.orders.map(o=>{const c=CROPS[o.crop];const av=availFor(o);const need=o.qty-o.prog;const put=Math.min(av,need);
+    const mv=Math.round(o.qty*unitPrice(o.crop,Math.min(o.g,1)));
+    return `<div class="card order ${av?"match":""}"><div class="ohead"><span class="oav">${o.av}</span><div><b>${o.who}</b><small>“${o.say}”</small></div><span class="orew">+${o.reward}금</span></div>
+    <div class="oreq">${cropIcon(o.crop)}${c.name} ${o.qty}${c.unit} · ${GRADE_REQ[o.g]}</div>
+    <div class="hbar"><span>납품</span><div class="tr"><i style="width:${o.prog/o.qty*100}%;background:#f5b82e"></i></div><em>${o.prog}/${o.qty}</em></div>
+    <button class="act ${av?"green":"ghost"} wide" data-deliver="${o.id}" ${av?"":"disabled"}>${av?`📦 납품하기 (${put}${c.unit} 보내기)`:`창고에 맞는 ${c.name}가 없어요`}</button>
+    <p class="oline">${av?`납품하면 ${need-put>0?`${need-put}${c.unit}가 더 필요해요.`:"주문이 완료돼요!"}`:o.crop!==S.crop?`${c.name}를 심어 수확해야 해요.`:`${GRADE_REQ[o.g]} 조건을 맞춰 수확해 보세요.`} (시장에 팔면 약 ${mv}금)</p></div>`;}).join(""):`<div class="card"><p class="hint">새 주문을 기다리는 중이에요…</p></div>`;
+}
+
+/* ================== SIMULATION ================== */
+function outsideTemp(){
+  const f=S.time%1;
+  return 15+9*Math.sin(2*Math.PI*(f-0.3))+S.drift+wxNow().dOut;
+}
+function daylight(){const f=S.time%1;return (f>.25&&f<.75)?Math.sin(Math.PI*(f-.25)/.5):0;}
+function envFactors(){
+  const c=CROPS[S.crop];
+  const fit=(v,[lo,hi],soft)=>v>=lo&&v<=hi?1:Math.max(0,1-(v<lo?lo-v:v-hi)/soft);
+  return {m:fit(S.moist,c.moist,30),t:fit(S.temp,c.temp,12),n:fit(S.nutr,c.nutr,40)};
+}
+let sampleAcc=0;
+function simulate(dt){ // dt in game days
+  S.time+=dt;
+  const dn=Math.floor(S.time);
+  if(dn!==S.lastDay){S.lastDay=dn;S.driftT=(Math.random()*6-3);}
+  S.drift+=(S.driftT-S.drift)*Math.min(1,dt*2);
+  wxTick(dt); orderTick();
+  const wx=wxNow(), costK=has("solar")?.5:1;
+  const out=outsideTemp(), sun=daylight();
+  const eq=out+7*sun*wx.sunK*(has("shade")?.5:1);
+  const kLoss=(sun<.05&&has("curtain"))?2.2:4;
+  // devices costs
+  if(S.heater) payAcc("heat",12*dt*costK);
+  if(S.cooler) payAcc("cool",6*dt*costK);
+  S.temp+=(kLoss*(eq-S.temp)+(S.heater?70:0)-(S.cooler?55:0))*dt;
+  // moisture
+  const size=Math.min(S.growth,100)/100;
+  const loss=(18+Math.max(0,S.temp-18)*1.8+10*size)*wx.dryK;
+  S.moist-=loss*dt;
+  if(S.pump){const add=Math.max(0,Math.min(150*dt,100-S.moist));S.moist+=150*dt; payAcc("water",Math.max(add,30*dt)*0.1*costK); }
+  S.moist=clamp(S.moist,0,100);
+  // nutrients
+  if(S.feedLeft>0){const a=Math.min(S.feedLeft,300*dt);S.nutr+=a;S.feedLeft-=a;}
+  const f=envFactors(); const env=f.m*f.t*f.n;
+  const light=has("led")?1:(sun<.05?.8:1)*wx.growK;
+  const rate=(S.growth<100&&!bot.busy)?100/CROPS[S.crop].days*(.25+.75*env)*(.6+.4*S.health/100)*light:0;
+  S.nutr-=(6+rate*.05)*dt; S.nutr=clamp(S.nutr,0,100);
+  // growth & health
+  S.growth=Math.min(100,S.growth+rate*dt);
+  if(env>=.75) S.health+=25*dt; else S.health-=(.75-env)*40*dt;
+  S.health=clamp(S.health,15,100); // 수업용: 작물이 완전히 죽지는 않아요
+  if(S.growth>=100&&!S.alerted){S.alerted=true;lastPlantKey="";
+    toast(`${CROPS[S.crop].name} 수확 준비 완료! ‘로봇 수확’을 눌러 보세요.`,"ok");addLog("수확 가능 상태 도달");sfx("ready");}
+  // sampling
+  sampleAcc+=dt;
+  if(sampleAcc>=(has("sensor")?1/120:1/60)){sampleAcc=0;sample();}
+}
+
+/* sensor sampling + auto control */
+const packets=[];
+function sendPacket(pathId,color){packets.push({p:$(pathId),t:0,c:color,el:svgEl("circle",{r:4,fill:color,stroke:"#fff","stroke-width":1.5},$("packets"))});}
+function sample(){
+  S.read={m:S.moist,t:S.temp,n:S.nutr,g:S.growth};
+  sendPacket("sigSoil","#2f8fe0"); sendPacket("sigTemp","#f07a2c");
+  ["msPing","tsPing"].forEach(id=>{const e=$(id);e.setAttribute("opacity","1");setTimeout(()=>e.setAttribute("opacity","0"),180);});
+  $("msTxt").textContent=Math.round(S.read.m)+"%";
+  $("tsTxt").textContent=Math.round(S.read.t)+"°";
+  wifiPulse(); pingFlow();
+  const m=Math.round(S.read.m), t=S.read.t;
+  if(S.wMode==="auto"&&S.wAuto){
+    if(!S.pump&&m<=S.wStart){setPump(true,"auto");if(S.pump)runFlow(`토양 습도 <b>${m}%</b> ≤ 급수 시작 기준 <b>${S.wStart}%</b> → 자동 급수 명령 → <b>워터 펌프 ON</b> → 습도 상승`);ctrlText("PUMP ON");}
+    else if(S.pump&&m>=S.wStop){setPump(false,"auto");runFlow(`토양 습도 <b>${m}%</b> ≥ 급수 중지 기준 <b>${S.wStop}%</b> → 중지 명령 → <b>워터 펌프 OFF</b>`);ctrlText("PUMP OFF");}
+  }
+  if(S.tMode==="auto"&&S.tAuto){
+    const offH=Math.min(S.tMin+1,(S.tMin+S.tMax)/2), offC=Math.max(S.tMax-1,(S.tMin+S.tMax)/2);
+    if(t<S.tMin&&!S.heater){setHeater(true,"auto");if(S.heater)runFlow(`온실 온도 <b>${t.toFixed(1)}℃</b> &lt; 최저 기준 <b>${S.tMin}℃</b> → 난방 명령 → <b>온풍기 ON</b> (환기 팬 OFF)`);ctrlText("HEAT ON");}
+    else if(t>S.tMax&&!S.cooler){setCooler(true,"auto");if(S.cooler)runFlow(`온실 온도 <b>${t.toFixed(1)}℃</b> &gt; 최고 기준 <b>${S.tMax}℃</b> → 냉방 명령 → <b>환기 팬 ON</b> (온풍기 OFF)`);ctrlText("COOL ON");}
+    else if(S.heater&&t>=offH){setHeater(false,"auto");runFlow(`온실 온도 <b>${t.toFixed(1)}℃</b> → 설정 범위 안으로 들어옴 → <b>온풍기 OFF</b>`);ctrlText("HEAT OFF");}
+    else if(S.cooler&&t<=offC){setCooler(false,"auto");runFlow(`온실 온도 <b>${t.toFixed(1)}℃</b> → 설정 범위 안으로 들어옴 → <b>환기 팬 OFF</b>`);ctrlText("COOL OFF");}
+  }
+  if(S.nAuto&&S.feedLeft<=0&&Math.round(S.read.n)<S.nThr){
+    if(feed("auto")) runFlow(`영양 상태 <b>${Math.round(S.read.n)}%</b> &lt; 공급 기준 <b>${S.nThr}%</b> → 공급 명령 → <b>영양액 공급 장치 ON</b>`);
+  }
+}
+
+/* ================== ROBOT ================== */
+const bot={busy:false,x:ROBOT_HOME,ext:0,target:null,door:0,beam:0,step:-1,queue:[],cur:null,t0:0,basket:0,crate:0,fly:null};
+function buildHarvestQueue(){
+  const q=[]; let cx=ROBOT_HOME;
+  const move=(to,step)=>{const from=cx;q.push({step,dur:Math.max(160,Math.abs(to-from)/650*1000),u:p=>{bot.x=lerp(from,to,ease(p));}});cx=to;};
+  q.push({step:0,dur:420,u:p=>bot.door=ease(p)});
+  move(858,1);
+  for(let i=PX.length-1;i>=0;i--){
+    const stop=PX[i]+40; move(stop,2);
+    const ty=PY-(S.crop==="lettuce"?28:S.crop==="tomato"?60:8);
+    q.push({step:3,dur:180,s:()=>{bot.target=[PX[i],ty];},u:p=>bot.beam=Math.sin(Math.PI*p)});
+    q.push({step:4,dur:150,u:p=>bot.ext=ease(p)});
+    q.push({step:4,dur:240,s:()=>{picked[i]=true;lastPlantKey="";bot.fly={from:[PX[i],ty],t:0};pickPop(i,ty);},u:p=>{bot.ext=1-ease(p);if(bot.fly)bot.fly.t=p;},e:()=>{bot.fly=null;bot.basket++;drawBasket();}});
+  }
+  move(822,5);
+  q.push({step:5,dur:420,u:p=>{bot.ext=Math.sin(Math.PI*p)*.5;bot.target=[812,580];},e:()=>{bot.crate=bot.basket;bot.basket=0;drawBasket();drawCrate();finishHarvest();}});
+  move(ROBOT_HOME,6);
+  q.push({step:6,dur:420,u:p=>bot.door=1-ease(p),e:robotHome});
+  if(has("turbo")) q.forEach(x=>x.dur/=1.7);
+  return q;
+}
+function startHarvest(){
+  if(bot.busy||!canHarvest()) return;
+  bot.busy=true; bot.queue=buildHarvestQueue(); bot.cur=null; bot.basket=0; bot.crate=0; drawCrate();
+  $("hvResult").classList.add("hidden");
+  addLog("[수동] 로봇 수확 시작");
+  runFlow(`스마트폰 <b>수확 명령</b> → 제어 장치 → <b>수확 로봇 출발</b>`,[1,3,4]);
+  ctrlText("ROBOT");
+}
+function updateRobot(now){
+  if(bot.busy){
+    if(!bot.cur){bot.cur=bot.queue.shift();bot.t0=now;bot.step=bot.cur?bot.cur.step:-1;if(bot.cur&&bot.cur.s)bot.cur.s();}
+    if(bot.cur){
+      const p=clamp((now-bot.t0)/bot.cur.dur,0,1);
+      bot.cur.u(p);
+      if(p>=1){if(bot.cur.e)bot.cur.e();bot.cur=null;}
+    }
+  }
+  // draw
+  $("robot").setAttribute("transform",`translate(${bot.x},0)`);
+  $("door").setAttribute("transform",`translate(0,${-82*bot.door})`);
+  $("scanBeam").setAttribute("opacity",(bot.beam*.45).toFixed(2));
+  const sx=bot.x-12, sy=490;
+  const tgt=bot.target||[sx-10,470];
+  const ex=lerp(sx-6,tgt[0],bot.ext), ey=lerp(472,tgt[1],bot.ext);
+  const mx=(sx+ex)/2+14*(bot.ext), my=(sy+ey)/2+10-30*bot.ext;
+  $("arm").setAttribute("d",`M${sx} ${sy} Q${mx} ${my} ${ex} ${ey}`);
+  $("grip").setAttribute("cx",ex);$("grip").setAttribute("cy",ey);
+  $("robotLed").setAttribute("fill",bot.busy?"#f5b82e":"#5fe08f");
+  $("chargeLed").setAttribute("fill",bot.busy?"#5d6d7a":"#5fe08f");
+  const fi=$("flyItem");
+  if(bot.fly){const [fx,fy]=bot.fly.from;const t=bot.fly.t;const bx=bot.x+19,by=486;
+    fi.setAttribute("cx",lerp(fx,bx,t));fi.setAttribute("cy",lerp(fy,by,t)-Math.sin(Math.PI*t)*30);
+    fi.setAttribute("fill",itemColor());fi.setAttribute("r",S.crop==="lettuce"?9:6);fi.setAttribute("opacity","1");}
+  else fi.setAttribute("opacity","0");
+}
+function itemColor(){return S.crop==="lettuce"?"#6cc24a":S.crop==="tomato"?"#e53b2c":"#e8304a";}
+function drawBasket(){
+  const g=$("basket");g.innerHTML="";
+  for(let i=0;i<Math.min(bot.basket,6);i++) svgEl("circle",{cx:11+(i%3)*8,cy:486-Math.floor(i/3)*5,r:S.crop==="lettuce"?4.5:3.5,fill:itemColor(),stroke:"#fff","stroke-width":.8},g);
+}
+function drawCrate(){
+  const g=$("crateItems");g.innerHTML="";
+  for(let i=0;i<Math.min(bot.crate*1.5,10);i++) svgEl("circle",{cx:792+(i%5)*14,cy:568-Math.floor(i/5)*7,r:S.crop==="lettuce"?7:5.5,fill:itemColor(),stroke:"#fff","stroke-width":1},g);
+}
+function canHarvest(){return S.growth>=100&&!bot.busy;}
+const GRADES=[{min:80,name:"최상품",stars:"★★★",k:1.2},{min:50,name:"상품",stars:"★★☆",k:1},{min:0,name:"보통",stars:"★☆☆",k:.8}];
+function grade(){return GRADES.find(g=>S.health>=g.min);}
+function expected(){const c=CROPS[S.crop];const g=grade();return {qty:c.yield,rev:Math.round(c.price*g.k),g};}
+const LEVELS=[0,60,150,300,500,800,1200,1700,2400,3200,4200];
+function levelOf(inc){let l=1;LEVELS.forEach((v,i)=>{if(inc>=v)l=i+1;});return Math.min(l,LEVELS.length);}
+function finishHarvest(){
+  const c=CROPS[S.crop]; const {qty,rev,g}=expected(); const gi=GRADES.indexOf(g);
+  S.harvests++; S.totalQty+=qty; inv(S.crop)[gi]+=qty;
+  S.badges[S.crop]=true;
+  const canOrder=S.orders.filter(o=>o.crop===S.crop&&gi<=o.g).length;
+  let extra="";
+  if(c.regrow===0){
+    if(!S.learn&&S.money>=c.seed){S.money-=c.seed;extra=`<div class="row"><span>새 모종 자동 심기</span><b>-${c.seed}금</b></div>`;}
+    else extra=`<div class="row"><span>새 모종 자동 심기</span><b>무료</b></div>`;
+    S.growth=0;
+  } else { S.growth=c.regrow; extra=`<div class="row"><span>다음 수확</span><b>포기는 남기고 다시 열매 맺기</b></div>`; }
+  S.alerted=false; picked.fill(false); lastPlantKey=""; lastOrderKey="";
+  $("hvResult").innerHTML=`<h4>수확 완료!</h4><div class="grade">${g.stars}<span>${g.name}</span></div><div class="row"><span>수확 작물</span><b>${c.name} ${qty}${c.unit}</b></div><div class="row"><span>창고에 보관</span><span class="big">+${qty}${c.unit}</span></div><div class="row"><span>시장에 팔면</span><b>약 ${rev}금</b></div><div class="row"><span>납품할 수 있는 주문</span><b>${canOrder}개</b></div>${extra}<button class="act sun wide" id="goOrder">📦 손님 주문으로 가서 납품하기</button>`;
+  $("hvResult").classList.remove("hidden");
+  addLog(`수확: ${c.name} ${qty}${c.unit} ${g.name} → 창고`);
+  floatText(`+${qty}${c.unit}`,820,550);
+  confetti(820,560,24);
+  celebrate(`${c.name} 수확 성공!`,`${g.stars} ${g.name}`,`📦 창고 +${qty}${c.unit}`);
+  sfx("win");
+  setTimeout(()=>{ if(canOrder) toast(`📦 ${c.name}를 납품할 수 있는 주문이 ${canOrder}개 있어요! ‘손님 주문’ 탭을 열어 보세요.`,"ok");
+    else toast(`🏠 ${c.name} ${qty}${c.unit}를 창고에 넣었어요. 시장에 팔거나 주문을 기다려 보세요.`,"ok");},1300);
+  renderBadges();
+}
+function robotHome(){
+  bot.busy=false; bot.step=-1; bot.target=null; bot.ext=0; ctrlText("READY");
+  setTimeout(()=>{if(!bot.busy){bot.crate=0;drawCrate();}},2500);
+}
+function pickPop(i,ty){
+  const c=CROPS[S.crop];
+  floatText(`+${Math.round(c.price/PX.length*grade().k)}`,PX[i],ty-20,"small");
+  sparkle(PX[i],ty);
+  sfx("pick",i);
+}
+function sparkle(x,y){
+  const g=$("floats");
+  for(let k=0;k<(6);k++){const a=k/(6)*Math.PI*2;const e=svgEl("g",{transform:`translate(${x},${y})`},g);svgEl("path",{d:"M0 -6 L1.5 -1.5 L6 0 L1.5 1.5 L0 6 L-1.5 1.5 L-6 0 L-1.5 -1.5Z",fill:"#fff6a8",class:"spark",style:`--sx:${Math.cos(a)*30}px;--sy:${Math.sin(a)*30}px`},e);setTimeout(()=>e.remove(),700);}
+}
+function confetti(x,y,n){
+  const g=$("floats"),cols=["#ffd23f","#ff6b6b","#5fe08f","#4fb3ff","#ff9a4d","#c38cff"];
+  for(let k=0;k<n;k++){const e=svgEl("g",{transform:`translate(${x},${y})`},g);svgEl("rect",{x:-3,y:-5,width:6,height:10,rx:1.5,fill:cols[k%cols.length],class:"conf",style:`--cx:${(Math.random()-.5)*260}px;--cy:${-80-Math.random()*160}px;--cr:${Math.random()*720-360}deg;animation-delay:${Math.random()*.15}s`},e);setTimeout(()=>e.remove(),1700);}
+}
+function celebrate(t1,t2,t3){
+  const b=$("celebrate");b.innerHTML=`<div class="c1">${t1}</div><div class="c2">${t2}</div><div class="c3">${t3}</div>`;
+  b.classList.remove("show");void b.offsetWidth;b.classList.add("show");
+}
+function renderBadges(){
+  const list=[["lettuce","상추"],["tomato","토마토"],["strawberry","딸기"]];
+  $("badges").innerHTML=list.map(([k,n])=>`<div class="bd ${S.badges&&S.badges[k]?"got":""}">${cropIcon(k)}<small>${n}</small></div>`).join("");
+}
+/* sound */
+let audioCtx=null;
+function tone(f,d,type="sine",vol=.12,delay=0){
+  if(!S.sound) return;
+  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const t=audioCtx.currentTime+delay;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+d);}catch(e){}
+}
+function sfx(kind,i=0){
+  if(kind==="pick"){tone(660+i*60,.12,"triangle");tone(990+i*60,.1,"sine",.08,.05);}
+  else if(kind==="win"){[523,659,784,1047].forEach((f,k)=>tone(f,.22,"triangle",.13,k*.09));}
+  else if(kind==="level"){[784,988,1175,1568].forEach((f,k)=>tone(f,.25,"square",.06,k*.1));}
+  else if(kind==="ready"){tone(880,.15,"sine",.1);tone(1320,.2,"sine",.08,.12);}
+}
+function floatText(t,x,y,kind){const e=svgEl("text",{x,y,"text-anchor":"middle",class:"floattxt"+(kind?" "+kind:"")},$("floats"));e.textContent=t;setTimeout(()=>e.remove(),1900);}
+
+/* ================== RENDER (farm visuals) ================== */
+const SKY={dayT:"#7cc6ff",dayB:"#e2f5ff",nightT:"#14213d",nightB:"#34507a",dusk:"#ffbf86"};
+function renderFarm(){
+  const f=S.time%1, d=daylight();
+  const dusk=clamp(1-Math.abs(d-0.12)/0.14,0,1)*(d>0?1:0);
+  $("sky1").setAttribute("stop-color",mix(SKY.nightT,SKY.dayT,clamp(d*2.2,0,1)));
+  $("sky2").setAttribute("stop-color",mix(mix(SKY.nightB,SKY.dayB,clamp(d*2.2,0,1)),SKY.dusk,dusk*.6));
+  $("night").setAttribute("opacity",(0.34*(1-clamp(d*2.5,0,1))).toFixed(3));
+  $("stars").setAttribute("opacity",(1-clamp(d*4,0,1)).toFixed(2));
+  $("lamps").setAttribute("opacity",(1-clamp(d*4,0,1)).toFixed(2));
+  if(f>.25&&f<.75){const p=(f-.25)/.5;$("sun").setAttribute("transform",`translate(${60+880*p},${118-90*Math.sin(Math.PI*p)})`);$("sun").setAttribute("opacity","1");$("moon").setAttribute("opacity","0");}
+  else{const p=((f+.25)%1)/.5;$("moon").setAttribute("transform",`translate(${60+880*p},${118-80*Math.sin(Math.PI*p)})`);$("moon").setAttribute("opacity","1");$("sun").setAttribute("opacity","0");}
+  // devices
+  $("impeller").classList.toggle("run",S.pump);
+  $("waterFlow").classList.toggle("run",S.pump);
+  $("spray").classList.toggle("run",S.pump);
+  $("splashes").classList.toggle("run",S.pump);
+  $("pumpLed").setAttribute("fill",S.pump?"#5fe08f":"#9aa8b0");
+  $("ledW").setAttribute("fill",S.pump?"#3da8ff":"#4b5a63");
+  $("fanBlades").classList.toggle("run",S.cooler);
+  $("coolFx").classList.toggle("run",S.cooler);
+  $("ledC").setAttribute("fill",S.cooler?"#5cc8ee":"#4b5a63");
+  $("heatFx").classList.toggle("run",S.heater);
+  $("heatGlow").setAttribute("opacity",S.heater?"1":"0");
+  $("heatLed").setAttribute("fill",S.heater?"#ff7a2e":"#9aa8b0");
+  $("ledH").setAttribute("fill",S.heater?"#ff7a2e":"#4b5a63");
+  document.querySelectorAll("#coils rect").forEach(r=>r.setAttribute("fill",S.heater?"#ff7a2e":"#cdbfa7"));
+  const feeding=S.feedLeft>0;
+  $("gear").classList.toggle("run",feeding);
+  $("nutFlow").classList.toggle("run",feeding);
+  $("nutDrops").classList.toggle("run",feeding);
+  $("doserLed").setAttribute("fill",feeding?"#8be36a":"#9aa8b0");
+  $("ledN").setAttribute("fill",feeding?"#8be36a":"#4b5a63");
+  // tanks
+  const nl=S.stock/100*90; $("nutLevel").setAttribute("y",(522-nl).toFixed(1)); $("nutLevel").setAttribute("height",(nl+10).toFixed(1));
+  const wob=Math.sin(performance.now()/500)*(S.pump?3:1);
+  $("waterWave").setAttribute("d",`M55 ${282+wob} Q75 ${276-wob} 95 ${282+wob} T135 ${282+wob} V292 H55Z`);
+  // soil colour
+  const w=clamp(S.moist/100,0,1);
+  $("soil1").setAttribute("stop-color",mix("#b58a5a","#5c3b22",w));
+  $("soil2").setAttribute("stop-color",mix("#8d6640","#3e2716",w));
+  $("puddles").setAttribute("opacity",clamp((S.moist-84)/12,0,1).toFixed(2));
+  // temp sensor mercury
+  const mh=clamp((S.read.t)/40,0,1)*26; $("tsMerc").setAttribute("y",(198-mh).toFixed(1)); $("tsMerc").setAttribute("height",mh.toFixed(1));
+  // packets
+  for(let i=packets.length-1;i>=0;i--){const k=packets[i];k.t+=0.045;if(k.t>=1){k.el.remove();packets.splice(i,1);continue;}const L=k.p.getTotalLength();const pt=k.p.getPointAtLength(L*k.t);k.el.setAttribute("cx",pt.x);k.el.setAttribute("cy",pt.y);}
+  // upgrades
+  const night=1-clamp(d*4,0,1);
+  $("upSolar").setAttribute("opacity",has("solar")?"1":"0");
+  $("upShade").setAttribute("opacity",has("shade")?(0.25+0.75*clamp(d*2,0,1)).toFixed(2):"0");
+  $("upCurtain").setAttribute("opacity",has("curtain")?(0.12+0.88*night).toFixed(2):"0");
+  const wxs=wxNow(), ledOn=has("led")?Math.max(night,S.wx&&S.wx.t==="rain"?wxs.a:0):0;
+  $("upLed").setAttribute("opacity",has("led")?"1":"0");
+  $("ledGlow").setAttribute("opacity",ledOn.toFixed(2));
+  $("upSensor").setAttribute("opacity",has("sensor")?"1":"0");
+  $("robotStripe").setAttribute("fill",has("turbo")?"#f07a2c":"#2f8fe0");
+  // weather
+  const wt=S.wx?S.wx.t:S.wxLast, a=wxs.a;
+  $("wxSnow").setAttribute("opacity",wt==="cold"?a.toFixed(2):"0");
+  $("wxRain").setAttribute("opacity",wt==="rain"?a.toFixed(2):"0");
+  $("wxWind").setAttribute("opacity",wt==="dry"?a.toFixed(2):"0");
+  $("wxHeat").setAttribute("opacity",wt==="heat"?a.toFixed(2):"0");
+  $("wxTint").setAttribute("fill",wt==="cold"?"#bfe3ff":wt==="dry"?"#e8c98a":"#ff7a2c");
+  $("wxTint").setAttribute("opacity",((wt==="heat"?.14:wt==="cold"?.16:wt==="dry"?.1:0)*a).toFixed(3));
+  if(wt==="rain"&&a>0){$("sky1").setAttribute("stop-color",mix("#7cc6ff","#7d8896",a*clamp(d*2.2,0,1)));}
+  renderPlants(); renderStress();
+}
+
+/* ================== RENDER (UI) ================== */
+function farmStatus(){
+  const c=CROPS[S.crop], r=S.read;
+  if(S.health<=0) return ["작물이 시듦","bad"];
+  if(r.m<c.moist[0]-8) return ["수분 부족","warn"];
+  if(r.m>c.moist[1]+8) return ["과습 주의","warn"];
+  if(r.t<c.temp[0]-2) return ["저온 주의","warn"];
+  if(r.t>c.temp[1]+2) return ["고온 주의","warn"];
+  if(r.n<c.nutr[0]-8) return ["영양 부족","warn"];
+  if(r.n>85) return ["영양 과잉","warn"];
+  if(S.growth>=100) return ["수확 가능","good"];
+  return ["양호","good"];
+}
+function setPill(el,txt,cls){el.textContent=txt;el.className="pill"+(cls?" "+cls:"");}
+function pos(v,min,max){return clamp((v-min)/(max-min)*100,0,100)+"%";}
+function renderUI(){
+  const c=CROPS[S.crop], r=S.read;
+  // top
+  $("tDay").textContent=`재배 ${dayNum()}일 차`; $("tClock").textContent=clock(); $("pClock").textContent=clock();
+  $("tMoney").textContent=Math.floor(S.money)+"금";
+  for(const [crop,id] of [["lettuce","stockLettuce"],["tomato","stockTomato"],["strawberry","stockStrawberry"]]){
+    const n=invTotal(crop),el=$(id),btn=el.parentElement.querySelector("[data-sell]");
+    el.textContent=n+CROPS[crop].unit;
+    el.title=inv(crop).map((x,gi)=>`${GSTAR[gi]} ${x}`).join(" · ");
+    btn.disabled=n===0;
+    btn.title=n?`시장에 전량 판매: +${marketValue(crop)}금`:"창고가 비어 있어요";
+  } $("tHarv").textContent=S.harvests+"회"; $("tLv").textContent="Lv."+levelOf(S.income);
+  const [st,lv]=farmStatus();
+  const envEl=$("tEnv"); envEl.className="stat env "+(lv==="good"?"good":lv==="warn"?"warn":"bad"); $("tEnvTxt").textContent=st;
+  // phone header
+  $("pFarm").textContent=S.farm;
+  $("rM").textContent=Math.round(r.m)+"%"; $("rT").textContent=r.t.toFixed(1)+"℃"; $("rN").textContent=Math.round(r.n)+"%"; $("rG").textContent=Math.floor(S.growth)+"%";
+  $("tlM").classList.toggle("alert",r.m<c.moist[0]-8||r.m>c.moist[1]+8);
+  $("tlT").classList.toggle("alert",r.t<c.temp[0]-2||r.t>c.temp[1]+2);
+  $("tlN").classList.toggle("alert",r.n<c.nutr[0]-8||r.n>85);
+  const fs=$("fState"); fs.className="fstate"+(lv==="good"?"":" "+lv); $("fStateTxt").textContent=st;
+  // home
+  const stg=Math.min(3,Math.floor(Math.min(S.growth,99.9)/25));
+  $("cropName").textContent=c.name;
+  $("cropStage").textContent=S.health<=0?"시든 상태":`${stg+1}단계 · ${STAGES[stg]}${S.growth>=100?" (수확 가능)":""}`;
+  setPill($("cropPill"),S.health<=0?"시듦":S.growth>=100?"수확 가능":"성장 중",S.health<=0?"warn":S.growth>=100?"on":"");
+  $("barG").style.width=S.growth+"%"; $("vG").textContent=Math.floor(S.growth)+"%";
+  $("barH").style.width=S.health+"%"; $("vH").textContent=Math.round(S.health)+"%";
+  $("barH").style.background=S.health>60?"#f5b82e":S.health>30?"#f07a2c":"#d9443a";
+  setPill($("dvPump"),S.pump?"작동 중":"정지",S.pump?"blue":"");
+  setPill($("dvHeat"),S.heater?"작동 중":"정지",S.heater?"heat":"");
+  setPill($("dvCool"),S.cooler?"작동 중":"정지",S.cooler?"cool":"");
+  setPill($("dvNut"),S.feedLeft>0?"공급 중":"대기",S.feedLeft>0?"on":"");
+  setPill($("dvBot"),bot.busy?BOT_STEPS[Math.max(0,bot.step)]:"충전 중",bot.busy?"warn":"");
+  $("btnPlant").textContent=`새로 심기 · ${CROPS[selCrop].name} 모종 ${S.learn?"(학습 모드 무료)":CROPS[selCrop].seed+"금"}`;
+  $("btnPlant").disabled=bot.busy;
+  // water
+  $("wNow").textContent=Math.round(r.m)+"%";
+  $("wFill").style.width=r.m+"%";
+  $("wBand").style.left=c.moist[0]+"%"; $("wBand").style.width=(c.moist[1]-c.moist[0])+"%";
+  $("wMkS").style.left=S.wStart+"%"; $("wMkP").style.left=S.wStop+"%";
+  $("wTarget").textContent=`${S.wStart}~${S.wStop}%`;
+  setPill($("wPump"),S.pump?"작동 중 · 물 공급":"정지",S.pump?"blue":"");
+  $("wBadge").textContent=S.wAuto?"자동 급수 ON":"자동 급수 OFF"; $("wBadge").className="badge"+(S.wAuto?" on":"");
+  $("wRule").innerHTML=`토양 습도 ≤ <b>${S.wStart}%</b> → 워터 펌프 ON<br>토양 습도 ≥ <b>${S.wStop}%</b> → 워터 펌프 OFF`;
+  const loop=[...document.querySelectorAll("#wLoop span")]; loop.forEach(s=>s.classList.remove("on"));
+  if(S.wAuto){ if(S.pump){loop[3].classList.add("on");loop[4].classList.add("on");} else {loop[0].classList.add("on");loop[1].classList.add("on");} }
+  $("wGo").disabled=S.pump; $("wHalt").disabled=!S.pump;
+  // temp
+  $("tNow").textContent=r.t.toFixed(1)+"℃"; $("tOut").textContent=outsideTemp().toFixed(1)+"℃";
+  $("tFill").style.width=pos(r.t,0,40);
+  $("tBand").style.left=pos(c.temp[0],0,40); $("tBand").style.width=((c.temp[1]-c.temp[0])/40*100)+"%";
+  $("tMkL").style.left=pos(S.tMin,0,40); $("tMkH").style.left=pos(S.tMax,0,40);
+  $("tTarget").textContent=`${S.tMin}~${S.tMax}℃`;
+  setPill($("tHeat"),S.heater?"작동 중":"정지",S.heater?"heat":"");
+  setPill($("tCool"),S.cooler?"작동 중":"정지",S.cooler?"cool":"");
+  $("tBadge").textContent=S.tAuto?"자동 온도 관리 ON":"자동 온도 관리 OFF"; $("tBadge").className="badge"+(S.tAuto?" on":"");
+  $("tRule").innerHTML=`온도 &lt; <b>${S.tMin}℃</b> → 온풍기 ON<br>온도 &gt; <b>${S.tMax}℃</b> → 환기 팬 ON<br>범위 안으로 들어오면 작동 중인 장치 정지`;
+  $("tHeatGo").disabled=S.heater; $("tCoolGo").disabled=S.cooler; $("tStop").disabled=!S.heater&&!S.cooler;
+  // nutrient
+  $("nNow").textContent=Math.round(r.n)+"%"; $("nFill").style.width=r.n+"%";
+  $("nBand").style.left=c.nutr[0]+"%"; $("nBand").style.width=(c.nutr[1]-c.nutr[0])+"%"; $("nMk").style.left=S.nThr+"%";
+  $("nStock").textContent=Math.round(S.stock)+"%";
+  setPill($("nState"),S.feedLeft>0?"공급 중":"대기",S.feedLeft>0?"on":"");
+  $("nWarn").textContent=r.n>85?"영양 과잉! 너무 많이 주면 작물에 해로워요.":r.n<c.nutr[0]-8?"영양 부족! 성장이 느려지고 있어요.":S.stock<16?"영양액 저장량이 얼마 남지 않았어요.":"";
+  $("nFeed").disabled=S.feedLeft>0||S.stock<8;
+  $("nRefill").textContent=S.learn?"영양액 보충 (무료)":"영양액 보충 (20금)"; $("nRefill").disabled=S.stock>=100;
+  $("nAuto").checked=S.nAuto;
+  $("nRule").innerHTML=S.nAuto?`영양 상태 &lt; <b>${S.nThr}%</b> → 영양액 15 자동 공급 (저장량 8% 사용)`:`자동 공급이 꺼져 있어요.`;
+  // harvest
+  $("hvCrop").textContent=c.name; $("hvG").textContent=Math.floor(S.growth)+"%";
+  setPill($("hvReady"),S.growth>=100?"수확 가능":"아직 자라는 중",S.growth>=100?"on":"");
+  const ex=expected(); $("hvExp").textContent=S.growth>=100?`${ex.qty}${c.unit} · ${ex.g.name} (시장가 약 ${ex.rev}금)`:`성장 ${Math.floor(S.growth)}% — 조금만 기다려요`;
+  $("hvGrade").textContent=`${ex.g.stars} ${ex.g.name}`;
+  const flv=levelOf(S.income), lo=LEVELS[flv-1], hi=LEVELS[flv]; $("lvTxt").textContent=`농장 레벨 ${flv}`;
+  $("lvNext").textContent=hi?`다음 레벨까지 ${hi-S.income}금`:"최고 레벨!"; $("lvBar").style.width=(hi?((S.income-lo)/(hi-lo)*100):100)+"%";
+  document.querySelector('#tabs button[data-p="harv"]').classList.toggle("ready",canHarvest());
+  renderOrders(); renderWeatherUI();
+  $("btnShop").classList.toggle("can",UPGRADES.some(u=>!has(u.id)&&S.money>=u.price));
+  if(!$("shopModal").classList.contains("hidden")) $("shopMoney").textContent=Math.floor(S.money)+"금";
+  $("btnHarvest").classList.toggle("glow",canHarvest());
+  $("btnHarvest").disabled=!canHarvest();
+  $("btnHarvest").textContent=bot.busy?"로봇 작업 중…":"로봇 수확 시작";
+  [...document.querySelectorAll("#botSteps li")].forEach((li,i)=>{li.className=bot.busy?(i<bot.step?"done":i===bot.step?"cur":""):"";});
+  $("hvCount").textContent=S.harvests+"회"; $("hvIncome").textContent=S.income+"금";
+  // speed
+  document.querySelectorAll("#speedGroup button").forEach(b=>b.classList.toggle("on",+b.dataset.s===S.speed));
+  $("learnMode").checked=S.learn;
+}
+function renderRanges(){
+  const c=CROPS[S.crop];
+  $("cropIco").innerHTML=cropIcon(S.crop);
+  $("cropRanges").innerHTML=`게임 속 적정 범위 — 온도 ${c.temp[0]}~${c.temp[1]}℃, 토양 습도 ${c.moist[0]}~${c.moist[1]}%, 영양 ${c.nutr[0]}~${c.nutr[1]}%<br>판매가 ${c.price}금 · 수확까지 약 ${Math.round(c.days*60)}초(1배속, 좋은 환경)`;
+}
+let selCrop="lettuce";
+function renderCropSel(){
+  $("cropSel").innerHTML=Object.keys(CROPS).map(k=>`<button data-c="${k}" class="${k===selCrop?"on":""}">${cropIcon(k)}${CROPS[k].name}<small>모종 ${CROPS[k].seed}금</small></button>`).join("");
+}
+
+/* ================== EVENTS ================== */
+function bindEvents(){
+  document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{
+    document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="pn-"+b.dataset.p));
+  }));
+  document.querySelectorAll("#speedGroup button").forEach(b=>b.addEventListener("click",()=>{S.speed=+b.dataset.s;renderUI();}));
+  $("soundOn").addEventListener("change",e=>{S.sound=e.target.checked;if(S.sound)sfx("ready");});
+  $("learnMode").addEventListener("change",e=>{S.learn=e.target.checked;toast(S.learn?"학습 모드: 장치 비용이 들지 않아요.":"경영 모드: 물·전기·영양액에 비용이 들어요.");addLog(S.learn?"학습 모드 켬":"경영 모드로 전환");});
+  $("farmName").addEventListener("input",e=>{S.farm=e.target.value.trim()||"나의 스마트팜";});
+  // water
+  document.querySelectorAll("#wMode button").forEach(b=>b.addEventListener("click",()=>{
+    S.wMode=b.dataset.m; document.querySelectorAll("#wMode button").forEach(x=>x.classList.toggle("on",x===b));
+    $("wManual").classList.toggle("hidden",S.wMode!=="manual"); $("wAuto").classList.toggle("hidden",S.wMode!=="auto");
+    if(S.wMode==="manual"){ if(S.wAuto){S.wAuto=false;addLog("자동 급수 OFF");} setPump(false,"manual"); }
+    else { setPump(false,"manual"); }
+  }));
+  $("wGo").addEventListener("click",()=>{setPump(true,"manual");if(S.pump){runFlow(`스마트폰 <b>급수 시작</b> 명령 → 제어 장치 → <b>워터 펌프 ON</b> → 토양 습도 상승`,[1,3,4,5]);ctrlText("PUMP ON");wifiPulse();}});
+  $("wHalt").addEventListener("click",()=>{setPump(false,"manual");runFlow(`스마트폰 <b>급수 중지</b> 명령 → 제어 장치 → <b>워터 펌프 OFF</b> → 습도 상승 멈춤`,[1,3,4]);ctrlText("PUMP OFF");wifiPulse();});
+  const wCheck=()=>{const a=+$("wsR").value,b=+$("wpR").value;$("wsV").textContent=a+"%";$("wpV").textContent=b+"%";
+    const bad=a>=b; $("wErr").textContent=bad?(a===b?"시작 기준과 중지 기준이 같으면 적용할 수 없어요.":"급수 시작 기준은 중지 기준보다 낮아야 해요."):""; $("wApply").disabled=bad;};
+  $("wsR").addEventListener("input",wCheck); $("wpR").addEventListener("input",wCheck);
+  $("wApply").addEventListener("click",()=>{const a=+$("wsR").value,b=+$("wpR").value;if(a>=b)return;S.wStart=a;S.wStop=b;S.wAuto=true;addLog(`자동 급수 ON (시작 ${a}%, 중지 ${b}%)`);toast(`자동 급수 설정 적용: ${a}% 이하 → 급수, ${b}% 이상 → 중지`,"ok");runFlow(`스마트폰에서 <b>기준값 ${a}% / ${b}%</b> 저장 → 제어 장치가 다음 측정값부터 비교해요`,[1,2]);});
+  // temp
+  document.querySelectorAll("#tMode button").forEach(b=>b.addEventListener("click",()=>{
+    S.tMode=b.dataset.m; document.querySelectorAll("#tMode button").forEach(x=>x.classList.toggle("on",x===b));
+    $("tManual").classList.toggle("hidden",S.tMode!=="manual"); $("tAuto").classList.toggle("hidden",S.tMode!=="auto");
+    if(S.tAuto&&S.tMode==="manual"){S.tAuto=false;addLog("자동 온도 관리 OFF");}
+    setHeater(false,"manual");setCooler(false,"manual");
+  }));
+  $("tHeatGo").addEventListener("click",()=>{setHeater(true,"manual");if(S.heater){runFlow(`스마트폰 <b>난방 시작</b> 명령 → 제어 장치 → <b>온풍기 ON</b>, 환기 팬 OFF → 온도 서서히 상승`,[1,3,4,5]);ctrlText("HEAT ON");wifiPulse();}});
+  $("tCoolGo").addEventListener("click",()=>{setCooler(true,"manual");if(S.cooler){runFlow(`스마트폰 <b>환기·냉방 시작</b> 명령 → 제어 장치 → <b>환기 팬 ON</b>, 온풍기 OFF → 온도 서서히 하강`,[1,3,4,5]);ctrlText("COOL ON");wifiPulse();}});
+  $("tStop").addEventListener("click",()=>{setHeater(false,"manual");setCooler(false,"manual");runFlow(`스마트폰 <b>정지</b> 명령 → 온풍기·환기 팬 OFF`,[1,3,4]);ctrlText("IDLE");wifiPulse();});
+  const tCheck=()=>{const a=+$("tlR").value,b=+$("thR").value;$("tlV").textContent=a+"℃";$("thV").textContent=b+"℃";
+    const bad=a>=b; $("tErr").textContent=bad?(a===b?"최저 기준과 최고 기준이 같으면 적용할 수 없어요.":"최저 기준은 최고 기준보다 낮아야 해요."):""; $("tApply").disabled=bad;};
+  $("tlR").addEventListener("input",tCheck); $("thR").addEventListener("input",tCheck);
+  $("tApply").addEventListener("click",()=>{const a=+$("tlR").value,b=+$("thR").value;if(a>=b)return;S.tMin=a;S.tMax=b;S.tAuto=true;addLog(`자동 온도 관리 ON (${a}~${b}℃)`);toast(`자동 온도 관리 적용: ${a}~${b}℃`,"ok");runFlow(`스마트폰에서 <b>목표 범위 ${a}~${b}℃</b> 저장 → 제어 장치가 다음 측정값부터 비교해요`,[1,2]);});
+  // nutrient
+  $("nFeed").addEventListener("click",()=>{if(feed("manual")){runFlow(`스마트폰 <b>영양액 공급</b> 명령 → 제어 장치 → <b>영양 공급 장치 ON</b> → 영양 상태 상승`,[1,3,4,5]);wifiPulse();}});
+  $("nRefill").addEventListener("click",()=>{ if(S.stock>=100)return; if(!spend(20)){toast("자금이 부족해요. 학습 모드를 켜면 무료로 보충할 수 있어요.","bad");return;} S.stock=Math.min(100,S.stock+50); addLog(`영양액 보충 (${S.learn?"무료":"-20금"})`); toast("영양액 탱크를 보충했어요.","ok");});
+  $("nAuto").addEventListener("change",e=>{S.nAuto=e.target.checked;addLog(`영양액 자동 공급 ${S.nAuto?"ON":"OFF"} (기준 ${S.nThr}%)`);});
+  $("ntR").addEventListener("input",e=>{S.nThr=+e.target.value;$("ntV").textContent=S.nThr+"%";});
+  // crop / plant
+  $("cropSel").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;selCrop=b.dataset.c;renderCropSel();});
+  $("btnPlant").addEventListener("click",()=>tryPlant(selCrop));
+  $("askNo").addEventListener("click",()=>{$("askModal").classList.add("hidden");askCb=null;});
+  $("askYes").addEventListener("click",()=>{$("askModal").classList.add("hidden");const f=askCb;askCb=null;if(f)f();});
+  $("btnHarvest").addEventListener("click",()=>{tone(0,0);startHarvest();});
+  // top buttons
+  $("btnSave").addEventListener("click",save);
+  $("btnReset").addEventListener("click",()=>askConfirm("⚠️","농장을 처음 상태로 되돌릴까요?<br>저장된 기록도 지워져요.",()=>{try{localStorage.removeItem(SAVE_KEY);}catch(e){} location.reload();}));
+  $("btnShop").addEventListener("click",()=>{renderShop();$("shopModal").classList.remove("hidden");});
+  $("btnShopClose").addEventListener("click",()=>$("shopModal").classList.add("hidden"));
+  $("pn-order").addEventListener("click",e=>{const d=e.target.closest("[data-deliver]");if(d)deliver(+d.dataset.deliver);});
+  $("topStock").addEventListener("click",e=>{const sl=e.target.closest("[data-sell]");if(sl&&!sl.disabled)sellCrop(sl.dataset.sell);});
+  $("hvResult").addEventListener("click",e=>{if(e.target.closest("#goOrder"))document.querySelector('#tabs button[data-p="order"]').click();});
+  $("shopModal").addEventListener("click",e=>{if(e.target.id==="shopModal"){$("shopModal").classList.add("hidden");return;}const b=e.target.closest("button[data-u]");if(b)buyUpgrade(b.dataset.u);});
+  $("btnNote").addEventListener("click",()=>{$("noteModal").classList.remove("hidden");});
+  $("btnNoteClose").addEventListener("click",()=>$("noteModal").classList.add("hidden"));
+  $("noteModal").addEventListener("click",e=>{if(e.target.id==="noteModal")$("noteModal").classList.add("hidden");});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("noteModal").classList.add("hidden");$("shopModal").classList.add("hidden");$("askModal").classList.add("hidden");askCb=null;}});
+}
+let askCb=null;
+function askConfirm(icon,msg,yes){$("askIcon").textContent=icon;$("askMsg").innerHTML=msg;askCb=yes;$("askModal").classList.remove("hidden");$("askYes").focus();}
+function tryPlant(k){
+  const c=CROPS[k];
+  if(bot.busy){toast("수확 로봇이 일하는 중이에요. 로봇이 돌아온 뒤 다시 눌러 주세요.","warn");return;}
+  if(!S.learn&&S.money<c.seed){toast(`${c.name} 모종은 ${c.seed}금이에요. 자금이 부족해요. 학습 모드를 켜면 무료로 심을 수 있어요.`,"bad");return;}
+  const doIt=()=>{if(!S.learn) S.money-=c.seed; plant(k); addLog(`${c.name} 모종 심기 (${S.learn?"무료":"-"+c.seed+"금"})`); toast(`🌱 ${c.name} 모종을 심었어요!`,"ok");};
+  if(S.growth>5) askConfirm("🌱",`지금 자라는 <b>${CROPS[S.crop].name}</b>를 정리하고<br><b>${c.name}</b> 모종을 새로 심을까요?<br><small style="font-weight:400;color:var(--muted)">모종 값 ${S.learn?"무료(학습 모드)":c.seed+"금"}</small>`,doIt);
+  else doIt();
+}
+function plant(crop){
+  S.crop=crop; S.growth=0; S.health=100; S.alerted=false; lastPlantKey=""; lastStress=-1;
+  buildPlants(); renderRanges(); 
+}
+
+/* ================== SAVE / LOAD ================== */
+function save(){
+  try{ const o=JSON.parse(JSON.stringify(S)); o.pump=o.heater=o.cooler=false; o.feedLeft=0; localStorage.setItem(SAVE_KEY,JSON.stringify(o)); toast("농장을 저장했어요. 같은 컴퓨터·브라우저에서 이어 할 수 있어요.","ok"); }
+  catch(e){ toast("이 환경에서는 저장할 수 없어요. 파일을 내려받아 Chrome이나 Edge에서 열어 주세요.","warn"); }
+}
+function loadSaved(){ try{ const t=localStorage.getItem(SAVE_KEY); return t?JSON.parse(t):null; }catch(e){ return null; } }
+function syncControls(){
+  $("farmName").value=S.farm;
+  $("wsR").value=S.wStart;$("wpR").value=S.wStop;$("wsV").textContent=S.wStart+"%";$("wpV").textContent=S.wStop+"%";
+  $("tlR").value=S.tMin;$("thR").value=S.tMax;$("tlV").textContent=S.tMin+"℃";$("thV").textContent=S.tMax+"℃";
+  $("ntR").value=S.nThr;$("ntV").textContent=S.nThr+"%";
+  document.querySelectorAll("#wMode button").forEach(x=>x.classList.toggle("on",x.dataset.m===S.wMode));
+  $("wManual").classList.toggle("hidden",S.wMode!=="manual"); $("wAuto").classList.toggle("hidden",S.wMode!=="auto");
+  document.querySelectorAll("#tMode button").forEach(x=>x.classList.toggle("on",x.dataset.m===S.tMode));
+  $("tManual").classList.toggle("hidden",S.tMode!=="manual"); $("tAuto").classList.toggle("hidden",S.tMode!=="auto");
+  selCrop=S.crop; renderCropSel(); renderLog(); renderBadges(); $("soundOn").checked=S.sound!==false;
+}
+
+/* ================== START ================== */
+function initTitle(){
+  $("btnPlay").addEventListener("click",()=>{
+    tone(523,.12,"triangle",.12);tone(784,.18,"triangle",.12,.08);
+    $("titleScreen").classList.add("out");
+    setTimeout(()=>{$("titleScreen").style.display="none";$("startName").focus();},600);
+  });
+  setTimeout(()=>$("btnPlay").focus(),100);
+}
+function initStart(){
+  let sc="lettuce", sm="biz";
+  $("startCrops").innerHTML=Object.keys(CROPS).map(k=>{const c=CROPS[k];return `<button data-c="${k}" class="${k===sc?"on":""}">${cropIcon(k)}<b>${c.name}</b>${c.temp[0]}~${c.temp[1]}℃ · 판매 ${c.price}금<br>수확까지 약 ${Math.round(c.days*60)}초</button>`;}).join("");
+  $("startCrops").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;sc=b.dataset.c;[...$("startCrops").children].forEach(x=>x.classList.toggle("on",x===b));});
+  $("startMode").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;sm=b.dataset.m;[...$("startMode").children].forEach(x=>x.classList.toggle("on",x===b));});
+  const saved=loadSaved();
+  if(saved){$("btnContinue").classList.remove("hidden");}
+  $("btnContinue").addEventListener("click",()=>{S=Object.assign(freshState(),saved);S.speed=1;begin(true);});
+  $("btnStart").addEventListener("click",()=>{S=freshState($("startName").value.trim(),sc,sm==="learn");begin(false);});
+  $("startName").addEventListener("keydown",e=>{if(e.key==="Enter")$("btnStart").click();});
+  setTimeout(()=>$("startName").focus(),50);
+}
+function begin(cont){
+  $("startModal").classList.add("hidden");
+  buildPlants(); renderRanges(); syncControls(); sampleAcc=0; S.read={m:S.moist,t:S.temp,n:S.nutr,g:S.growth};
+  $("msTxt").textContent=Math.round(S.moist)+"%"; $("tsTxt").textContent=Math.round(S.temp)+"°";
+  if(!cont) addLog(`${S.farm} 개장! ${CROPS[S.crop].name} 모종을 심었어요.`);
+  if(!S.orders.length){S.orders.push(newOrder(S.crop));S.orders.push(newOrder());S.orderNext=S.time+0.6;}
+  renderUpList(); lastOrderKey="";
+  toast(cont?"저장된 농장을 불러왔어요.":`${S.farm}에 오신 걸 환영해요! 토양이 말라 있어요. ‘급수 관리’부터 확인해 보세요.`,"ok");
+  started=true;
+}
+
+/* ================== LOOP ================== */
+let last=performance.now(), uiAcc=0;
+function loop(now){
+  const dtR=Math.min(.1,(now-last)/1000); last=now;
+  if(started){
+    if(S.speed>0){ const dt=dtR*S.speed/60; // 60 real seconds = 1 game day
+      // sub-step for stability at 3x
+      const n=Math.ceil(S.speed); for(let i=0;i<n;i++) simulate(dt/n); }
+    uiAcc+=dtR; if(uiAcc>.15){uiAcc=0;renderUI();}
+  }
+  updateRobot(now); renderFarm();
+  requestAnimationFrame(loop);
+}
+
+buildStatics(); buildUpgradeArt(); buildWeatherArt(); renderCropSel(); renderLog();  bindEvents(); initStart(); initTitle();
+updateRobot(performance.now()); renderUI();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
