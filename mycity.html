@@ -50,6 +50,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .btn:hover:not(:disabled){border-color:var(--accent)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
 .btn.danger{color:var(--bad)}
+.btn#fsBtn.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 .btn.gold{background:var(--gold);color:#2b1d00;border-color:transparent}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
@@ -303,6 +304,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <div class="chip pop" title="인구 / 주거 공간이 수용할 수 있는 주민 수"><small>인구 / 주거 수용</small><strong id="popVal">0명</strong></div>
   <div class="chip"><small>도로 위 차량</small><strong id="vehVal">0대</strong></div>
   <div class="spacer"></div>
+  <button class="btn" id="fsBtn" title="전체 화면으로 보기 (Esc로 나가기)">⛶ 전체 화면</button>
   <button class="btn primary" id="saveBtn">게임 저장</button>
   <button class="btn danger" id="resetBtn">초기화</button>
 </header>
@@ -350,6 +352,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
         <button class="tool" id="zoomOut" title="축소" aria-label="축소">－</button>
         <button class="tool" id="zoomFit">전체 보기</button>
         <button class="tool" id="rangeBtn">관리 범위 보기</button>
+        <button class="tool" id="expandBtn" title="50,000금으로 동쪽·남쪽 땅을 넓혀요">🗺 땅 넓히기 (50,000금)</button>
         <button class="tool" id="pngBtn">도시 이미지 저장 (PNG)</button>
       </div>
       <div class="info" id="info" hidden></div>
@@ -376,7 +379,9 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 'use strict';
 
 /* ───────── 기본 상수 ───────── */
-const TILE = 40, COLS = 36, ROWS = 24, WORLD_W = COLS*TILE, WORLD_H = ROWS*TILE;
+const TILE = 40, COLS = 54, ROWS = 36, WORLD_W = COLS*TILE, WORLD_H = ROWS*TILE;
+const BASE_COLS = 36, BASE_ROWS = 24, EXPAND_COST = 50000;   // 처음 땅 36×24칸 → 확장하면 54×36칸
+let mapW = BASE_COLS, mapH = BASE_ROWS;                       // 지금 쓸 수 있는 땅의 크기
 const START_MONEY = 500, CYCLE_MS = 10000, MAX_DT = 5000, MAX_MONEY = 999999999;
 const SAVE_KEY = 'myFutureCity_save_v1';
 const FONT = '"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",sans-serif';
@@ -432,7 +437,7 @@ const FAC = {
     roles:{ mfg:'로봇의 몸체와 관절, 부품을 정밀하게 만들어요.', ict:'인공지능으로 상황을 판단하고, 사람이나 다른 기기와 정보를 주고받아요.', elec:'센서로 주변을 감지하고, 모터를 제어해 로봇을 움직여요.' },
     value:'다양한 생활 서비스 지원 — 학습 도우미(교육), 병원 안내와 수술 보조(의료), 건강 관리(건강), 재난 현장 탐색(안전) 등에 활용돼요.',
     valueShort:'교육·의료·건강·안전 등 다양한 생활 서비스 지원',
-    hint:'로봇의 몸을 만드는 기술, 스스로 판단하고 소통하는 기술, 센서와 모터로 움직임을 제어하는 기술을 생각해 보세요.' },
+    hint:'로봇을 만드는 기술, 스스로 판단하고 소통하는 기술, 센서와 모터로 움직임을 제어하는 기술을 생각해 보세요.' },
   center:{ name:'스마트 도시 관리 센터', cost:180, income:18, w:3, h:3, techs:['construction','ict'],
     desc:'도시 곳곳의 건물·도로·에너지 시설에 설치된 센서에서 정보를 모아, 교통·에너지·안전 등 도시 시설을 효율적으로 관리하는 통합 관리 센터입니다. 관리 범위 안의 시설은 수익이, 주거 공간은 수용 인원이 늘어나요.',
     roles:{ construction:'도로·건물·에너지 시설 같은 도시 기반 시설을 만들고 관리해요.', ict:'센서와 사물 인터넷으로 모은 도시 정보를 분석하고, 시설을 원격으로 관리해요.' },
@@ -456,7 +461,7 @@ const FAC = {
     roles:{ energy:'태양광·풍력으로 만든 전기로 물을 분해해 친환경 수소(그린 수소)를 만들어요.', transport:'수소 연료전지로 움직이는 버스와 자동차로 사람을 실어 날라요.', material:'높은 압력의 수소를 안전하게 담는 가볍고 튼튼한 탱크 소재를 만들어요.' },
     value:'친환경 교통 — 달릴 때 온실가스와 미세먼지를 내뿜지 않는 수소 버스로 깨끗한 도시를 만들어요.',
     valueShort:'친환경 교통과 깨끗한 도시',
-    hint:'수소를 만드는 깨끗한 에너지 기술, 사람을 실어 나르는 기술, 높은 압력을 견디는 탱크를 만드는 기술을 떠올려 보세요.' },
+    hint:'수소를 만드는 깨끗한 에너지 기술, 사람을 실어 나르는 기술, 높은 압력을 견디는 탱크를 만들기 위한 기술을 떠올려 보세요.' },
   health:{ name:'스마트 헬스케어 센터', cost:220, income:24, w:3, h:2, techs:['ergo','ict','elec'],
     desc:'몸에 착용하기 편하게 설계한 스마트 워치·패치 같은 웨어러블 기기로 심박수, 활동량, 수면 같은 건강 정보를 측정하고, 이 정보를 분석해 주민의 건강을 관리하는 센터입니다.',
     roles:{ ergo:'몸에 오래 착용해도 편안하고 쓰기 쉽도록 기기의 모양과 크기, 무게를 설계해요.', ict:'측정한 건강 정보를 스마트폰과 병원으로 보내고, 인공지능으로 분석해요.', elec:'심박·체온 센서, 배터리, 무선 통신 회로를 작고 정밀하게 만들어 작동시켜요.' },
@@ -474,7 +479,7 @@ const FAC = {
     roles:{ transport:'사람과 물건을 하늘길로 실어 나르는 비행체 기술이에요.', ict:'비행 경로와 하늘길 교통 정보를 주고받으며 안전하게 운항을 관리해요.', construction:'건물 위나 도심 곳곳에 비행체가 뜨고 내리는 버티포트(정류장)를 지어요.' },
     value:'새로운 도시 이동 수단 제공 — 막히는 도로 대신 하늘길을 이용해 도시 안을 빠르게 이동할 수 있어요.',
     valueShort:'새로운 도시 이동 수단 제공',
-    hint:'하늘로 실어 나르는 기술, 하늘길 정보를 관리하는 기술, 뜨고 내릴 장소를 짓는 기술을 생각해 보세요.' }
+    hint:'하늘로 실어 나르는 기술, 하늘길 정보를 관리하는 기술, 비행체가 뜨고 내리는 버티포트를 짓는 기술을 생각해 보세요.' }
 };
 const FAC_ORDER = ['bio','car','robot','center','farm','health','factory','h2','biolab','uam'];
 /* 시설을 지으면 이주해 오는 주민 수 */
@@ -627,18 +632,23 @@ function resultSentence(d){
 const fmt = n => Math.round(n).toLocaleString('ko-KR');
 
 /* ───────── 지도 바탕 ───────── */
-const ROAD_ROWS=[4,11,18], ROAD_COLS=[5,14,23,31];
+const ROAD_ROWS=[4,11,18,25,32], ROAD_COLS=[5,14,23,31,40,49];
+const LAKE={x:42,y:27,w:5,h:4};   // 확장 땅의 호수
 const PARK={x:15,y:12,w:8,h:6}, POND={x:17,y:13,w:4,h:4};
 const idx=(x,y)=>y*COLS+x;
-const inB=(x,y)=>x>=0&&y>=0&&x<COLS&&y<ROWS;
+const inB=(x,y)=>x>=0&&y>=0&&x<mapW&&y<mapH;
+const inBS=(st,x,y)=>x>=0&&y>=0&&x<st.mapW&&y<st.mapH;
+const roadPattern=(x,y)=>ROAD_ROWS.includes(y)||ROAD_COLS.includes(x);
 const water=new Uint8Array(COLS*ROWS);
 for(let y=POND.y;y<POND.y+POND.h;y++) for(let x=POND.x;x<POND.x+POND.w;x++) water[idx(x,y)]=1;
+for(let y=LAKE.y;y<LAKE.y+LAKE.h;y++) for(let x=LAKE.x;x<LAKE.x+LAKE.w;x++) water[idx(x,y)]=1;
 function hash(x,y){ let h=(x*374761393+y*668265263)|0; h=Math.imul(h^(h>>>13),1274126177); h^=h>>>16; return ((h>>>0)%10000)/10000; }
-function baseRoads(){ const r=new Uint8Array(COLS*ROWS); for(const y of ROAD_ROWS) for(let x=0;x<COLS;x++) r[idx(x,y)]=1; for(const x of ROAD_COLS) for(let y=0;y<ROWS;y++) r[idx(x,y)]=1; return r; }
+function baseRoads(w,h){ w=w||BASE_COLS; h=h||BASE_ROWS; const r=new Uint8Array(COLS*ROWS); for(let y=0;y<h;y++) for(let x=0;x<w;x++) if(roadPattern(x,y)&&!water[idx(x,y)]) r[idx(x,y)]=1; return r; }
 function inPark(x,y){ return x>=PARK.x&&x<PARK.x+PARK.w&&y>=PARK.y&&y<PARK.y+PARK.h; }
-function baseTrees(roads){
-  const t=[];
-  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
+function baseTrees(roads,x0,y0,w,h,skipBase){
+  const t=[]; w=w||BASE_COLS; h=h||BASE_ROWS;
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    if(skipBase&&x<BASE_COLS&&y<BASE_ROWS) continue;
     const i=idx(x,y); if(roads[i]||water[i]) continue;
     const h=hash(x,y);
     const edge = inPark(x,y) && (x===PARK.x||x===PARK.x+PARK.w-1||y===PARK.y||y===PARK.y+PARK.h-1);
@@ -650,7 +660,7 @@ function baseTrees(roads){
 /* ───────── 게임 상태 ───────── */
 function newState(name){
   const roads=baseRoads();
-  return { maxLevel:1, cityName:name||'나의 미래도시', money:START_MONEY, researched:[], facilities:[], roads, trees:baseTrees(roads), nextId:1, started:false };
+  return { mapW:BASE_COLS, mapH:BASE_ROWS, maxLevel:1, cityName:name||'나의 미래도시', money:START_MONEY, researched:[], facilities:[], roads, trees:baseTrees(roads), nextId:1, started:false };
 }
 function makeFac(st,type,x,y,elapsed,residents){
   const id=st.nextId++;
@@ -659,7 +669,7 @@ function makeFac(st,type,x,y,elapsed,residents){
 const DIRS4=[[1,0],[0,1],[-1,0],[0,-1]];
 function canPlaceIn(st,type,x,y,ignoreId){
   const d=FAC[type];
-  if(x<0||y<0||x+d.w>COLS||y+d.h>ROWS) return false;
+  if(x<0||y<0||x+d.w>(st.mapW||BASE_COLS)||y+d.h>(st.mapH||BASE_ROWS)) return false;
   if(d.kind==='stop'&&!DIRS4.some(([dx,dy])=>inB(x+dx,y+dy)&&st.roads[idx(x+dx,y+dy)]===1)) return false;
   for(let yy=y;yy<y+d.h;yy++) for(let xx=x;xx<x+d.w;xx++){ const i=idx(xx,yy); if(st.roads[i]||water[i]) return false; }
   for(const f of st.facilities){
@@ -716,7 +726,7 @@ function addFloat(x,y,text,color,small){ floats.push({x,y,text,color,small:!!sma
 function serialize(){
   return JSON.stringify({ v:1, cityName:S.cityName, money:S.money, researched:S.researched,
     facilities:S.facilities.map(f=>({type:f.type,x:f.x,y:f.y,elapsed:Math.floor(f.elapsed),lv:facLv(f)})),
-    roads:Array.from(S.roads).join(''), trees:S.trees.map(t=>[t.x,t.y,t.v]), maxLevel:S.maxLevel||1, riders:S.riders||0, savedAt:Date.now() });
+    roads:Array.from(S.roads).join(''), trees:S.trees.map(t=>[t.x,t.y,t.v]), maxLevel:S.maxLevel||1, riders:S.riders||0, mapW:S.mapW||BASE_COLS, mapH:S.mapH||BASE_ROWS, savedAt:Date.now() });
 }
 function saveGame(manual){
   if(!S.started) return false;
@@ -730,14 +740,17 @@ function sanitize(d){
   const st=newState(typeof d.cityName==='string'&&d.cityName.trim()?d.cityName.trim().slice(0,20):'나의 미래도시');
   st.money=(typeof d.money==='number'&&isFinite(d.money)&&d.money>=0)?Math.min(Math.floor(d.money),MAX_MONEY):START_MONEY;
   if(Array.isArray(d.researched)) st.researched=[...new Set(d.researched.filter(k=>typeof k==='string'&&FAC[k]&&!FAC[k].noResearch))];
-  if(typeof d.roads==='string'&&d.roads.length===COLS*ROWS&&/^[01]+$/.test(d.roads)){
-    for(let i=0;i<COLS*ROWS;i++) st.roads[i]=water[i]?0:(d.roads[i]==='1'?1:0);
+  if(d.mapW===COLS&&d.mapH===ROWS){ st.mapW=COLS; st.mapH=ROWS; st.roads=baseRoads(COLS,ROWS); }
+  if(typeof d.roads==='string'&&/^[01]+$/.test(d.roads)){
+    const sw = d.roads.length===COLS*ROWS ? COLS : d.roads.length===BASE_COLS*BASE_ROWS ? BASE_COLS : 0;   // 새 형식 / 예전 형식
+    if(sw){ const sh=d.roads.length/sw; st.roads=new Uint8Array(COLS*ROWS);
+      for(let y=0;y<sh;y++) for(let x=0;x<sw;x++){ if(!inBS(st,x,y)) continue; const i=idx(x,y); st.roads[i]=water[i]?0:(d.roads[y*sw+x]==='1'?1:0); } }
   }
   if(Array.isArray(d.trees)){
     st.trees=[]; const seen=new Set();
     for(const t of d.trees){
       if(!Array.isArray(t)) continue; const [x,y,v]=t;
-      if(!Number.isInteger(x)||!Number.isInteger(y)||!inB(x,y)) continue;
+      if(!Number.isInteger(x)||!Number.isInteger(y)||!inBS(st,x,y)) continue;
       const i=idx(x,y); if(st.roads[i]||water[i]||seen.has(i)) continue;
       seen.add(i); st.trees.push({x,y,v:[0,1,2].includes(v)?v:0});
     }
@@ -1080,16 +1093,47 @@ function drawSchool(g,x,y,w,h,t,f){
   g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx+Math.cos(t/9000-Math.PI/2)*3.6,cy+Math.sin(t/9000-Math.PI/2)*3.6); g.moveTo(cx,cy); g.lineTo(cx+Math.cos(t/750-Math.PI/2)*5.5,cy+Math.sin(t/750-Math.PI/2)*5.5); g.stroke();
   const fx=x+w-18, fy=y+8;
   g.strokeStyle='#8794a8'; g.lineWidth=2; g.beginPath(); g.moveTo(fx,fy+30); g.lineTo(fx,fy); g.stroke();
-  g.fillStyle='#ffffff'; g.beginPath(); g.moveTo(fx,fy);
-  for(let i=0;i<=10;i++){ g.lineTo(fx+i*1.6,fy+Math.sin(t/180+i*.7)*1.6); } for(let i=10;i>=0;i--){ g.lineTo(fx+i*1.6,fy+10+Math.sin(t/180+i*.7)*1.6); } g.closePath(); g.fill();
-  g.strokeStyle='#d0d8e4'; g.lineWidth=.8; g.stroke(); circle(g,fx+8,fy+5+Math.sin(t/180+3.5)*1.6,2.6,'#e53935');
+  drawTaegeukgi(g,fx,fy,t);
+}
+/* 깃대 + 태극기 (sc: 크기 배율) */
+function flagPoleTaegeuk(g,px,top,bottom,t,sc){
+  sc=sc||1;
+  g.strokeStyle='#8794a8'; g.lineWidth=2; g.lineCap='round'; g.beginPath(); g.moveTo(px,bottom); g.lineTo(px,top); g.stroke();
+  circle(g,px,top-.5,1.6,'#f2c14e');
+  g.save(); g.translate(px,top); g.scale(sc,sc); drawTaegeukgi(g,0,0,t); g.restore();
+}
+/* 태극기 (깃대 오른쪽에 펄럭이는 작은 국기) */
+function drawTaegeukgi(g,fx,fy,t){
+  const FW=18, FH=12, wv=i=>Math.sin(t/180+i*.7)*1.4, wAt=x=>wv(x/FW*10);
+  g.fillStyle='#ffffff'; g.beginPath(); g.moveTo(fx,fy+wv(0));
+  for(let i=0;i<=10;i++) g.lineTo(fx+i*FW/10,fy+wv(i));
+  for(let i=10;i>=0;i--) g.lineTo(fx+i*FW/10,fy+FH+wv(i));
+  g.closePath(); g.fill(); g.strokeStyle='#c9d1dd'; g.lineWidth=.6; g.stroke();
+  // 태극 문양: 위쪽 빨강, 아래쪽 파랑
+  const cx=fx+FW/2, cy=fy+FH/2+wAt(FW/2), r=3.1, rot=Math.atan2(2,3);
+  g.save(); g.translate(cx,cy); g.rotate(rot);
+  circle(g,0,0,r,'#0047a0');
+  g.fillStyle='#cd2e3a'; g.beginPath(); g.arc(0,0,r,Math.PI,0); g.closePath(); g.fill();
+  circle(g,-r/2,0,r/2,'#cd2e3a'); circle(g,r/2,0,r/2,'#0047a0');
+  g.restore();
+  // 4괘: 건(☰ 왼쪽 위) · 감(☵ 오른쪽 위) · 리(☲ 왼쪽 아래) · 곤(☷ 오른쪽 아래)
+  const TRI=[[3.1,2.3,[0,0,0]],[FW-3.1,2.3,[1,0,1]],[3.1,FH-2.3,[0,1,0]],[FW-3.1,FH-2.3,[1,1,1]]];
+  g.fillStyle='#1a1a1a';
+  for(const [tx,ty,pat] of TRI){
+    const px=fx+tx, py=fy+ty+wAt(tx), a=Math.atan2(py-cy,px-cx);
+    g.save(); g.translate(px,py); g.rotate(a);
+    pat.forEach((broken,k)=>{ const bx=(k-1)*.95-.27;
+      if(broken){ g.fillRect(bx,-1.4,.55,1.15); g.fillRect(bx,.25,.55,1.15); } else g.fillRect(bx,-1.4,.55,2.8); });
+    g.restore();
+  }
 }
 /* 초등학교 (2×2) */
 function drawElem(g,x,y,w,h,t,f){
   lot(g,x,y,w,h);
   block(g,x+6,y+5,w-12,32,'#ffd9a8','#e8b071',6,7);
   g.fillStyle='#bfe3ff'; for(let i=0;i<5;i++) g.fillRect(x+11+i*12,y+27,6,3);
-  label(g,x+w/2,y+15,'초등학교','#ef8a3c',9);
+  label(g,x+30,y+15,'초등학교','#ef8a3c',9);
+  flagPoleTaegeuk(g,x+57,y+8,y+32,t,.75);
   fillRR(g,x+6,y+42,w-12,32,5,'#f3e3c3');
   // 미끄럼틀
   g.save(); g.translate(x+20,y+58); g.rotate(-.5); fillRR(g,-4,-11,8,22,3,'#ff8a80'); g.fillStyle='rgba(255,255,255,.6)'; g.fillRect(-1,-9,2,18); g.restore();
@@ -1104,7 +1148,8 @@ function drawMiddle(g,x,y,w,h,t,f){
   lot(g,x,y,w,h);
   block(g,x+6,y+5,w-12,32,'#cfe8b8','#9cc77f',6,7);
   g.fillStyle='#bfe3ff'; for(let i=0;i<8;i++) g.fillRect(x+11+i*13,y+27,7,3);
-  label(g,x+w/2,y+15,'중학교','#5aa85e',10);
+  label(g,x+w/2-8,y+15,'중학교','#5aa85e',10);
+  flagPoleTaegeuk(g,x+w-28,y+8,y+32,t,.95);
   const cx=x+8, cy=y+42, cw2=w-16, chh=32;
   fillRR(g,cx,cy,cw2,chh,4,'#e58b5e');
   g.strokeStyle='rgba(255,255,255,.85)'; g.lineWidth=1.2; rr(g,cx+3,cy+3,cw2-6,chh-6,2); g.stroke();
@@ -1167,7 +1212,8 @@ function drawPolice(g,x,y,w,h,t,f){
   const sx=x+28, sy=y+24;
   g.fillStyle='#ffd45c'; g.beginPath(); g.moveTo(sx,sy-10); g.lineTo(sx+9,sy-6); g.lineTo(sx+8,sy+4); g.lineTo(sx,sy+10); g.lineTo(sx-8,sy+4); g.lineTo(sx-9,sy-6); g.closePath(); g.fill();
   g.fillStyle='#2f4f8f'; g.beginPath(); for(let k=0;k<10;k++){ const a=-Math.PI/2+k*Math.PI/5, r=k%2?2.2:5; g.lineTo(sx+Math.cos(a)*r,sy+Math.sin(a)*r); } g.closePath(); g.fill();
-  label(g,x+w-36,y+24,'경찰서','#1f3a75',10);
+  label(g,x+w-30,y+24,'경찰서','#1f3a75',10);
+  flagPoleTaegeuk(g,x+42,y+9,y+36,t,.75);
   const bl=Math.floor(t/300)%2; circle(g,x+w-14,y+12,3,bl?'#ff5252':'#2f6ff0');
   fillRR(g,x+8,y+50,w-16,24,4,'#e6ebf2');
   g.strokeStyle='#ffffff'; g.lineWidth=1.5; g.beginPath(); for(let i=0;i<4;i++){ g.moveTo(x+14+i*30,y+52); g.lineTo(x+14+i*30,y+72); } g.stroke();
@@ -1304,8 +1350,7 @@ function drawCityHall(g,x,y,w,h,t,f){
   label(g,cx,y+66,'시청','#6b5d3f',10);
   fillRR(g,x+18,y+76,w-36,h-84,8,'#e6ebf2');
   const px=cx, py=y+h-22; circle(g,px,py,10,'#c9d3e0'); circle(g,px,py,8,'#9ed7f3'); const b=(Math.sin(t/260)+1)/2; circle(g,px,py-1-b*2,2+b*1.5,'rgba(255,255,255,.9)');
-  const fx=x+w-20, fy=y+76; g.strokeStyle='#8794a8'; g.lineWidth=2; g.beginPath(); g.moveTo(fx,fy+24); g.lineTo(fx,fy); g.stroke();
-  g.fillStyle='#3d6fd8'; g.beginPath(); g.moveTo(fx,fy); for(let i=0;i<=8;i++) g.lineTo(fx+i*1.6,fy+Math.sin(t/180+i*.7)*1.4); for(let i=8;i>=0;i--) g.lineTo(fx+i*1.6,fy+8+Math.sin(t/180+i*.7)*1.4); g.closePath(); g.fill();
+  flagPoleTaegeuk(g,x+w-24,y+76,y+100,t,.95);
   for(const tx of [x+18,x+w-38]) { circle(g,tx+4,y+h-18,6,'#6fbf73'); }
 }
 /* 법원 (3×3) */
@@ -1445,6 +1490,30 @@ function drawPark(g,t){
   circle(g,px+30,py+40,7,'#6dbd72'); circle(g,px+pw-36,py+ph-38,6,'#6dbd72'); circle(g,px+pw-30,py+34,5,'#7cc77f');
   fillRR(g,px-22,py+ph/2-10,8,20,2,'#c99a6b'); fillRR(g,px+pw+14,py+ph/2-10,8,20,2,'#c99a6b');
 }
+function drawLake(g,t){
+  const px=LAKE.x*TILE, py=LAKE.y*TILE, pw=LAKE.w*TILE, ph=LAKE.h*TILE;
+  rr(g,px-10,py-10,pw+20,ph+20,40); g.strokeStyle='#efe2c2'; g.lineWidth=9; g.stroke();
+  fillRR(g,px+2,py+3,pw-4,ph-5,42,'#6fbde5'); fillRR(g,px+8,py+8,pw-16,ph-16,36,'#98d4f2');
+  for(let k=0;k<2;k++){ const p=((t/3600)+k/2)%1; g.strokeStyle=`rgba(255,255,255,${(1-p)*.6})`; g.lineWidth=1.5; g.beginPath(); g.ellipse(px+pw/2,py+ph/2,10+p*55,6+p*36,0,0,Math.PI*2); g.stroke(); }
+  const a=t/5000; fillRR(g,px+pw/2+Math.cos(a)*40-9,py+ph/2+Math.sin(a)*22-5,18,10,4,'#ffffff'); circle(g,px+pw/2+Math.cos(a)*40,py+ph/2+Math.sin(a)*22-6,3,'#ffcc4d');
+}
+function drawFog(g,t){
+  if(mapW>=COLS&&mapH>=ROWS) return;
+  const W=WORLD_W, H=WORLD_H, x0=mapW*TILE, y0=mapH*TILE;
+  g.save(); g.beginPath(); g.rect(x0,0,W-x0,H); g.rect(0,y0,x0,H-y0); g.clip();
+  g.fillStyle='rgba(222,229,238,.86)'; g.fillRect(0,0,W,H);
+  g.fillStyle='rgba(150,160,178,.28)';
+  for(const yy of ROAD_ROWS) g.fillRect(0,yy*TILE+8,W,TILE-16);
+  for(const xx of ROAD_COLS) g.fillRect(xx*TILE+8,0,TILE-16,H);
+  for(let k=0;k<14;k++){ const cx=((hash(k,3)*W+t*.008*(1+k%3))%(W+200))-100, cy=hash(k,9)*H; circle(g,cx,cy,30+hash(k,5)*40,'rgba(255,255,255,.45)'); }
+  g.restore();
+  g.save(); g.setLineDash([12,8]); g.strokeStyle='rgba(90,110,140,.7)'; g.lineWidth=3; g.beginPath(); g.moveTo(x0,0); g.lineTo(x0,y0); g.lineTo(0,y0); g.stroke(); g.restore();
+  g.textAlign='center'; g.textBaseline='middle';
+  // 화면에 보이는 잠긴 땅 가장자리 안에 안내판 표시
+  const sign=(cx,cy,bw,l1,l2,f1,f2)=>{ fillRR(g,cx-bw/2,cy-34,bw,68,16,'rgba(255,255,255,.9)'); g.fillStyle='#4a5a73'; g.font=`900 ${f1}px ${FONT}`; g.fillText(l1,cx,cy-11); g.fillStyle='#d38a00'; g.font=`900 ${f2}px ${FONT}`; g.fillText(l2,cx,cy+14); };
+  sign(x0+100,y0/2,170,'🔒 확장 땅',`${fmt(EXPAND_COST)}금 · 클릭`,17,13);
+  sign(x0/2,y0+80,300,'🔒 확장할 수 있는 땅',`${fmt(EXPAND_COST)}금으로 땅 넓히기 · 클릭`,19,14);
+}
 function drawRoads(g,v){
   const [x0,y0,x1,y1]=tileRange(v);
   for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
@@ -1508,7 +1577,7 @@ function drawFacInst(g,f,t,alpha){
   g.restore();
 }
 function drawWorld(g,t,v,ui){
-  drawGround(g,v); drawPark(g,t); drawRoads(g,v);
+  drawGround(g,v); drawPark(g,t); drawLake(g,t); drawRoads(g,v);
   drawLine(g,t);
   const moving=ui&&drag&&drag.moved;
   if(ui&&(mode.kind!=='none'||moving)) drawGrid(g,v);
@@ -1527,6 +1596,7 @@ function drawWorld(g,t,v,ui){
   }
   for(const f of S.facilities) if(f.type==='uam') for(let k=facLv(f)-1;k>=0;k--){ const s=uamState(f,t,k); drawAircraft(g,s.x,s.y,s.alt,s.ang,t); }
   if(!ui) return;
+  drawFog(g,t);
   for(const f of S.facilities){
     const d=FAC[f.type], px=f.x*TILE, py=f.y*TILE, w=d.w*TILE, h=d.h*TILE;
     if(benefits(f)&&coverLv(f)){ const bx=px+w-9, by=py+9, pulse=(Math.sin(t/500)+1)/2;
@@ -1622,8 +1692,8 @@ function walkerTarget(){ return Math.min(90,Math.floor(population()/6)); }
 function vehicleCount(){ return buses.length + traffic.filter(a=>!a.leaving).length + S.facilities.filter(f=>f.unit&&f.unit.car).length + movers.filter(m=>m.kind==='truck').length + S.facilities.reduce((n,f)=>n+(f.type==='car'&&f.cars?f.cars.filter(h=>h.car).length:0),0); }
 function edgeEntries(){
   const e=[];
-  for(let x=0;x<COLS;x++){ if(isRoad(x,0)) e.push({x,y:0,dx:0,dy:1}); if(isRoad(x,ROWS-1)) e.push({x,y:ROWS-1,dx:0,dy:-1}); }
-  for(let y=0;y<ROWS;y++){ if(isRoad(0,y)) e.push({x:0,y,dx:1,dy:0}); if(isRoad(COLS-1,y)) e.push({x:COLS-1,y,dx:-1,dy:0}); }
+  for(let x=0;x<mapW;x++){ if(isRoad(x,0)) e.push({x,y:0,dx:0,dy:1}); if(isRoad(x,mapH-1)) e.push({x,y:mapH-1,dx:0,dy:-1}); }
+  for(let y=0;y<mapH;y++){ if(isRoad(0,y)) e.push({x:0,y,dx:1,dy:0}); if(isRoad(mapW-1,y)) e.push({x:mapW-1,y,dx:-1,dy:0}); }
   return e;
 }
 function roadTiles(){ const r=[]; for(let i=0;i<COLS*ROWS;i++) if(S.roads[i]) r.push([i%COLS,(i/COLS)|0]); return r; }
@@ -1841,6 +1911,34 @@ function drawH2(g,x,y,w,h,t,f){
   for(let k=0;k<3;k++){ const p=((t/1600)+k/3)%1; circle(g,x+38+p*10,y+30-p*22,3+p*4,`rgba(200,235,255,${(1-p)*.7})`); }
   label(g,x+31,y+h-10,'수소충전소','#138c7e',9);
 }
+/* ───────── 땅 넓히기 ───────── */
+function expanded(){ return mapW>=COLS&&mapH>=ROWS; }
+function refreshExpandBtn(){ const b=$('expandBtn'); if(!b) return; b.hidden=expanded(); }
+function openExpand(){
+  if(expanded()){ toast('이미 땅을 모두 넓혔어요.','good'); return; }
+  if(S.money<EXPAND_COST){ toast(`땅을 넓히려면 ${fmt(EXPAND_COST)}금이 필요해요. 지금 ${fmt(EXPAND_COST-S.money)}금이 부족해요.`,'bad'); return; }
+  openModal('도시의 땅을 넓힐까요?',`<p><b>${fmt(EXPAND_COST)}금</b>을 써서 동쪽과 남쪽의 새 땅을 열어요.</p><p>도시 넓이가 지금의 <b>약 2.25배</b>가 되고, 새 땅에는 도로와 큰 호수가 있어요. 도시 바깥에서 들어오는 차와 수소 버스도 새 길을 달려요.</p><p class="note">보유 자금 ${fmt(S.money)}금 → ${fmt(S.money-EXPAND_COST)}금</p>`,[
+    {label:'취소'},
+    {label:`${fmt(EXPAND_COST)}금으로 넓히기`,cls:'primary',onClick:expandLand}
+  ]);
+}
+function expandLand(){
+  if(expanded()) return;
+  if(!spend(EXPAND_COST)){ toast('자금이 부족해서 땅을 넓히지 못했어요.','bad'); return; }
+  S.mapW=COLS; S.mapH=ROWS; mapW=COLS; mapH=ROWS;
+  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){ if(x<BASE_COLS&&y<BASE_ROWS) continue; const i=idx(x,y); if(roadPattern(x,y)&&!water[i]) S.roads[i]=1; }
+  S.trees.push(...baseTrees(S.roads,0,0,COLS,ROWS,true));
+  clampCam(); fitAll(); refreshExpandBtn(); refreshStats(); saveGame(false);
+  const box=$('levelUp');
+  box.innerHTML=`<div class="lu-card"><div class="lu-eyebrow">도시 확장!</div><div class="lu-title">새 땅이 열렸어요</div>
+    <div class="lu-sub">동쪽과 남쪽으로 도시가 넓어졌어요. 도로와 호수가 있는 새 땅에 마음껏 건설해 보세요.</div>
+    <div class="lu-bonus">도시 넓이 36×24칸 → 54×36칸</div><div style="height:12px"></div>
+    <button class="btn primary" id="luOk">새 땅 둘러보기</button></div>`;
+  box.hidden=false; $('luOk').onclick=()=>{ box.hidden=true; };
+  const cols=['#3f86e0','#e6a412','#3aa65b','#de5f95','#8e62d1','#ec7b2b'];
+  for(let i=0;i<70;i++){ const c=document.createElement('i'); c.className='confetti'; c.style.left=(Math.random()*100)+'%'; c.style.background=cols[i%cols.length]; c.style.setProperty('--dx',((Math.random()*2-1)*120)+'px'); c.style.animationDelay=(Math.random()*.4)+'s'; box.appendChild(c); setTimeout(()=>c.remove(),2400); }
+  toast(`${fmt(EXPAND_COST)}금으로 도시의 땅을 넓혔어요!`,'good');
+}
 function maintainAgents(){
   if(!S.started) return;
   updateLine();
@@ -1902,14 +2000,15 @@ function drawAgents(g,t,layer){
 /* ───────── 카메라 ───────── */
 const canvas=$('map'), ctx=canvas.getContext('2d'), mapWrap=$('mapWrap');
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const minZ=()=>Math.max(.2,Math.min(cw/WORLD_W,ch/WORLD_H)*.7), MAXZ=2.5;
+const viewW=()=>Math.min(COLS,mapW+(mapW<COLS?5:0))*TILE, viewH=()=>Math.min(ROWS,mapH+(mapH<ROWS?4:0))*TILE;
+const minZ=()=>Math.max(.2,Math.min(cw/viewW(),ch/viewH())*.7), MAXZ=2.5;
 function clampCam(){
-  const ww=WORLD_W*cam.zoom, wh=WORLD_H*cam.zoom, m=80;
+  const ww=viewW()*cam.zoom, wh=viewH()*cam.zoom, m=80;
   cam.ox = ww+2*m<=cw ? (cw-ww)/2 : clamp(cam.ox,cw-ww-m,m);
   cam.oy = wh+2*m<=ch ? (ch-wh)/2 : clamp(cam.oy,ch-wh-m,m);
 }
-function fitAll(){ cam.zoom=clamp(Math.min(cw/WORLD_W,ch/WORLD_H)*.97,minZ(),MAXZ); cam.ox=(cw-WORLD_W*cam.zoom)/2; cam.oy=(ch-WORLD_H*cam.zoom)/2; clampCam(); }
-function fitDefault(){ cam.zoom=clamp(Math.min(1,cw/WORLD_W),minZ(),MAXZ); cam.ox=(cw-WORLD_W*cam.zoom)/2; cam.oy=(ch-WORLD_H*cam.zoom)/2; clampCam(); }
+function fitAll(){ cam.zoom=clamp(Math.min(cw/viewW(),ch/viewH())*.97,minZ(),MAXZ); cam.ox=(cw-viewW()*cam.zoom)/2; cam.oy=(ch-viewH()*cam.zoom)/2; clampCam(); }
+function fitDefault(){ cam.zoom=clamp(Math.min(1,cw/(mapW*TILE)),minZ(),MAXZ); cam.ox=(cw-mapW*TILE*cam.zoom)/2; cam.oy=(ch-mapH*TILE*cam.zoom)/2; clampCam(); }
 function resize(){
   const r=mapWrap.getBoundingClientRect(); cw=Math.max(1,r.width); ch=Math.max(1,r.height);
   const dpr=window.devicePixelRatio||1;
@@ -1930,7 +2029,7 @@ function render(t){
   g_shadowFrame(ctx);
   drawWorld(ctx,t,v,true);
 }
-function g_shadowFrame(g){ g.fillStyle='rgba(30,45,70,.12)'; g.fillRect(-6,-6,WORLD_W+12,WORLD_H+12); }
+function g_shadowFrame(g){ g.fillStyle='rgba(30,45,70,.12)'; g.fillRect(-6,-6,viewW()+12,viewH()+12); }
 
 /* ───────── 지도 조작 ───────── */
 function getFac(id){ return S.facilities.find(f=>f.id===id)||null; }
@@ -1984,6 +2083,7 @@ canvas.addEventListener('pointerdown',e=>{
   const {sx,sy}=local(e), w=toWorld(sx,sy); hover=w;
   if(e.button===2){ if(mode.kind!=='none'){ setMode({kind:'none'}); return; } pan={sx,sy,ox:cam.ox,oy:cam.oy,moved:true}; return; }
   if(e.button===1){ pan={sx,sy,ox:cam.ox,oy:cam.oy,moved:true}; return; }
+  if(mode.kind==='none'&&!expanded()&&w.x>=0&&w.y>=0&&w.x<WORLD_W&&w.y<WORLD_H&&(w.x>=mapW*TILE||w.y>=mapH*TILE)){ openExpand(); return; }
   if(mode.kind==='build'){ tryPlace(w,e.shiftKey); return; }
   if(mode.kind==='decor'){ painting=true; lastPaintKey=null; paintAt(w); return; }
   const f=hitFacility(w);
@@ -2400,18 +2500,18 @@ function demolish(id){
 function exportPNG(){
   if(!S.started) return;
   try{
-    const head=86, c=document.createElement('canvas'); c.width=WORLD_W; c.height=WORLD_H+head;
+    const EW=mapW*TILE, EH=mapH*TILE, head=86, c=document.createElement('canvas'); c.width=EW; c.height=EH+head;
     const g=c.getContext('2d');
-    const grd=g.createLinearGradient(0,0,WORLD_W,0); grd.addColorStop(0,'#3d6fd8'); grd.addColorStop(1,'#6a8fe8');
-    g.fillStyle=grd; g.fillRect(0,0,WORLD_W,head);
+    const grd=g.createLinearGradient(0,0,EW,0); grd.addColorStop(0,'#3d6fd8'); grd.addColorStop(1,'#6a8fe8');
+    g.fillStyle=grd; g.fillRect(0,0,EW,head);
     g.textBaseline='middle'; g.textAlign='left';
     g.fillStyle='rgba(255,255,255,.85)'; g.font=`bold 15px ${FONT}`; g.fillText('MY FUTURE CITY — 나만의 미래 도시',28,24);
     g.fillStyle='#fff'; g.font=`900 32px ${FONT}`; g.fillText(S.cityName,28,58);
     g.textAlign='right'; g.font=`bold 16px ${FONT}`;
-    g.fillText(`Lv.${lvInfo().lv} ${lvInfo().name}  |  융합 시설 ${fusionCount()}개  |  주거 ${houseCount()}곳  |  인구 ${fmt(population())}명  |  보유 자금 ${fmt(S.money)}금  |  연구 완료 ${S.researched.length}/${FAC_ORDER.length}`,WORLD_W-28,40);
-    g.font=`13px ${FONT}`; g.fillStyle='rgba(255,255,255,.85)'; g.fillText(new Date().toLocaleString('ko-KR'),WORLD_W-28,64);
-    g.save(); g.translate(0,head); g.beginPath(); g.rect(0,0,WORLD_W,WORLD_H); g.clip();
-    drawWorld(g,performance.now(),{x0:0,y0:0,x1:WORLD_W,y1:WORLD_H},false); g.restore();
+    g.fillText(`Lv.${lvInfo().lv} ${lvInfo().name}  |  융합 시설 ${fusionCount()}개  |  주거 ${houseCount()}곳  |  인구 ${fmt(population())}명  |  보유 자금 ${fmt(S.money)}금  |  연구 완료 ${S.researched.length}/${FAC_ORDER.length}`,EW-28,40);
+    g.font=`13px ${FONT}`; g.fillStyle='rgba(255,255,255,.85)'; g.fillText(new Date().toLocaleString('ko-KR'),EW-28,64);
+    g.save(); g.translate(0,head); g.beginPath(); g.rect(0,0,EW,EH); g.clip();
+    drawWorld(g,performance.now(),{x0:0,y0:0,x1:EW,y1:EH},false); g.restore();
     const fname=(S.cityName.replace(/[\\/:*?"<>|]/g,'_')||'나의_미래도시')+'.png';
     const done=url=>{ const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove(); toast('도시 이미지를 PNG 파일로 저장했어요. 다운로드 폴더를 확인하세요.','good'); };
     if(c.toBlob) c.toBlob(b=>{ if(!b){ done(c.toDataURL('image/png')); return; } const u=URL.createObjectURL(b); done(u); setTimeout(()=>URL.revokeObjectURL(u),4000); },'image/png');
@@ -2419,6 +2519,7 @@ function exportPNG(){
   }catch(e){ toast('이미지를 저장하지 못했어요.','bad'); }
 }
 $('pngBtn').onclick=exportPNG;
+$('expandBtn').onclick=openExpand;
 $('rangeBtn').onclick=()=>{ showRange=!showRange; $('rangeBtn').classList.toggle('on',showRange); $('rangeBtn').textContent=showRange?'관리 범위 숨기기':'관리 범위 보기'; };
 
 /* ───────── 알림 / 창 ───────── */
@@ -2440,12 +2541,22 @@ function nameModal(title,initial,cta,onDone,cancelable){
   openModal(title,body,btns,()=>{ const i=$('nameInput'); i.focus(); i.select(); i.addEventListener('keydown',e=>{ if(e.key==='Enter'){ submit(); $('modal').hidden=true; } }); });
 }
 function startGame(st){
-  S=st; S.maxLevel=Math.max(S.maxLevel||1,levelForPop(population())); S.started=true; lastTick=performance.now(); dispMoney=S.money; clearAgents(); $('levelUp').hidden=true;
+  S=st; mapW=S.mapW||BASE_COLS; mapH=S.mapH||BASE_ROWS; refreshExpandBtn(); if(cw>10) fitDefault(); S.maxLevel=Math.max(S.maxLevel||1,levelForPop(population())); S.started=true; lastTick=performance.now(); dispMoney=S.money; clearAgents(); $('levelUp').hidden=true;
   labType='bio'; labSel=[]; labFeedback=null; labJust=null; selId=null; deleteConfirm=false; floats=[];
   setMode({kind:'none'}); renderLab(); renderInfo(); refreshStats(); refreshCards(); saveGame(false);
 }
 $('cityChip').onclick=()=>{ if(!S.started) return; nameModal('도시 이름 바꾸기',S.cityName,'바꾸기',v=>{ S.cityName=v; refreshStats(); saveGame(false); },true); };
 $('saveBtn').onclick=()=>saveGame(true);
+/* 전체 화면 */
+function isFull(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+function updateFsBtn(){ $('fsBtn').textContent=isFull()?'⛶ 전체 화면 끄기':'⛶ 전체 화면'; $('fsBtn').classList.toggle('on',isFull()); }
+$('fsBtn').onclick=()=>{
+  try{
+    if(isFull()){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); }
+    else { const el=document.documentElement, req=el.requestFullscreen||el.webkitRequestFullscreen; const r=req&&req.call(el); if(r&&r.catch) r.catch(()=>toast('이 브라우저에서는 전체 화면을 쓸 수 없어요. F11 키를 눌러 보세요.','bad')); if(!req) toast('이 브라우저에서는 전체 화면을 쓸 수 없어요. F11 키를 눌러 보세요.','bad'); }
+  }catch(e){ toast('전체 화면으로 바꾸지 못했어요. F11 키를 눌러 보세요.','bad'); }
+};
+document.addEventListener('fullscreenchange',updateFsBtn); document.addEventListener('webkitfullscreenchange',updateFsBtn);
 $('resetBtn').onclick=()=>{
   if(!S.started) return;
   openModal('게임을 초기화할까요?','<p>모든 연구와 건설 내역이 사라지고, 보유 자금이 500금으로 돌아가요. 되돌릴 수 없어요.</p>',[
