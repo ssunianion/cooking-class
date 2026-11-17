@@ -98,7 +98,7 @@ button{font-family:inherit}
 
 #strainer{left:40px;top:550px;width:230px;height:200px}
 #strainer>img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#strIn{position:absolute;left:24px;top:24px;width:152px;height:152px;border-radius:50%}
+#strIn{position:absolute;left:24px;top:24px;width:152px;height:152px;border-radius:50%;overflow:hidden;clip-path:circle(50% at 50% 50%)}
 #strIn img{position:absolute;pointer-events:none}
 #cupWrap{left:290px;top:600px;width:130px;height:110px;cursor:pointer}
 #cupWrap>img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -621,7 +621,7 @@ function renderBoard(){
 function renderStrainer(){
   const el=$('#strIn');
   if(S.strainer.includes('boiled')){
-    if(!el.innerHTML)el.innerHTML=`<img src="${url('noodle')}" style="left:-6px;top:6px;width:164px"><img src="${url('mogiC')}" style="left:2px;top:6px;width:76px"><img src="${url('mogiC')}" style="left:86px;top:78px;width:64px">`;
+    if(!el.innerHTML)el.innerHTML=`<img src="${url('noodle')}" style="left:12px;top:27px;width:126px;height:101px;object-fit:contain"><img src="${url('mogiC')}" style="left:10px;top:19px;width:58px;height:48px;object-fit:contain"><img src="${url('mogiC')}" style="left:87px;top:79px;width:52px;height:44px;object-fit:contain">`;
     el.setAttribute('data-drag','boiled');el.style.cursor='grab';
   }else{el.innerHTML='';el.removeAttribute('data-drag');el.style.cursor='';}
 }
@@ -695,8 +695,10 @@ function beginDrag(e,key,el){
   const src=el.tagName==='IMG'?el:(el.classList.contains('card')?el.querySelector('img'):el);
   const r=src.getBoundingClientRect();
   const g=$('#ghost');g.innerHTML='';g.style.transition='none';g.style.opacity=1;
-  const c=src.cloneNode(true);c.removeAttribute('id');c.style.position='absolute';c.style.left='0';c.style.top='0';c.style.margin='0';c.style.transform=`scale(${SCALE})`;c.style.transformOrigin='0 0';
-  c.style.width=src.offsetWidth+'px';c.style.height=src.offsetHeight+'px';c.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+  const c=src.cloneNode(true);if(key!=='pot'&&key!=='cup')c.removeAttribute('id');c.style.position='absolute';c.style.left='0';c.style.top='0';c.style.margin='0';c.style.transform=`scale(${SCALE})`;c.style.transformOrigin='0 0';
+  c.style.width=src.offsetWidth+'px';c.style.height=src.offsetHeight+'px';// 냄비를 들 때 복제본의 내부 ID를 제거하면 #potIn, #potItems 등의 CSS가 사라져 재료와 냄비가 분리됨.
+  // 드래그 중에는 원본보다 뒤에 생성된 임시 복제본의 ID를 유지하고, 드래그 종료 시 복제본을 제거한다.
+  if(key!=='pot'&&key!=='cup')c.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
   const inner=document.createElement('div');inner.style.cssText='position:relative;transition:transform .45s ease';inner.appendChild(c);g.appendChild(inner);
   g.style.width=r.width+'px';g.style.height=r.height+'px';
   drag={key,el:src,ox:e.clientX-r.left,oy:e.clientY-r.top,x0:r.left,y0:r.top,inner,hover:null};
