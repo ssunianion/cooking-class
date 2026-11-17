@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>BIO IMPACT — 생명기술이 바꾼 세상</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* ===================== 1. 디자인 토큰 ===================== */
+:root{
+  --paper:#FBFCFE; --panel:#FFFFFF; --line:#DDE3EE; --line2:#C7D0E0;
+  --ink:#1B2540; --ink2:#4A5675; --ink3:#7A86A3;
+  --agency:#2F5BEA; --agency-soft:#E8EEFF;
+  --marker:#FFE45C; --ok:#159A5B; --ok-soft:#E3F6EC; --warn:#D9822B; --warn-soft:#FFF2E2; --bad:#D63B4D; --bad-soft:#FDE8EB;
+  --c1:#E2456B; --c1s:#FDEBF0; --c2:#1F9D63; --c2s:#E4F6EC; --c3:#6D4AE0; --c3s:#EEE9FD; --c4:#0E8FA8; --c4s:#E2F4F8;
+  --display:"Black Han Sans","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  --body:"Gothic A1","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --r-lg:18px; --r-md:12px; --r-sm:8px;
+  --shadow:0 2px 0 rgba(27,37,64,.06),0 8px 22px -12px rgba(27,37,64,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--agency);outline-offset:2px}
+h1,h2,h3,h4{margin:0;line-height:1.25}
+p{margin:0}
+.hidden{display:none!important}
+
+/* ===================== 2. 상단바 ===================== */
+#topbar{position:sticky;top:0;z-index:30;height:56px;display:flex;align-items:center;gap:12px;padding:0 18px;background:var(--ink);color:#fff}
+#topbar .logo{font-family:var(--display);font-size:22px;letter-spacing:.5px;display:flex;align-items:center;gap:8px;background:none;border:0;color:#fff;padding:0}
+#topbar .logo small{font-family:var(--body);font-size:13px;font-weight:600;opacity:.7;letter-spacing:0}
+#topbar .crumb{font-size:14px;opacity:.85;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.tbtn:hover{background:rgba(255,255,255,.2)}
+.tbtn .cnt{background:var(--marker);color:var(--ink);border-radius:999px;padding:0 8px;font-weight:800;font-size:13px}
+
+#screen{min-height:calc(100vh - 56px)}
+
+/* ===================== 3. 공통 요소 ===================== */
+.btn{border:0;border-radius:999px;padding:11px 20px;font-weight:800;font-size:15px;background:var(--agency);color:#fff;display:inline-flex;align-items:center;gap:8px;box-shadow:0 3px 0 #1c3ab0;transition:transform .08s}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #1c3ab0}
+.btn:disabled{background:#B9C2D6;box-shadow:none;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line2);box-shadow:none}
+.btn.ghost:hover{border-color:var(--ink3)}
+.btn.cbtn{background:var(--cc);box-shadow:0 3px 0 rgba(0,0,0,.22)}
+.btn.cbtn:disabled{background:#B9C2D6;box-shadow:none}
+.btn.small{padding:7px 14px;font-size:14px}
+.tag{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:2px 8px;vertical-align:middle}
+.tag.fake{background:#EEF0F5;color:var(--ink2);border:1px dashed var(--ink3)}
+.tag.book{background:var(--agency-soft);color:var(--agency)}
+.tag.pos{background:var(--ok-soft);color:var(--ok)}
+.tag.neg{background:var(--bad-soft);color:var(--bad)}
+.fb{border-radius:var(--r-md);padding:12px 14px;font-size:15px;margin-top:10px;border-left:5px solid}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.warn{background:var(--warn-soft);border-color:var(--warn)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb.info{background:var(--agency-soft);border-color:var(--agency)}
+.fb b{display:block;margin-bottom:2px}
+.mark{background:linear-gradient(transparent 55%,var(--marker) 55%);padding:0 2px}
+
+#tip{position:fixed;z-index:80;pointer-events:none;background:var(--ink);color:#fff;font-size:14px;padding:7px 10px;border-radius:8px;max-width:260px;opacity:0;transition:opacity .1s}
+#tip.on{opacity:1}
+#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-weight:600;font-size:15px;opacity:0;transition:.25s;z-index:90;pointer-events:none;display:flex;gap:8px;align-items:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 모달 */
+#modal{position:fixed;inset:0;background:rgba(27,37,64,.45);z-index:70;display:flex;align-items:center;justify-content:center;padding:20px}
+#modal .box{background:#fff;border-radius:var(--r-lg);max-width:440px;width:100%;padding:24px;box-shadow:var(--shadow)}
+#modal h3{font-size:20px;margin-bottom:8px}
+#modal .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+
+/* 조사 수첩 */
+#notebook{position:fixed;top:56px;right:0;bottom:0;width:min(400px,92vw);background:#FFFDF2;border-left:2px solid var(--line2);z-index:40;transform:translateX(105%);transition:transform .25s;display:flex;flex-direction:column;box-shadow:-12px 0 30px -18px rgba(0,0,0,.4)}
+#notebook.on{transform:none}
+#notebook .nb-head{padding:16px 18px;border-bottom:2px dashed #E4DDB8;display:flex;align-items:center;justify-content:space-between}
+#notebook .nb-head h3{font-family:var(--display);font-size:22px;font-weight:400}
+#notebook .nb-body{overflow:auto;padding:12px 18px 30px;flex:1;background-image:repeating-linear-gradient(transparent 0 31px,#EFE8C8 31px 32px)}
+.nb-case{font-weight:800;margin:14px 0 6px;font-size:15px;display:flex;align-items:center;gap:6px}
+.nb-case i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.nb-item{background:#fff;border:1px solid #EAE3C3;border-radius:10px;padding:8px 11px;margin-bottom:7px;font-size:14px}
+.nb-item .k{font-size:12px;font-weight:800;color:var(--ink3)}
+.nb-item b{display:block;font-size:14.5px}
+.nb-empty{color:var(--ink3);font-size:15px;padding:20px 0}
+
+/* ===================== 4. 시작 화면 ===================== */
+.start{min-height:calc(100vh - 56px);display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:40px;padding:30px 6vw;max-width:1280px;margin:0 auto}
+.start .title{font-family:var(--display);font-size:clamp(46px,6.4vw,84px);line-height:1;letter-spacing:-1px;font-weight:400}
+.start .title span{display:block;font-size:.42em;letter-spacing:0;margin-top:14px;color:var(--ink2)}
+.start .sub{font-size:19px;margin:18px 0 26px;color:var(--ink2);font-weight:600}
+.badge-card{background:#fff;border:2px solid var(--ink);border-radius:var(--r-lg);padding:22px;box-shadow:8px 8px 0 var(--ink);max-width:420px}
+.badge-card h3{font-size:17px;margin-bottom:4px}
+.badge-card p{font-size:15px;color:var(--ink2)}
+.badge-card input{width:100%;font:inherit;font-size:18px;padding:11px 14px;border:2px solid var(--line2);border-radius:10px;margin:12px 0}
+.start .row{display:flex;gap:10px;flex-wrap:wrap}
+.start-art{position:relative}
+.start-art svg{width:100%;height:auto;display:block}
+.start .note{font-size:13.5px;color:var(--ink3);margin-top:14px}
+
+/* ===================== 5. 본부 ===================== */
+.hq{max-width:1280px;margin:0 auto;padding:22px 26px 40px}
+.hq-top{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end;margin-bottom:18px}
+.hq-top h2{font-family:var(--display);font-weight:400;font-size:34px}
+.hq-top p{color:var(--ink2);font-size:16px;margin-top:4px}
+.hq-stats{display:flex;gap:10px}
+.stat{background:#fff;border:2px solid var(--line);border-radius:var(--r-md);padding:8px 14px;min-width:110px}
+.stat b{font-size:22px;display:block;line-height:1.1}
+.stat span{font-size:13px;color:var(--ink2)}
+.board{background:#2E3B5C;border-radius:22px;padding:22px;position:relative;box-shadow:inset 0 0 0 8px #24304D}
+.board::before{content:"";position:absolute;inset:8px;border-radius:16px;background-image:radial-gradient(rgba(255,255,255,.07) 1.5px,transparent 1.5px);background-size:18px 18px;pointer-events:none}
+.files{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative}
+.file{position:relative;background:#fff;border:0;border-radius:4px 14px 14px 14px;text-align:left;padding:0;box-shadow:0 10px 20px -10px rgba(0,0,0,.55);transition:transform .15s;display:flex;flex-direction:column;min-height:300px}
+.file:hover{transform:translateY(-4px) rotate(-.4deg)}
+.file::before{content:"";position:absolute;top:-14px;left:0;width:46%;height:16px;background:var(--fc);border-radius:8px 8px 0 0}
+.file .fhead{background:var(--fc);color:#fff;padding:12px 14px 10px;border-radius:0 14px 0 0}
+.file .fno{font-family:var(--display);font-size:15px;opacity:.9}
+.file .ftitle{font-weight:800;font-size:17.5px;line-height:1.3;margin-top:2px}
+.file .fart{height:110px;background:var(--fs);display:flex;align-items:center;justify-content:center}
+.file .fart svg{height:96px}
+.file .fbody{padding:12px 14px 14px;flex:1;display:flex;flex-direction:column;gap:8px}
+.file .fplace{font-size:13.5px;color:var(--ink2)}
+.prog{height:8px;background:#EDF0F6;border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--fc);border-radius:99px}
+.file .fstate{font-size:13.5px;font-weight:800;color:var(--ink2);display:flex;justify-content:space-between}
+.stamp{position:absolute;right:10px;top:84px;transform:rotate(-12deg);border:4px solid var(--bad);color:var(--bad);font-family:var(--display);font-size:22px;padding:2px 10px;border-radius:8px;background:rgba(255,255,255,.85);letter-spacing:1px}
+.hq-bottom{display:grid;grid-template-columns:1fr auto;gap:16px;margin-top:20px;align-items:center}
+.final-door{background:#fff;border:2px dashed var(--line2);border-radius:var(--r-lg);padding:16px 20px;display:flex;align-items:center;gap:16px}
+.final-door.open{border:2px solid var(--agency);background:var(--agency-soft)}
+.final-door .ic{font-size:34px}
+.final-door b{font-size:17px}
+.final-door p{font-size:14.5px;color:var(--ink2)}
+.final-door .btn{margin-left:auto}
+.hq-tools{display:flex;gap:8px}
+
+/* ===================== 6. 사건 공통 틀 ===================== */
+.case{max-width:1320px;margin:0 auto;padding:14px 22px 20px;display:flex;flex-direction:column;min-height:calc(100vh - 56px)}
+.case-head{display:flex;align-items:center;gap:16px;margin-bottom:12px}
+.case-head .cno{background:var(--cc);color:#fff;font-family:var(--display);font-size:16px;border-radius:10px;padding:6px 12px;white-space:nowrap}
+.case-head h2{font-size:21px;font-weight:800;flex:1;min-width:0}
+.stepper{display:flex;gap:4px;flex-wrap:nowrap}
+.step{border:2px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:13.5px;font-weight:700;color:var(--ink3);white-space:nowrap}
+.step.reach{color:var(--ink2);border-color:var(--line2)}
+.step.done{color:var(--cc);border-color:var(--cc)}
+.step.cur{background:var(--cc);border-color:var(--cc);color:#fff}
+.step:disabled{cursor:not-allowed;opacity:.6}
+.case-body{flex:1;min-height:0}
+.case-foot{display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 0;border-top:2px solid var(--line);position:sticky;bottom:0;background:var(--paper);z-index:5}
+.case-foot .hint{flex:1;font-size:15px;color:var(--ink2);font-weight:600}
+.mission{display:flex;gap:12px;align-items:flex-start;background:var(--cs);border-radius:var(--r-md);padding:10px 14px;margin-bottom:12px}
+.mission .mi{font-size:24px;line-height:1}
+.mission b{font-size:16px}
+.mission p{font-size:15px;color:var(--ink2)}
+.panel{background:#fff;border:2px solid var(--line);border-radius:var(--r-lg);padding:16px}
+.panel h3{font-size:18px;margin-bottom:8px}
+.h3hint{display:block;font-size:14.5px;font-weight:600;color:var(--ink2);margin-top:3px}
+.h3hint b{color:var(--cc)}
+.two{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:start}
+.scroll{overflow:auto}
+.counter{font-weight:800;color:var(--cc)}
+
+/* ===================== 7. 인터뷰 (사건 1) ===================== */
+.scene{position:relative;border-radius:var(--r-lg);overflow:hidden;border:2px solid var(--line)}
+.scene svg.bg{display:block;width:100%;height:auto}
+.people{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;align-items:flex-end;padding:0 10px}
+.person{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;position:relative;transition:transform .15s}
+.person svg{width:110px;height:128px;display:block}
+.person:hover{transform:translateY(-4px)}
+.person .pn{background:#fff;border:2px solid var(--ink);border-radius:999px;font-size:13.5px;font-weight:800;padding:2px 10px;margin:-6px 0 10px;white-space:nowrap}
+.person.sel .pn{background:var(--cc);color:#fff;border-color:var(--cc)}
+.person .ping{position:absolute;top:2px;right:8px;width:24px;height:24px;border-radius:50%;background:var(--marker);border:2px solid var(--ink);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.person .ping.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.talk{display:flex;flex-direction:column;gap:10px}
+.talk-who{display:flex;gap:12px;align-items:center}
+.talk-who svg{width:92px;height:106px;background:var(--cs);border-radius:14px}
+.talk-who b{font-size:19px;display:block}
+.talk-who span{font-size:14px;color:var(--ink2)}
+.bubble{position:relative;background:var(--cs);border-radius:16px;padding:14px 16px;font-size:16.5px;line-height:1.6;min-height:88px}
+.bubble::before{content:"";position:absolute;top:-10px;left:36px;border:10px solid transparent;border-bottom-color:var(--cs);border-top:0}
+.bubble.pop{animation:pop .25s}
+@keyframes pop{from{transform:scale(.97);opacity:.4}to{transform:none;opacity:1}}
+.qlist{display:flex;flex-direction:column;gap:7px}
+.qbtn{text-align:left;background:#fff;border:2px solid var(--line2);border-radius:12px;padding:9px 13px;font-size:15px;font-weight:600}
+.qbtn:hover{border-color:var(--cc)}
+.qbtn.asked{background:#F4F6FA;color:var(--ink3);border-color:var(--line)}
+.keynote{font-size:14px;font-weight:800;color:var(--cc)}
+
+/* ===================== 8. 자료 분석 (사건 1) ===================== */
+.docs{display:grid;grid-template-columns:230px 1fr;gap:14px}
+.doclist{display:flex;flex-direction:column;gap:8px}
+.docbtn{text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px;font-weight:700;display:flex;gap:8px;align-items:center}
+.docbtn .di{font-size:20px}
+.docbtn.cur{border-color:var(--cc);background:var(--cs)}
+.docbtn.ok::after{content:"✓";margin-left:auto;background:var(--ok);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+.paper{background:#fff;border:2px solid var(--line);border-radius:6px 6px 16px 16px;padding:18px 20px;box-shadow:var(--shadow);max-height:calc(100vh - 290px);overflow:auto}
+.paper h3{font-size:19px}
+.paper .meta{font-size:13px;color:var(--ink3);margin:2px 0 10px}
+.task{background:#FFF8CF;border:2px solid #F2DC6B;border-radius:10px;padding:8px 12px;font-weight:700;font-size:15px;margin:10px 0}
+.lines{display:flex;flex-direction:column;gap:4px}
+.ln{text-align:left;background:none;border:0;border-radius:6px;padding:6px 8px;font-size:16px;line-height:1.6;position:relative;cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M4 24l4-1 14-14-3-3L5 20z' fill='%23FFD400' stroke='%231B2540' stroke-width='1.5'/%3E%3C/svg%3E") 2 26,pointer}
+.ln:hover{background:#FFFBE3}
+.ln.on .tx{background:linear-gradient(transparent 50%,var(--marker) 50%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.ln.wrong{box-shadow:inset 0 0 0 2px var(--bad)}
+.ln.miss{box-shadow:inset 0 0 0 2px dashed var(--warn)}
+.cards-pick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pick{text-align:left;background:#fff;border:2px solid var(--line2);border-radius:12px;padding:12px;font-size:15px;line-height:1.5;position:relative}
+.pick:hover{border-color:var(--ink3)}
+.pick.on{border-color:var(--cc);background:var(--cs);box-shadow:inset 0 0 0 1px var(--cc)}
+.pick.on::after{content:"✔";position:absolute;top:6px;right:9px;color:var(--cc);font-weight:800}
+.pick.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.pick b{display:block;font-size:15px;margin-bottom:3px}
+.chart{width:100%;max-width:620px;height:auto;display:block;margin:6px 0}
+.chart .hov{cursor:help}
+.chart .hov:hover{opacity:.8}
+
+/* ===================== 9. 증거판(분류) ===================== */
+.pool{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#F2F4F9;border-radius:var(--r-md);border:2px dashed var(--line2);min-height:64px}
+.ecard{background:#fff;border:2px solid var(--ink);border-radius:10px;padding:7px 11px;font-size:14.5px;font-weight:600;cursor:grab;user-select:none;max-width:290px;line-height:1.4;box-shadow:2px 2px 0 var(--ink);position:relative}
+.ecard:active{cursor:grabbing}
+.ecard.sel{background:var(--marker)}
+.ecard.used{opacity:.55;box-shadow:none;border-style:dashed}
+.ecard .n{position:absolute;top:-9px;right:-8px;background:var(--cc);color:#fff;border-radius:99px;font-size:11px;padding:0 6px;font-weight:800}
+.zones{display:grid;gap:10px;margin-top:12px}
+.zones.quad{grid-template-columns:1fr 1fr}
+.zones.cols4{grid-template-columns:repeat(4,1fr)}
+.zones.cols3{grid-template-columns:repeat(3,1fr)}
+.zone{border:2px solid var(--line2);border-radius:var(--r-md);padding:10px;min-height:120px;background:#fff;transition:background .1s}
+.zone.over{background:#FFFBE0;border-color:var(--ink)}
+.zone h4{font-size:15px;margin-bottom:8px;display:flex;gap:6px;align-items:center}
+.zone.zp h4{color:var(--ok)}
+.zone.zn h4{color:var(--bad)}
+.zone .sub{font-size:12.5px;color:var(--ink3);font-weight:600}
+.chip{display:flex;gap:6px;align-items:flex-start;background:#F7F8FB;border:1.5px solid var(--line2);border-radius:9px;padding:6px 8px;font-size:14px;margin-bottom:6px;line-height:1.4;cursor:grab}
+.chip .x{margin-left:auto;background:none;border:0;color:var(--ink3);font-weight:800;padding:0 2px;font-size:16px;line-height:1}
+.chip.good{background:var(--ok-soft);border-color:var(--ok)}
+.chip.badc{background:var(--bad-soft);border-color:var(--bad)}
+.chip .why{display:block;font-size:12.5px;color:var(--bad);font-weight:700;margin-top:2px}
+.dnd-help{font-size:13.5px;color:var(--ink3);margin:6px 0 0}
+
+/* ===================== 10. 정책 결정 ===================== */
+.evi{display:flex;flex-wrap:wrap;gap:6px}
+.evchip{border:2px solid var(--line2);background:#fff;border-radius:999px;padding:5px 11px;font-size:13.5px;font-weight:600}
+.evchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:8px}
+.rcard{border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px}
+.rcard b{display:block;font-size:15.5px;margin-bottom:4px}
+.rcard .g{color:var(--ok);font-weight:700}
+.rcard .l{color:var(--warn);font-weight:700}
+
+/* ===================== 11. 미래 마트 (사건 2) ===================== */
+.mart{position:relative;border-radius:var(--r-lg);overflow:hidden;border:2px solid var(--line);background:#F1FAF4}
+.mart svg{display:block;width:100%;height:auto}
+.hot{position:absolute;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;border:3px solid #fff;background:var(--c2);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(31,157,99,.6);animation:pulse 1.8s infinite}
+.hot.ok{background:var(--ink3);animation:none}
+.hot.ok::after{content:"✓";position:absolute;right:-6px;top:-6px;background:var(--ok);border-radius:50%;width:20px;height:20px;font-size:12px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.hot.cur{background:var(--marker);color:var(--ink);animation:none}
+.hot .hl{position:absolute;top:44px;white-space:nowrap;background:var(--ink);color:#fff;font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:6px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,157,99,.55)}70%{box-shadow:0 0 0 14px rgba(31,157,99,0)}100%{box-shadow:0 0 0 0 rgba(31,157,99,0)}}
+.zoom{min-height:420px}
+.label-tbl{width:100%;border-collapse:collapse;font-size:15px;margin:8px 0}
+.label-tbl th,.label-tbl td{border:1.5px solid var(--ink);padding:6px 9px;text-align:left;vertical-align:top}
+.label-tbl th{background:#F2F4F9;width:30%}
+.post{background:#FFFDF2;border:1.5px solid #EAE3C3;border-radius:10px;padding:8px 12px;margin-bottom:7px;font-size:15px}
+.post .who{font-size:12.5px;font-weight:800;color:var(--ink3)}
+.slots{display:flex;gap:6px;align-items:stretch;flex-wrap:wrap;margin:10px 0}
+.slot{flex:1;min-width:150px;min-height:76px;border:2px dashed var(--line2);border-radius:12px;padding:8px;font-size:14.5px;display:flex;flex-direction:column;gap:4px;background:#fff;text-align:left}
+.slot .sn{font-family:var(--display);color:var(--cc);font-size:15px}
+.slot.fill{border-style:solid;border-color:var(--cc)}
+.slot.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.arrow{align-self:center;font-weight:800;color:var(--ink3)}
+.mcq{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+
+/* ===================== 12. 공청회 (사건 3) ===================== */
+.hall{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#2B2350;color:#fff;padding:14px 14px 0}
+.hall{padding-bottom:0}
+.hall .stage{display:grid;grid-template-columns:240px 1fr;gap:18px;align-items:end;min-height:230px}
+.podium{display:flex;flex-direction:column;align-items:center}
+.podium svg{width:150px;height:174px}
+.podium .pod{width:190px;height:70px;background:linear-gradient(#7C63E8,#5A41C9);border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;margin-top:-26px;position:relative}
+.speech{background:#fff;color:var(--ink);border-radius:18px;padding:14px 16px;font-size:16px;line-height:1.55;align-self:center;position:relative;margin-bottom:16px}
+.speech::before{content:"";position:absolute;left:-12px;top:30px;border:12px solid transparent;border-right-color:#fff;border-left:0}
+.panelists{display:flex;justify-content:space-around;background:#3A3069;margin:-14px -14px 12px;padding:10px 6px 8px;border-bottom:6px solid #4B3F86}
+.panelists::before{content:"패널석";align-self:center;font-weight:800;font-size:13px;opacity:.7;writing-mode:vertical-rl}
+.panelist{background:none;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:12px;position:relative}
+.panelist svg{width:70px;height:80px}
+.panelist .nm{font-size:13px;font-weight:800;background:#fff;color:var(--ink);border-radius:6px;padding:1px 8px}
+.panelist .rl{font-size:12px;opacity:.85}
+.panelist.cur{background:rgba(255,255,255,.15)}
+.panelist .ping{width:24px;height:24px;border-radius:50%;background:var(--marker);border:2px solid var(--ink);color:var(--ink);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.panelist .ping.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.panelist.ok::after{content:"✓";position:absolute;top:2px;right:4px;background:var(--ok);width:20px;height:20px;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center}
+.issue-q{margin-top:10px}
+.issue-q .mcq button{text-align:left}
+.connect{position:relative;display:grid;grid-template-columns:1fr 160px 1fr;gap:0;align-items:stretch}
+.connect svg.lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.ccol{display:flex;flex-direction:column;gap:9px;justify-content:center}
+.cnode{text-align:left;background:#fff;border:2px solid var(--line2);border-radius:12px;padding:10px 13px;font-size:15px;line-height:1.45;position:relative;z-index:1}
+.cnode.right{font-weight:800;text-align:center;padding:14px}
+.cnode:hover{border-color:var(--cc)}
+.cnode.sel{border-color:var(--ink);background:var(--marker)}
+.cnode.linked{border-color:var(--cc)}
+.cnode.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.cnode .rsub{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin-top:3px;line-height:1.4}
+.cnode .why{display:block;font-size:13px;color:var(--bad);font-weight:700;margin-top:3px}
+.cnode .dot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--cc);transform:translateY(-50%)}
+.cnode.left .dot{right:-9px}
+.cnode.right .dot{left:-9px}
+.principles{display:flex;flex-wrap:wrap;gap:8px}
+.pcard{border:2px solid var(--c3);background:#fff;color:var(--c3);border-radius:12px;padding:10px 14px;font-weight:800;font-size:15px;cursor:grab}
+.pcard.used{opacity:.4;border-style:dashed}
+.ethics-board{background:var(--c3s);border:2px dashed var(--c3);border-radius:var(--r-lg);padding:12px;min-height:200px}
+.ethics-board.over{background:#E2D9FD}
+.erow{background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.erow b{color:var(--c3);font-size:15.5px}
+.erow select{font:inherit;font-size:14.5px;padding:6px 8px;border:2px solid var(--line2);border-radius:8px;width:100%}
+.stance{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.decree{background:#fff;border:2px solid var(--ink);border-radius:6px;padding:26px 30px;max-width:820px;margin:0 auto;position:relative;box-shadow:8px 8px 0 var(--c3s)}
+.decree h3{text-align:center;font-family:var(--display);font-weight:400;font-size:26px}
+.decree .no{text-align:center;font-size:13.5px;color:var(--ink3);margin-bottom:14px}
+.decree ol{padding-left:22px;margin:8px 0}
+.decree li{margin-bottom:6px}
+.decree .seal{position:absolute;right:22px;top:14px;width:84px;height:84px;border:4px solid var(--c3);border-radius:50%;color:var(--c3);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:13px;transform:rotate(-14deg);opacity:.85}
+
+/* ===================== 13. 하천 조사 (사건 4) ===================== */
+.compare{position:relative;border-radius:var(--r-lg);overflow:hidden;border:2px solid var(--line);user-select:none}
+.compare svg{display:block;width:100%;height:auto}
+.compare .after{position:absolute;inset:0}
+.compare .divider{position:absolute;top:0;bottom:0;width:4px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.2);pointer-events:none}
+.compare .divider::after{content:"◀ ▶";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;color:var(--ink);font-size:12px;font-weight:800;padding:6px 8px;border-radius:99px;white-space:nowrap;box-shadow:var(--shadow)}
+.compare .lbl{position:absolute;top:10px;background:rgba(27,37,64,.85);color:#fff;font-weight:800;font-size:14px;padding:3px 10px;border-radius:8px}
+.range{width:100%;margin:10px 0 0;accent-color:var(--c4);height:26px}
+.datatbl{width:100%;border-collapse:collapse;font-size:15px}
+.datatbl th,.datatbl td{padding:7px 8px;border-bottom:1.5px solid var(--line);text-align:center}
+.datatbl th:first-child,.datatbl td:first-child{text-align:left}
+.datatbl .act{background:var(--c4s);font-weight:800}
+.mapwrap{position:relative;border-radius:var(--r-lg);overflow:hidden;border:2px solid var(--line)}
+.mapwrap svg{display:block;width:100%;height:auto}
+.pin{position:absolute;transform:translate(-50%,-100%);background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center}
+.pin .pb{width:40px;height:40px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c4);border:3px solid #fff;box-shadow:0 4px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+.pin .pb span{transform:rotate(45deg);font-size:18px}
+.pin .pl{background:#fff;border:2px solid var(--ink);border-radius:8px;font-size:13px;font-weight:800;padding:1px 8px;margin-top:6px;white-space:nowrap}
+.pin.ok .pb{background:var(--ink3)}
+.pin.cur .pb{background:var(--marker)}
+.pin.ok .pl::after{content:" ✓";color:var(--ok)}
+.expert{display:flex;gap:10px;align-items:flex-start;background:var(--c4s);border-radius:12px;padding:10px;margin-top:10px}
+.expert svg{width:54px;height:62px;flex:none}
+.expert p{font-size:15px}
+.judge{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:8px;font-size:15px}
+.judge.good{border-color:var(--ok);background:var(--ok-soft)}
+.judge.badj{border-color:var(--bad);background:var(--bad-soft)}
+.seg{display:flex;border:2px solid var(--line2);border-radius:99px;overflow:hidden}
+.seg button{border:0;background:#fff;padding:6px 12px;font-size:13.5px;font-weight:700}
+.seg button.on{background:var(--ink);color:#fff}
+.judge .why{grid-column:1/-1;font-size:13.5px;font-weight:600;color:var(--ink2)}
+
+/* ===================== 14. 보고서 ===================== */
+.report{max-width:900px;margin:0 auto;background:#fff;border:2px solid var(--line);border-radius:6px;padding:28px 34px;box-shadow:var(--shadow)}
+.report .rh{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--ink);padding-bottom:12px;margin-bottom:14px;gap:16px}
+.report .rh h2{font-family:var(--display);font-weight:400;font-size:28px}
+.report .rh .who{font-size:14px;color:var(--ink2);text-align:right}
+.rsec{margin-bottom:16px;break-inside:avoid}
+.rsec h4{font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.rsec h4::before{content:"";width:6px;height:18px;background:var(--cc,var(--agency));border-radius:3px}
+.rsec ul{margin:0;padding-left:20px}
+.rsec li{margin-bottom:4px;font-size:15.5px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.imp{border:2px solid var(--line);border-radius:10px;padding:10px 12px}
+.imp.p{border-color:#BFE6D1;background:#F6FCF8}
+.imp.n{border-color:#F4C6CD;background:#FFF8F9}
+.imp b{font-size:15px}
+.imp p{font-size:14px;color:var(--ink2)}
+.imp-btn{display:block;width:100%;text-align:left;margin-bottom:6px;cursor:pointer;font:inherit;color:inherit}
+.imp-btn:hover{box-shadow:0 0 0 2px var(--line2)}
+.imp-btn.sel.p{box-shadow:0 0 0 3px var(--ok)}
+.imp-btn.sel.n{box-shadow:0 0 0 3px var(--bad)}
+.impd{border-radius:12px;padding:12px 16px;margin-top:8px;border:2px solid}
+.impd.p{background:var(--ok-soft);border-color:var(--ok)}
+.impd.n{background:var(--bad-soft);border-color:var(--bad)}
+.impd-h{font-weight:800;font-size:16px;margin-bottom:8px}
+.impd ul{margin:4px 0 0;padding-left:20px}
+.impd li{font-size:15px;margin-bottom:3px}
+.final-q{background:var(--agency-soft);border-radius:12px;padding:16px;margin-top:10px;break-inside:avoid}
+.final-q .fq{font-size:18px;font-weight:800;margin-bottom:10px}
+.tstep{display:flex;gap:12px;align-items:flex-start;background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.tstep.off{opacity:.45}
+.tstep b{font-size:15.5px}
+.tnum{width:28px;height:28px;border-radius:50%;background:var(--agency);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.mythink{background:#fff;border:2px solid var(--agency);border-radius:14px;padding:14px 16px;font-size:16.5px;line-height:1.75;margin-top:10px}
+.mythink .mt-h{font-weight:800;color:var(--agency);margin-bottom:4px}
+.mythink b{background:linear-gradient(transparent 60%,var(--marker) 60%)}
+.report-acts{display:flex;justify-content:center;gap:10px;margin:18px 0 30px}
+
+@media (max-width:1100px){
+  .files{grid-template-columns:repeat(2,1fr)}
+  .stepper .step .lbl{display:none}
+}
+@media (max-width:860px){
+  .start,.two,.docs,.hq-top,.hq-bottom{grid-template-columns:1fr}
+  .zones.cols4{grid-template-columns:1fr 1fr}
+  .case-head{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff}
+  #topbar,#notebook,#toast,#tip,.report-acts,.case-foot,.case-head,.no-print{display:none!important}
+  .report{border:0;box-shadow:none;padding:0;max-width:none}
+  .evchip:not(.on){display:none}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header id="topbar">
+  <button class="logo" id="logoBtn" aria-label="조사단 본부로">BIO IMPACT <small>생명기술 사회영향 조사단</small></button>
+  <div class="crumb" id="crumb"></div>
+  <button class="tbtn" id="nbBtn" aria-label="조사 수첩 열기">📒 조사 수첩 <span class="cnt" id="nbCnt">0</span></button>
+  <button class="tbtn" id="hqBtn">🏢 본부</button>
+</header>
+<main id="screen"></main>
+<aside id="notebook" aria-label="조사 수첩">
+  <div class="nb-head"><h3>조사 수첩</h3><button class="btn ghost small" id="nbClose">닫기</button></div>
+  <div class="nb-body" id="nbBody"></div>
+</aside>
+<div id="modal" class="hidden"></div>
+<div id="toast"></div>
+<div id="tip"></div>
+<script>
+"use strict";
+/* =====================================================================
+   BIO IMPACT — 생명기술이 바꾼 세상
+   [1] 교과서 학습 내용 / [2] 사건 데이터 / [3] 상태·저장 / [4] 공통 유틸
+   [5] 화면(시작·본부) / [6] 사건 틀 / [7] 상호작용 부품 / [8] 사건별 화면
+   [9] 보고서 / [10] 시작
+   ※ 사건 내용·설명 수정은 [1], [2]의 데이터만 고치면 됩니다.
+   ===================================================================== */
+
+/* ===================== [1] 교과서 학습 내용 (8개) ===================== */
+const TEXTBOOK = [
+  {id:'p1', type:'pos', cid:'c1', title:'질병의 진단·예방·치료', text:'원격 진료, 유전자 치료 등을 통하여 질병을 진단·예방·치료할 수 있다.',
+   personal:['원격 진료로 집에서 정기 진단을 받음'], social:['병원이 먼 곳에 사는 사람도 진단과 관리를 받을 수 있게 됨']},
+  {id:'p2', type:'pos', cid:'c2', title:'식량 부족 문제 해결', text:'동식물과 미생물의 유전자 조작으로 식량 자원을 확보하여 식량 부족 문제를 해결할 수 있다.',
+   personal:['쌀값이 내려 장보기 부담이 줄어듦','가뭄에도 농민이 수확할 수 있게 됨'], social:['식량 지원이 필요한 사람이 135만 명에서 68만 명으로 줄어듦']},
+  {id:'p3', type:'pos', cid:'c1', title:'장애 극복과 불치병 치료', text:'바이오 장기 및 의약품을 활용하여 장애를 극복하고 불치병을 치료할 수 있다.',
+   personal:['희귀 질환 환자가 다시 걷고 직장에 복귀함'], social:['같은 병을 앓는 많은 사람들이 치료받을 길이 열림','건강해진 환자들이 다시 일하면서 나라 경제에 보탬이 됨']},
+  {id:'p4', type:'pos', cid:'c4', title:'오염된 환경 복원', text:'친환경 제품이나 미생물을 이용하여 오염된 환경을 복원할 수 있다.',
+   personal:['깨끗해진 하천을 주민이 다시 이용할 수 있게 됨'], social:['오염된 하천이 복원되고 떠났던 생물이 돌아옴']},
+  {id:'n1', type:'neg', cid:'c1', title:'의약품 개발 과정의 변이 및 남용 문제', text:'약품 개발 및 실험 과정에서 변이가 발생할 수 있고 의약품 남용 문제가 일어날 수 있다.',
+   personal:['처방 없이 약을 먹은 사람이 부작용으로 아플 수 있음'], social:['약을 잘못 먹는 사람이 많아져 나라 전체의 병원비가 늘어남','약을 만들 때 생긴 변이를 놓치면 사람들이 약을 믿지 못하게 됨']},
+  {id:'n2', type:'neg', cid:'c2', title:'유전자 조작 식물의 안전성 검증 문제', text:'유전자 조작 식물의 안전성 검증 부족으로 사회적 논란이 생길 수 있다.',
+   personal:['표시 정보가 없어 소비자가 불안을 느낌','근거 없는 SNS 주장 때문에 선택에 혼란을 겪음'], social:['안전성 자료 공개가 부족해 사회적 논란이 생김']},
+  {id:'n3', type:'neg', cid:'c3', title:'생명 복제와 생명윤리 문제', text:'생명 복제와 관련한 사회적 권리나 의무에 따른 사회적인 문제 및 생명 경시 현상이 발생할 수 있다.',
+   personal:['반려동물 복제처럼 개인의 바람과 생명윤리가 부딪힘','복제된 생명을 끝까지 책임져야 하는 의무가 생김'], social:['복제 생명의 권리와 의무를 둘러싼 사회적 갈등이 생김','생명을 가볍게 여기는 생명 경시 현상이 우려됨']},
+  {id:'n4', type:'neg', cid:'c4', title:'생태계 변화 문제', text:'슈퍼 해충, 슈퍼 잡초 등 변종이 발생하거나 유전자 재조합 생물에 의해 생태계 변화가 일어날 수 있다.',
+   personal:['농민이 물새 때문에 벼 피해를 입음','약에 견디는 잡초 때문에 잡초 관리가 어려워짐'], social:['늘어난 물새가 주변 농경지까지 영향을 줌','재조합 미생물이 농경지로 퍼져 흙 속 생태계가 바뀔 위험이 있음']}
+];
+
+/* ===================== [2] 사건 데이터 ===================== */
+// 인물 외형: skin 피부, hair 머리색, hs 머리 모양(short/long/bob/bun/side), shirt 옷, acc 장식(glasses/coat/tie/none)
+const LOOKS = {
+  pat:{skin:'#F2C9A5',hair:'#3B2A22',hs:'long',shirt:'#F59AB0',acc:'none'},
+  fam:{skin:'#E7B78F',hair:'#2B2B2B',hs:'short',shirt:'#5B7BD6',acc:'none'},
+  exp:{skin:'#F5D3B6',hair:'#4A3428',hs:'bun',shirt:'#3E7C8C',acc:'coat-glasses'},
+  cit:{skin:'#EDC09A',hair:'#6B4A2F',hs:'side',shirt:'#F2B33D',acc:'none'},
+  res:{skin:'#F0C8A2',hair:'#2D2D2D',hs:'short',shirt:'#3F7FD9',acc:'coat-glasses'},
+  ani:{skin:'#E2AF86',hair:'#7A4B2A',hs:'bob',shirt:'#3FA36B',acc:'none'},
+  eth:{skin:'#F3CFB0',hair:'#9A9A9A',hs:'short',shirt:'#5E4B8B',acc:'glasses-tie'},
+  civ:{skin:'#EBBE97',hair:'#1F1F1F',hs:'bob',shirt:'#E97A55',acc:'none'},
+  pol:{skin:'#E9B993',hair:'#3A2B20',hs:'side',shirt:'#2F3F66',acc:'tie'},
+  eco:{skin:'#E8B892',hair:'#2E2A26',hs:'bun',shirt:'#2E8A6E',acc:'glasses'}
+};
+
+const CASES = {
+/* -------------------- 사건 01 -------------------- */
+c1:{
+  no:'사건 01', title:'기적의 신약, 누구나 사용할 수 있을까?', short:'기적의 신약',
+  place:'보건·의료 취재 공간', icon:'💊', color:'#E2456B', soft:'#FDEBF0',
+  phases:['시민의 목소리','자료 분석','영향 분류','대응 방안'],
+  intro:'근육이 점점 약해지는 희귀 질환을 치료하는 바이오 의약품 ‘리젠맥스’(가상)가 허가되었습니다. 새로운 치료 기회가 생겼지만 치료비, 안전성, 잘못된 사용에 대한 걱정도 함께 나오고 있습니다.',
+  people:[
+    {id:'pat', name:'한서윤', role:'신약 치료를 받은 환자 (34세)', intro:'안녕하세요. 저는 신약 치료를 받은 지 6개월 됐어요.', mood:'happy',
+     qs:[
+      {q:'치료 후에 무엇이 달라졌나요?', a:'예전엔 계단 몇 개만 올라도 다리에 힘이 빠져서 회사를 그만뒀어요. 지금은 혼자 버스를 타고 출근해요! 증상을 늦추는 치료뿐이었는데, 다시 일할 수 있다는 게 꿈 같아요.', mood:'happy',
+       key:{title:'치료 후 일상과 직장 복귀', text:'치료하기 어려웠던 질병을 바이오 의약품으로 치료해 다시 걷고 일할 수 있게 됨'}},
+      {q:'치료 후 검사는 어떻게 받나요?', a:'한 달에 한 번 집에서 원격 진료로 상태를 확인해요. 병원이 멀어도 진단을 받을 수 있어서 큰 도움이 돼요.', mood:'neutral',
+       key:{title:'원격 진료로 받는 정기 검사', text:'병원에 자주 가기 어려워도 원격 진료로 질병 상태를 진단·관리함'}}
+     ]},
+    {id:'fam', name:'박도윤', role:'같은 질환을 앓는 어머니의 아들', intro:'어머니도 같은 병을 앓고 계세요. 그런데 고민이 많아요.', mood:'worried',
+     qs:[
+      {q:'어떤 고민이 있나요?', a:'1년 치료비가 1억 원이 넘는대요. 건강보험도 일부만 적용돼서 우리 집 형편으로는 정말 어려워요. 치료법이 있는데 돈 때문에 못 받는다는 게 더 마음 아파요.', mood:'sad',
+       key:{title:'높은 치료비 부담', text:'신약 치료비가 매우 높아 환자 가족이 큰 경제적 부담을 느낌'}},
+      {q:'어떤 지원이 있으면 좋겠나요?', a:'형편에 따라 치료 기회가 달라지지 않으면 좋겠어요. 같은 병인데 누구는 치료받고 누구는 못 받으면 불공평하잖아요.', mood:'worried',
+       key:{title:'치료 기회의 격차', text:'경제적 형편에 따라 치료받을 수 있는 사람과 없는 사람이 나뉘는 사회 문제'}}
+     ]},
+    {id:'exp', name:'정하은', role:'의약품 안전 전문가', intro:'의약품이 안전하게 쓰이도록 자료를 검토하고 있습니다.', mood:'neutral',
+     qs:[
+      {q:'신약은 안전한가요?', a:'임상시험을 거쳐 허가되었어요. 다만 일부 참여자에게 두통, 발열 같은 이상 반응이 보고돼서 허가 후에도 계속 살펴보고 있어요. 이상 반응은 약을 쓴 사람의 몸에 나타나는 반응이에요.', mood:'thinking',
+       key:{title:'허가 후에도 살펴보는 이상 반응', text:'임상시험에서 일부 참여자에게 이상 반응이 나타나 허가 후에도 계속 추적함'}},
+      {q:'개발하고 만드는 과정에서 생길 수 있는 문제는요?', a:'바이오 의약품은 세포나 미생물을 이용해 만들어요. 개발·실험 과정에서 변이가 생길 수 있어서, 단계마다 검사하고 문제가 있으면 그 묶음은 쓰지 않아요.', mood:'neutral',
+       key:{title:'개발·실험 과정의 변이 가능성', text:'의약품 개발·실험 과정에서 변이가 생길 수 있어 단계별 검사가 필요함 (이상 반응과는 다른 문제)'}}
+     ]},
+    {id:'cit', name:'최민재', role:'신약에 관심 있는 시민', intro:'그 약, SNS에서 엄청 유명하던데요?', mood:'happy',
+     qs:[
+      {q:'그 약을 어떻게 사용할 생각인가요?', a:'SNS에서 “먹으면 피로가 싹 풀린다”는 글을 많이 봤어요. 친구 아버지가 처방받으셨대서 조금 나눠 받아 볼까 해요. 효과 빨리 보려면 두 배로 먹어도 되겠죠?', mood:'happy',
+       key:{title:'처방과 다른 의약품 사용', text:'처방받지 않은 약을 나눠 먹거나 정해진 양보다 많이 먹으려는 의약품 남용 사례'}},
+      {q:'처방 없이 먹으면 위험하다는 걸 알고 있나요?', a:'네? 처방받지 않은 사람이 쓰면 효과는 없고 부작용만 생길 수 있다고요? 전혀 몰랐어요… SNS 글만 믿으면 안 되겠네요.', mood:'surprised',
+       key:{title:'잘못된 정보와 남용 위험', text:'SNS의 잘못된 정보 때문에 의약품의 위험을 모르고 남용하려는 경우가 생김'}}
+     ]}
+  ],
+  docs:[
+    {id:'d1', icon:'📈', title:'치료 전후 일상생활 변화', meta:'신약 치료 참여자 120명 6개월 조사 · 가상 자료',
+     chart:{type:'bars', groups:[
+       {label:'혼자 걸을 수 있는 시간', unit:'분', a:6, b:42},
+       {label:'일주일 외출 횟수', unit:'회', a:1.2, b:5.1},
+       {label:'직장·학교 복귀 비율', unit:'%', a:12, b:37}]},
+     task:'치료 가능성이 높아졌음을 보여 주는 문장에 형광펜으로 밑줄을 그으세요.', mode:'lines',
+     items:[
+      {t:'이 질환은 근육이 점점 약해지는 희귀 질환이다.', ok:false, why:'질환에 대한 설명일 뿐, 치료 효과는 아니에요.'},
+      {t:'기존에는 증상이 나빠지는 속도를 늦추는 치료만 가능했다.', ok:false, why:'신약이 나오기 전의 상황이에요.'},
+      {t:'신약 투여 6개월 후 참여자의 78%가 혼자 걷는 시간이 늘었다.', ok:true},
+      {t:'직장이나 학교로 돌아간 참여자 비율이 약 3배로 늘었다.', ok:true},
+      {t:'조사는 6개월 동안 진행되었다.', ok:false, why:'조사 기간에 대한 정보예요.'}
+     ],
+     done:'치료하기 어려웠던 질병을 바이오 의약품으로 치료할 수 있게 되면서 환자가 장애를 극복하고 일상을 되찾을 수 있어요. 교과서의 ‘장애 극복과 불치병 치료’에 해당해요.',
+     note:{title:'치료 전후 생활 변화 자료', text:'참여자 78%가 걷는 시간이 늘고, 직장·학교 복귀 비율이 약 3배로 증가'}},
+    {id:'d2', icon:'💰', title:'치료비 비교 자료', meta:'가상 자료',
+     task:'경제적 부담을 보여 주는 자료 카드를 모두 고르세요.', mode:'cards',
+     items:[
+      {h:'연간 치료비 비교', t:'기존 치료 약 400만 원 / 신약 약 1억 2천만 원', ok:true},
+      {h:'치료 참여자 만족도', t:'참여자의 86%가 “치료 결과에 만족한다”고 응답', ok:false, why:'치료 효과에 대한 만족도예요. 비용 부담과는 관계가 없어요.'},
+      {h:'가구 소득과 치료비', t:'소득 하위 가구는 1년 치료비가 연 소득의 2배가 넘음', ok:true},
+      {h:'신약 처방 병원 수', t:'전국 32개 병원에서 처방 가능', ok:false, why:'처방 가능한 병원 정보예요. 경제적 부담을 직접 보여 주지는 않아요.'}
+     ],
+     done:'치료비가 높으면 환자 가족에게 큰 부담이 되고, 형편에 따라 치료 기회가 달라지는 사회 문제가 생길 수 있어요.',
+     note:{title:'치료비 비교 자료', text:'신약 연간 치료비는 기존 치료의 약 30배, 소득 하위 가구에는 연 소득의 2배 이상'}},
+    {id:'d3', icon:'🧪', title:'임상시험 보고서와 실험 기록', meta:'가상 보고서 · 실제 위험으로 단정하지 않음',
+     task:'의약품 개발·실험 과정에서 생긴 ‘변이’ 문제에 해당하는 문장을 표시하세요.', mode:'lines',
+     items:[
+      {t:'[임상시험] 참여자 120명 중 9명에게 두통, 발열 등 이상 반응이 나타났다.', ok:false, why:'이상 반응은 약을 쓴 사람의 몸에 나타나는 반응이에요. 변이와는 다른 개념이에요.'},
+      {t:'[임상시험] 이상 반응은 대부분 3일 안에 사라졌다.', ok:false, why:'이상 반응의 경과에 대한 내용이에요.'},
+      {t:'[실험 기록] 생산 실험 중 한 묶음에서 유전 정보가 달라진 변이가 발견되어 그 묶음을 폐기했다.', ok:true},
+      {t:'[실험 기록] 변이가 생긴 재료로 만든 약은 효과와 안전성을 보장할 수 없어 품질 검사를 늘리기로 했다.', ok:true},
+      {t:'[임상시험] 허가 이후에도 이상 반응을 계속 추적 조사한다.', ok:false, why:'사람에게 나타나는 이상 반응을 관리하는 방법이에요.'}
+     ],
+     done:'‘이상 반응’은 약을 쓴 사람의 몸에 나타나는 반응이고, ‘변이’는 약을 개발·실험하는 과정에서 재료의 유전 정보가 달라지는 문제예요. 두 가지는 서로 다른 문제이고, 변이는 검사로 미리 찾아 관리해요.',
+     note:{title:'개발·실험 과정의 변이 기록', text:'생산 실험 중 변이 발견 → 폐기 및 품질 검사 강화 (이상 반응과 구별)'}},
+    {id:'d4', icon:'📋', title:'올바른 의약품 사용 안내문', meta:'보건소 안내문 · 가상 사례',
+     guide:['의약품은 처방받은 사람만 사용해요.','정해진 양과 기간을 지켜요.','이상 증상이 생기면 의사·약사와 상담해요.'],
+     task:'다음 사례 중 의약품 남용에 해당하는 것을 모두 찾으세요.', mode:'cards',
+     items:[
+      {h:'사례 A', t:'처방받지 않은 친구의 약을 피로 회복용으로 나눠 먹는다.', ok:true},
+      {h:'사례 B', t:'효과를 빨리 보려고 정해진 양보다 두 배로 먹는다.', ok:true},
+      {h:'사례 C', t:'의사가 정한 기간 동안 정해진 양을 먹는다.', ok:false, why:'안내문대로 올바르게 사용한 사례예요.'},
+      {h:'사례 D', t:'부작용이 의심되어 약사에게 상담한다.', ok:false, why:'올바른 대처 방법이에요.'},
+      {h:'사례 E', t:'“피로가 싹 풀린다”는 SNS 글만 보고 치료 목적이 아닌 피로 회복용으로 사서 먹는다.', ok:true}
+     ],
+     done:'처방과 다른 사람이 쓰거나, 정해진 양보다 많이 쓰거나, 원래 목적과 다르게 쓰는 것은 의약품 남용이에요. 남용은 개인의 건강을 해치고 사회 전체의 의료 부담을 키울 수 있어요.',
+     note:{title:'의약품 남용 사례', text:'처방 없이 나눠 먹기, 정량 초과 복용, 목적 외 사용은 의약품 남용'}}
+  ],
+  quad:{
+    cards:[
+      {id:'q2', t:'환자가 다시 걸어서 회사에 다님', ok:['ip'], why:'환자 한 사람의 생활이 바뀐 일이에요. 좋은 일일까요, 나쁜 일일까요?'},
+      {id:'q3', t:'환자가 집에서 원격 진료를 받아 편해짐', ok:['ip'], why:'환자 한 사람이 편해진 일이에요. 좋은 일일까요, 나쁜 일일까요?'},
+      {id:'q4', t:'한 가족이 비싼 치료비 때문에 돈 걱정을 함', ok:['in'], why:'한 가족에게 생긴 일이에요. 사회 전체의 문제일까요?'},
+      {id:'q6', t:'처방 없이 약을 먹은 사람이 부작용으로 아플 수 있음', ok:['in'], why:'약을 잘못 먹은 그 사람의 몸에 생기는 일이에요.'},
+      {id:'q1', t:'같은 병을 앓는 많은 사람들이 치료받을 길이 열림', ok:['sp'], why:'많은 사람에게 생긴 일이에요. 한 사람의 일일까요?'},
+      {id:'q9', t:'건강해진 환자들이 다시 일하면서 나라 경제에 보탬이 됨', ok:['sp'], why:'나라 전체에 도움이 되는 일이에요.'},
+      {id:'q5', t:'돈이 있는 사람만 치료받는 불공평한 사회가 됨', ok:['sn'], why:'여러 사람 사이에 생기는 불공평이에요. 한 사람의 문제일까요?'},
+      {id:'q7', t:'약을 잘못 먹는 사람이 많아져 나라 전체의 병원비가 늘어남', ok:['sn'], why:'많은 사람에게 퍼져서 나라 전체가 부담하는 문제예요.'},
+      {id:'q8', t:'약을 만들 때 생긴 문제를 놓치면 사람들이 약을 믿지 못하게 됨', ok:['sn'], why:'많은 사람이 약을 믿지 못하게 되는 문제예요.'}
+    ]
+  },
+  policy:{
+    options:[
+      {id:'a', icon:'🤝', hint:'돈 때문에 치료를 못 받는 사람을 돕는 대책', title:'치료 접근성 지원', desc:'건강보험 적용 확대, 소득에 따른 치료비 지원',
+       good:'경제적 이유로 치료를 포기하는 사람이 줄어요.', limit:'많은 재정이 필요하고, 누구를 얼마나 지원할지 기준을 정하기 어려워요.'},
+      {id:'b', icon:'🔬', hint:'약이 안전하게 만들어지는지 검사하는 대책', title:'의약품 안전성 검증 강화', desc:'생산 단계별 변이 검사, 허가 후 이상 반응 추적',
+       good:'변이나 이상 반응을 일찍 발견해 피해를 줄일 수 있어요.', limit:'검사에 시간과 비용이 들어 약이 늦게 나오거나 값이 오를 수 있어요.'},
+      {id:'c', icon:'📢', hint:'약을 올바르게 쓰도록 알려 주는 대책', title:'올바른 의약품 사용 교육', desc:'학교·SNS 캠페인, 처방 없는 사용의 위험 안내',
+       good:'잘못된 소문을 바로잡고 의약품 남용을 줄일 수 있어요.', limit:'교육만으로 모든 사람의 행동이 바로 바뀌지는 않아요.'}
+    ],
+    evidence:[
+      {id:'e1', t:'[치료비 비교 자료] 신약 치료비는 1년에 1억 원이 넘는다. 기존 치료보다 약 30배 비싸다.', ok:['a'], why:'치료비가 너무 비싸다는 내용이에요. 돈 문제를 돕는 대책은 무엇일까요?'},
+      {id:'e2', t:'[치료비 비교 자료] 형편이 어려운 가정은 1년 치료비가 1년 동안 버는 돈의 2배가 넘는다.', ok:['a'], why:'돈이 부족해 치료받기 어렵다는 내용이에요.'},
+      {id:'e3', t:'[박도윤 인터뷰] 같은 병인데 돈이 없어서 치료를 못 받는 사람이 있다.', ok:['a'], why:'돈 때문에 치료를 못 받는다는 내용이에요.'},
+      {id:'e4', t:'[실험 기록] 약을 만드는 실험 중에 변이가 생겨서 그 재료를 버렸다.', ok:['b'], why:'약을 만드는 과정에 문제가 생겼다는 내용이에요. 검사가 필요하겠죠?'},
+      {id:'e5', t:'[임상시험 보고서] 약을 쓴 사람 중 일부에게 두통·열 같은 이상 반응이 나타났다.', ok:['b'], why:'약이 안전한지 계속 검사해야 하는 이유예요.'},
+      {id:'e6', t:'[최민재 인터뷰] 처방받지 않은 친구 아버지의 약을 나눠 먹으려 한다.', ok:['c'], why:'약을 잘못 쓰려는 사례예요. 올바른 사용법을 알려 줘야 해요.'},
+      {id:'e7', t:'[최민재 인터뷰] SNS 글만 믿고 그 약을 먹으면 피로가 풀린다고 생각했다.', ok:['c'], why:'잘못된 정보를 믿고 있어요. 올바른 사용법을 알려 줘야 해요.'},
+      {id:'e8', t:'[사용 안내문 사례] 효과를 빨리 보려고 정해진 양의 두 배를 먹는다.', ok:['c'], why:'약을 잘못 쓰는 사례예요.'}
+    ]
+  },
+  report:{
+    pos:['p1','p3'], neg:['n1'],
+    personal:['희귀 질환 환자가 다시 걷고 직장에 복귀함','원격 진료로 집에서 정기 진단을 받음','높은 치료비로 가족이 경제적 부담을 느낌','처방 없는 사용으로 부작용 위험이 생길 수 있음'],
+    social:['치료하기 어려웠던 질병의 치료 가능성이 열림','형편에 따라 치료 기회의 격차가 생김','의약품 남용이 퍼지면 사회의 의료 부담이 커짐','개발 과정의 변이를 관리하지 못하면 의약품 신뢰가 떨어짐']
+  }
+},
+
+/* -------------------- 사건 02 -------------------- */
+c2:{
+  no:'사건 02', title:'미래 식품을 둘러싼 논란', short:'미래 식품 논란',
+  place:'미래 마트 · 소비자 조사 공간', icon:'🛒', color:'#1F9D63', soft:'#E4F6EC',
+  phases:['미래 마트 조사','근거 판단','영향 분석','보급 정책'],
+  intro:'가뭄에 강한 유전자 변형 쌀 ‘든든벼’(가상)가 보급되면서 쌀 생산량이 늘었습니다. 그런데 마트에서는 “정말 안전한가?”, “표시는 제대로 되어 있나?”를 두고 소비자들의 의견이 엇갈리고 있습니다.',
+  spots:[
+    {id:'s1', x:17, y:56, icon:'🌽', label:'과자 코너', title:'바삭콘칩 포장 표시', kind:'label',
+     rows:[['제품명','바삭콘칩'],['원재료','옥수수(미국산), 식물성 유지, 소금'],['유전자 변형 표시','<span class="mark">유전자 변형 옥수수 포함</span>']],
+     say:'포장에 표시가 있어서 소비자가 알고 고를 수 있어요.',
+     note:{title:'식품 표시가 있는 제품', text:'“유전자 변형 옥수수 포함” 표시 → 소비자가 알고 선택할 수 있음'}},
+    {id:'s2', x:37, y:56, icon:'🫘', label:'두부 코너', title:'새벽콩 두부 포장 표시', kind:'label',
+     rows:[['제품명','새벽콩 두부'],['원재료','대두(수입산), 응고제'],['유전자 변형 표시','<span class="mark">표시 없음</span>']],
+     say:'메모: “이 콩이 유전자 변형 콩인지 알 수가 없어서 불안해요.” — 소비자 질문 카드',
+     note:{title:'표시 정보가 부족한 제품', text:'유전자 변형 여부 정보가 없어 소비자가 판단하기 어려움'}},
+    {id:'s3', x:58, y:24, icon:'📊', label:'생산량 게시판', title:'쌀 생산량 변화', kind:'chart',
+     say:'2032년 든든벼 도입 후 가뭄 지역의 쌀 생산량이 꾸준히 늘었어요.',
+     note:{title:'쌀 생산량 변화 자료', text:'든든벼 도입 후 쌀 생산량 420만 톤 → 530만 톤으로 증가 (가상)'}},
+    {id:'s4', x:79, y:24, icon:'🚚', label:'공급 현황판', title:'식품 공급 현황', kind:'supply',
+     rows:[['식량 지원이 필요한 사람','135만 명(2031) → 68만 명(2035)'],['쌀 소비자 가격','18% 하락'],['가뭄 지역 공급 중단 일수','연 21일 → 연 3일']],
+     say:'식량이 부족한 사람이 줄었지만 아직 68만 명은 지원이 필요해요.',
+     note:{title:'식품 공급 현황', text:'식량 지원이 필요한 사람 135만 → 68만 명, 쌀 가격 18% 하락 (가상)'}},
+    {id:'s5', x:84, y:66, icon:'💬', label:'소비자 게시판', title:'소비자 의견 게시판', kind:'posts',
+     posts:[['주부 김○○','쌀값이 내려서 장보기가 한결 편해졌어요.'],['대학생 이○○','안전하다는 심사 자료를 직접 보고 싶은데 어디서 볼 수 있나요?'],['회사원 박○○','SNS에서 무서운 글을 봐서 일단 안 사요.'],['농민 최○○','가뭄 때도 수확할 수 있어서 큰 도움이 됐어요.']],
+     note:{title:'소비자 의견', text:'가격 하락을 반기는 의견과 심사 자료 공개를 요구하는 의견, 막연한 불안이 함께 있음'}},
+    {id:'s6', x:60, y:72, icon:'🖥️', label:'안전 정보 키오스크', title:'안전성 심사 자료', kind:'label',
+     rows:[['심사 항목','독성, 알레르기 유발 가능성, 영양 성분 비교'],['심사 결과','기존 쌀과 차이가 확인되지 않음'],['진행 중인 조사','오래 먹었을 때의 영향 추적 조사(10년 계획)'],['공개 범위','<span class="mark">결과 요약만 공개</span>, 세부 자료는 비공개']],
+     say:'심사는 거쳤지만 세부 자료가 공개되지 않아 소비자가 직접 확인하기 어려워요.',
+     note:{title:'안전성 심사 자료', text:'심사 결과 차이 없음, 장기 영향은 조사 중, 결과 요약만 공개'}}
+  ],
+  prod:{years:['2030','2031','2032','2033','2034','2035'], rice:[410,395,420,470,505,530], short:[120,135,118,95,80,68]},
+  claims:{
+    zones:[{id:'obj',label:'객관적 자료',ic:'📑',sub:'조사·측정한 결과'},{id:'opi',label:'개인의 의견',ic:'🗨️',sub:'느낌이나 생각'},{id:'weak',label:'근거가 부족한 주장',ic:'⚠️',sub:'확인되지 않은 단정'},{id:'more',label:'추가 검증 필요',ic:'🔎',sub:'아직 조사 중인 것'}],
+    cards:[
+      {id:'k1', t:'[심사 자료] 독성·알레르기 시험에서 기존 쌀과 차이가 확인되지 않았다.', ok:['obj'], why:'공식 기관이 시험한 결과예요.'},
+      {id:'k2', t:'[통계] 든든벼 도입 후 가뭄 지역 쌀 생산량이 약 26% 늘었다.', ok:['obj'], why:'측정된 생산량 자료예요.'},
+      {id:'k3', t:'[소비자] 그래도 왠지 찜찜해서 나는 안 사 먹을래.', ok:['opi'], why:'‘왠지 찜찜하다’는 개인의 느낌이에요. 틀린 것은 아니지만 과학적 근거는 아니에요.'},
+      {id:'k4', t:'[소비자] 든든벼 밥은 예전 쌀보다 맛이 없는 것 같아요.', ok:['opi'], why:'맛은 사람마다 다르게 느끼는 개인의 생각이에요. 측정한 결과가 아니에요.'},
+      {id:'k5', t:'[SNS] 유전자 변형 쌀을 먹으면 내 유전자도 바뀐대!! 공유 필수!!', ok:['weak'], why:'출처와 근거 없이 자극적으로 단정한 주장이에요.'},
+      {id:'k6', t:'[SNS] 이 쌀 먹고 한 달 만에 키가 5cm 컸어요. 기적의 쌀!', ok:['weak'], why:'한 사람의 경험을 원인으로 단정했어요. 근거가 부족해요.'},
+      {id:'k7', t:'[보고서] 수십 년 동안 먹었을 때의 영향은 추적 조사가 진행 중이다.', ok:['more'], why:'아직 결과가 나오지 않아 계속 확인이 필요한 사항이에요.'},
+      {id:'k8', t:'[농민 단체] 든든벼가 주변 일반 벼와 섞일 가능성은 계속 확인해야 한다.', ok:['more'], why:'가능성을 제기했지만 아직 조사가 필요한 사항이에요.'}
+    ]
+  },
+  chain:[
+    {id:'h1', t:'안전성 심사 결과가 요약만 공개됨'},
+    {id:'h2', t:'소비자가 판단할 근거를 찾기 어려움'},
+    {id:'h3', t:'SNS의 자극적인 주장이 빠르게 퍼짐'},
+    {id:'h4', t:'불안과 불신이 커져 사회적 논란이 생김'}
+  ],
+  policy:{
+    options:[
+      {id:'v', icon:'🔬', hint:'먹어도 안전한지 시험으로 확인하기', title:'안전성 검증', desc:'독성·알레르기 심사와 장기 섭취 영향 조사',
+       good:'안전하다는 판단의 과학적 근거가 생겨요.', limit:'검증에 오랜 시간이 걸려 보급이 늦어질 수 있어요.'},
+      {id:'o', icon:'📢', hint:'심사 결과를 누구나 볼 수 있게 알리기', title:'소비자 대상 정보 공개', desc:'심사 세부 자료를 누구나 볼 수 있게 공개',
+       good:'소비자가 직접 확인할 수 있어 불신이 줄어요.', limit:'전문적인 자료라서 쉽게 풀어 설명하는 노력이 필요해요.'},
+      {id:'l', icon:'🏷️', hint:'포장에 유전자 변형 원료가 들었는지 적기', title:'식품 표시', desc:'원재료의 유전자 변형 여부를 포장에 표시',
+       good:'소비자가 매장에서 스스로 선택할 수 있어요.', limit:'표시 관리 비용이 들고, 표시만으로 안전성이 증명되지는 않아요.'},
+      {id:'m', icon:'📈', hint:'보급한 뒤에도 오랫동안 계속 지켜보기', title:'지속적 사후 관리', desc:'보급 후 건강·환경 영향을 계속 관찰',
+       good:'새로운 문제가 생기면 빨리 발견하고 대처할 수 있어요.', limit:'오랜 기간 꾸준한 예산과 인력이 필요해요.'}
+    ],
+    evidence:[
+      {id:'e1', t:'[소비자 질문] “이 쌀을 먹어도 독이나 알레르기 걱정은 없나요?”', ok:['v'], why:'먹어도 안전한지 시험으로 확인해야 하는 걱정이에요.'},
+      {id:'e2', t:'[자료 해석] 쌀이 많이 생산된다고 해서 먹어도 안전하다는 뜻은 아니다.', ok:['v'], why:'안전한지는 따로 시험해서 확인해야 한다는 내용이에요.'},
+      {id:'e3', t:'[안전 정보 키오스크] 심사 결과는 요약만 보여 주고, 자세한 자료는 볼 수 없다.', ok:['o'], why:'자료를 볼 수 없다는 내용이에요. 누구나 볼 수 있게 하려면?'},
+      {id:'e4', t:'[소비자 게시판] “안전하다는 자료를 내 눈으로 직접 보고 싶어요.”', ok:['o'], why:'자료를 직접 보고 싶다는 요구예요.'},
+      {id:'e5', t:'[새벽콩 두부] 포장을 봐도 유전자 변형 콩인지 알 수 없다.', ok:['l'], why:'포장에 적혀 있지 않다는 내용이에요.'},
+      {id:'e6', t:'[바삭콘칩] 포장에 “유전자 변형 옥수수 포함”이라고 적혀 있어 알고 고를 수 있다.', ok:['l'], why:'포장에 적힌 정보가 선택을 돕는다는 내용이에요.'},
+      {id:'e7', t:'[보고서] 수십 년 동안 먹었을 때의 영향은 아직 조사가 끝나지 않았다.', ok:['m'], why:'앞으로도 오랫동안 지켜봐야 한다는 내용이에요.'},
+      {id:'e8', t:'[농민 단체] 든든벼가 주변 논의 일반 벼와 섞이는지 앞으로도 지켜봐야 한다.', ok:['m'], why:'보급한 뒤에도 계속 지켜봐야 한다는 내용이에요.'}
+    ]
+  },
+  report:{
+    pos:['p2'], neg:['n2'],
+    personal:['쌀값이 내려 장보기 부담이 줄어듦','가뭄에도 농민이 수확할 수 있게 됨','표시 정보가 없으면 소비자가 불안을 느낌','근거 없는 SNS 주장 때문에 선택에 혼란을 겪음'],
+    social:['식량 지원이 필요한 사람이 줄어 식량 부족 문제가 완화됨','안전성 자료 공개가 부족해 사회적 논란이 생김','오래 먹었을 때의 영향은 계속 검증이 필요함']
+  }
+},
+
+/* -------------------- 사건 03 -------------------- */
+c3:{
+  no:'사건 03', title:'생명 복제, 어디까지 허용해야 할까?', short:'생명 복제 공청회',
+  place:'생명윤리 공청회장', icon:'⚖️', color:'#6D4AE0', soft:'#EEE9FD',
+  phases:['생명윤리 공청회','의견 비교','윤리 기준 만들기','권고문 완성'],
+  intro:'멸종 위기 동물 보존 연구에 생명 복제 기술을 쓰자는 제안과, 세상을 떠난 반려동물을 복제해 주는 서비스가 동시에 화제가 되었습니다. 생명 복제 기술을 어디까지, 어떤 조건으로 허용할지 공청회가 열렸습니다.',
+  speakers:[
+    {id:'res', name:'윤지후', role:'생명기술 연구자', intro:'생명 복제 기술을 연구하고 있습니다. 궁금한 점을 물어보세요.', mood:'neutral',
+     qs:[
+      {q:'복제 기술을 왜 연구해야 하나요?', a:'멸종 위기 동물의 세포를 보관했다가 복제하면 사라질 뻔한 동물을 지킬 수 있어요. 질병을 연구하는 데에도 도움이 될 수 있고요.', mood:'happy',
+       key:{title:'연구의 필요성', text:'복제 기술은 멸종 위기 동물 보존, 질병 연구에 도움이 될 수 있음'}},
+      {q:'연구에도 지켜야 할 기준이 있나요?', a:'물론이에요. 연구 목적을 분명히 밝히고, 심사를 받고, 실험에 쓰이는 동물 수를 최대한 줄여야 해요. 기술을 쓸 수 있다고 마음대로 써도 되는 건 아니니까요.', mood:'thinking',
+       key:{title:'연구자의 책임', text:'연구 목적을 밝히고 심사를 받으며 실험 동물을 줄이는 등 연구에 책임이 따름'}}
+     ]},
+    {id:'ani', name:'서다인', role:'동물복지 전문가', intro:'동물이 고통받지 않도록 돕는 일을 하고 있어요.', mood:'worried',
+     qs:[
+      {q:'생명 복제에서 무엇이 가장 걱정되나요?', a:'복제에 성공하기까지 많은 동물이 실험에 쓰여요. 건강하지 못하게 태어나는 경우도 있고요.', mood:'sad',
+       key:{title:'실험 동물의 고통', text:'복제 과정에서 많은 동물이 실험에 쓰이고, 건강하지 못하게 태어나기도 함'}},
+      {q:'동물도 존중받아야 하나요?', a:'동물도 고통을 느끼는 생명이에요. 사람에게 도움이 된다는 이유만으로 동물의 고통을 당연하게 여기면 안 돼요.', mood:'neutral',
+       key:{title:'동물의 생명 존중', text:'동물도 고통을 느끼는 생명이므로 존중해야 함'}}
+     ]},
+    {id:'eth', name:'남궁현', role:'생명윤리 전문가', intro:'생명을 다루는 기술이 지켜야 할 기준을 연구합니다.', mood:'thinking',
+     qs:[
+      {q:'기술로 할 수 있으면 해도 되는 것 아닌가요?', a:'할 수 있다는 것과 해도 된다는 것은 달라요. 기술을 어디까지 쓸지는 사회가 함께 정해야 해요.', mood:'thinking',
+       key:{title:'할 수 있는 것과 해도 되는 것', text:'기술로 할 수 있다고 해서 모든 활용이 허용되는 것은 아님'}},
+      {q:'생명 경시가 무엇인가요?', a:'생명을 필요할 때 만들고, 필요 없으면 버리는 물건처럼 가볍게 여기는 거예요. 복제가 쉬워지면 이런 생각이 퍼질까 걱정돼요.', mood:'worried',
+       key:{title:'생명 경시 우려', text:'생명을 만들고 버리는 물건처럼 여기는 생명 경시 현상이 생길 수 있음'}}
+     ]},
+    {id:'civ', name:'김하람', role:'반려동물을 잃은 시민', intro:'얼마 전 10년 함께한 강아지를 떠나보냈어요.', mood:'sad',
+     qs:[
+      {q:'반려동물 복제를 원하나요?', a:'떠난 강아지를 다시 만날 수 있다면 솔직히 마음이 흔들려요. 그런데 복제된 강아지가 원래 우리 강아지와 같은 존재일까요?', mood:'sad',
+       key:{title:'개인의 바람과 생명윤리', text:'반려동물을 다시 만나고 싶은 개인의 바람과 생명윤리가 부딪힐 수 있음'}},
+      {q:'복제된 동물은 누가 책임져야 할까요?', a:'복제를 원한 사람이 끝까지 돌봐야겠죠. 그런데 복제된 동물이 어떤 권리를 가지는지, 버려지면 누가 책임지는지는 아직 정해진 게 없어요.', mood:'worried',
+       key:{title:'복제 생명의 권리와 의무', text:'복제된 생명을 누가 책임지고, 어떤 권리를 가지는지에 대한 사회적 문제'}}
+     ]},
+    {id:'pol', name:'오세진', role:'정책 담당자', intro:'생명 복제 기술에 관한 규칙을 만드는 일을 합니다.', mood:'neutral',
+     qs:[
+      {q:'사람 복제도 허용되나요?', a:'아니요. 우리나라를 포함한 많은 나라는 사람을 복제해 태어나게 하는 것을 법으로 금지하고 있어요.', mood:'neutral',
+       key:{title:'법으로 금지된 인간 복제', text:'우리나라를 포함한 많은 나라는 사람을 복제해 태어나게 하는 것을 법으로 금지함'}},
+      {q:'동물 복제는 어떻게 관리해야 하나요?', a:'연구 목적과 활용 범위를 나누고, 심사를 거치게 해야 해요. 여러 사람의 의견을 모아 사회적 합의로 기준을 정해야 갈등이 줄어요.', mood:'thinking',
+       key:{title:'목적·범위 구분과 사회적 합의', text:'연구 목적과 활용 범위를 구분하고 심사·사회적 합의로 관리해야 함'}}
+     ]}
+  ],
+  values:{
+    right:[
+      {id:'need',t:'기술 활용의 필요성',sub:'기술이 사람과 사회에 도움을 줘요'},
+      {id:'life',t:'생명 존중',sub:'생명은 소중해요. 아프게 하거나 함부로 다루면 안 돼요'},
+      {id:'duty',t:'권리와 의무',sub:'복제된 생명을 누가 돌보고, 무엇을 지켜 줘야 할까요'},
+      {id:'resp',t:'생명윤리와 사회적 책임',sub:'기술을 쓸 때 지킬 규칙을 함께 정해요'}],
+    left:[
+      {id:'w1', t:'복제 기술로 멸종 위기 동물을 지킬 수 있어요.', a:'need', why:'기술이 어떤 ‘도움’을 주는지 말하고 있어요.'},
+      {id:'w2', t:'복제 기술은 병을 연구하는 데 도움이 돼요.', a:'need', why:'기술이 어떤 ‘도움’을 주는지 말하고 있어요.'},
+      {id:'w3', t:'실험에 쓰이는 동물이 아프지 않게 해야 해요.', a:'life', why:'동물이 ‘아프지 않게’ 하자는 말이에요. 생명을 소중히 여기는 마음이에요.'},
+      {id:'w4', t:'생명을 물건처럼 만들고 버리면 안 돼요.', a:'life', why:'생명을 ‘함부로 다루지 말자’는 말이에요.'},
+      {id:'w5', t:'복제된 강아지는 복제를 원한 사람이 끝까지 돌봐야 해요.', a:'duty', why:'누가 ‘돌봐야’ 하는지, 해야 할 일(의무)을 말하고 있어요.'},
+      {id:'w6', t:'복제된 동물도 보호받을 권리가 있어요.', a:'duty', why:'복제된 동물이 가져야 할 ‘권리’를 말하고 있어요.'},
+      {id:'w7', t:'할 수 있다고 해서 다 해도 되는 건 아니에요.', a:'resp', why:'기술을 쓸 때 지켜야 할 ‘선’을 말하고 있어요.'},
+      {id:'w8', t:'복제 기술을 쓰는 규칙은 사회가 함께 정해야 해요.', a:'resp', why:'‘규칙’을 함께 정하자는 말이에요.'}
+    ]
+  },
+  principles:[
+    {id:'r1', t:'생명 존중', reasons:['동물을 실험 도구로만 여기지 않기 위해','생명 경시 현상이 퍼지는 것을 막기 위해','복제된 생명도 소중한 생명이기 때문에']},
+    {id:'r2', t:'안전성 검토', reasons:['건강하지 못하게 태어나는 생명을 줄이기 위해','예상하지 못한 문제를 미리 확인하기 위해','연구 결과를 믿을 수 있게 하기 위해']},
+    {id:'r3', t:'사회적 합의', reasons:['여러 사람의 가치가 서로 다르기 때문에','갈등을 줄이고 기준을 함께 지키기 위해','소수 의견도 반영하기 위해']},
+    {id:'r4', t:'연구의 책임성', reasons:['연구 목적과 과정을 투명하게 밝히기 위해','복제된 생명을 끝까지 책임지기 위해','연구로 생긴 문제에 책임을 지기 위해']},
+    {id:'r5', t:'적절한 법적·윤리적 관리', reasons:['허용 범위를 분명히 정하기 위해','기준을 어겼을 때 바로잡기 위해','연구 목적과 상업적 이용을 구분하기 위해']}
+  ],
+  extras:[
+    '연구 결과는 시민이 이해하기 쉽게 공개해야 한다.',
+    '실험에 쓰이는 동물의 수를 줄이는 방법도 함께 연구해야 한다.',
+    '복제된 동물을 끝까지 돌볼 수 있는 사람만 복제를 신청할 수 있어야 한다.',
+    '이 기준은 기술이 발전하면 정기적으로 다시 검토해야 한다.'
+  ],
+  stances:[
+    {id:'ban', t:'모든 생명 복제 연구 금지', note:'생명 경시를 막을 수 있지만, 멸종 위기 동물 보존이나 질병 연구처럼 사회에 도움이 될 가능성까지 사라져요.'},
+    {id:'strict', t:'엄격한 심사를 거친 연구 목적만 허용', note:'기술의 도움을 살리면서 생명 존중을 지키려는 입장이에요. 다만 “어떤 연구까지 허용할지” 심사 기준을 정하고 지키는 노력이 계속 필요해요.'},
+    {id:'free', t:'목적 제한 없이 자유롭게 허용', note:'기술 활용의 폭은 넓어지지만, 생명을 상품처럼 다루는 생명 경시와 동물의 고통, 책임 문제를 막기 어려워요.'}
+  ],
+  report:{
+    pos:[], neg:['n3'],
+    personal:['반려동물 복제처럼 개인의 바람과 생명윤리가 부딪힐 수 있음','복제된 생명을 끝까지 책임져야 하는 의무가 생김'],
+    social:['복제 생명의 권리와 의무를 둘러싼 사회적 갈등이 생김','생명을 가볍게 여기는 생명 경시 현상이 우려됨','연구 목적과 활용 범위를 정하는 사회적 합의가 필요함']
+  }
+},
+
+/* -------------------- 사건 04 -------------------- */
+c4:{
+  no:'사건 04', title:'깨끗해진 환경, 새로운 위험은 없을까?', short:'환경 복원과 생태계',
+  place:'하천과 농경지 환경 조사 공간', icon:'🌿', color:'#0E8FA8', soft:'#E2F4F8',
+  phases:['환경 변화 비교','생태계 조사','원인과 결과','관리 계획'],
+  intro:'맑은내천(가상)은 오염 물질을 빠르게 분해하도록 만든 유전자 재조합 미생물 ‘클린바이오-7’(가상)로 복원 사업을 한 뒤 수질이 크게 좋아졌습니다. 그런데 하천 물을 끌어 쓰는 인근 농경지에서 예전에 없던 변화가 보고되었습니다. 하천의 변화가 농경지에 어떤 영향을 주었는지, 그리고 하천과 관계없는 변화는 무엇인지 조사해야 합니다.',
+  river:[
+    {k:'BOD (오염될수록 높아짐)', a:'8.2 mg/L', b:'2.1 mg/L'},
+    {k:'용존 산소 (물속 산소)', a:'3.1 mg/L', b:'8.4 mg/L'},
+    {k:'확인된 물고기 종류', a:'3종', b:'11종'},
+    {k:'수질 등급', a:'매우 나쁨', b:'좋음'}
+  ],
+  riverQ:{q:'복원 후 수질이 좋아졌다고 판단할 수 있는 근거를 모두 고르세요.',
+    opts:[{t:'BOD 수치가 낮아졌다',ok:true},{t:'물속 산소(용존 산소)가 늘었다',ok:true},{t:'확인된 물고기 종류가 늘었다',ok:true},{t:'하천 근처 카페 방문객이 늘었다',ok:false,why:'방문객 수는 수질을 직접 측정한 자료가 아니에요.'}]},
+  sites:[
+    {id:'m1', x:26, y:40, icon:'💧', name:'하천 복원 구간', bars:[{l:'BOD',a:8.2,b:2.1,u:'mg/L'},{l:'물고기 종류',a:3,b:11,u:'종'}],
+     rec:['유전자 재조합 미생물 ‘클린바이오-7’로 오염 물질을 분해함','물고기와 수서 곤충의 종류가 늘어남','이 하천의 물을 농업용수로에 끌어 논에 공급함'],
+     expert:'수질은 분명히 좋아졌어요. 그런데 이 물이 농업용수로를 따라 논으로 가기 때문에, 투입한 미생물이 하천 밖으로 퍼지는지 살펴봐야 해요.',
+     note:{title:'하천 조사 기록', text:'재조합 미생물로 복원 후 BOD 8.2 → 2.1, 물고기 3종 → 11종. 하천 물은 농업용수로로 논에 공급됨'}},
+    {id:'m4', x:16, y:78, icon:'🦆', name:'습지 서식지', bars:[{l:'물새 종류',a:7,b:13,u:'종'},{l:'청둥오리 수',a:120,b:480,u:'마리'}],
+     rec:['물고기가 늘자 먹이를 찾아 물새가 많이 모여듦','청둥오리 무리가 근처 논으로 날아가는 모습이 관찰됨'],
+     expert:'하천이 깨끗해지자 떠났던 생물이 돌아왔어요. 생물 다양성이 커진 좋은 신호지만, 늘어난 물새가 주변 농경지에도 영향을 줄 수 있어요.',
+     note:{title:'습지 서식지 조사 기록', text:'물고기 증가 → 물새 7종 → 13종, 청둥오리 120 → 480마리. 일부가 논으로 날아감'}},
+    {id:'m2', x:70, y:30, icon:'🌾', name:'농경지', bars:[{l:'물새로 인한 벼 피해 면적',a:0.5,b:6,u:'ha'},{l:'흙에서 미생물 검출 지점',a:0,b:5,u:'곳'}],
+     rec:['청둥오리 무리가 논에서 어린 벼를 먹고 짓밟음','농업용수로와 가까운 논의 흙에서 ‘클린바이오-7’이 검출됨 (농작물 피해는 아직 확인되지 않음)','제초제가 잘 듣지 않는 잡초도 늘었는데, 같은 제초제를 여러 해 반복해서 써 왔음'],
+     expert:'물새 피해와 미생물 검출은 하천 복원과 이어져 있어요. 다만 미생물이 흙 속 다른 생물에 해를 주는지는 아직 몰라요. 약에 견디는 잡초는 같은 약을 반복해서 쓴 탓일 수 있어서 따로 조사해야 해요.',
+     note:{title:'농경지 조사 기록', text:'물새 벼 피해 0.5 → 6ha, 논 흙 5곳에서 재조합 미생물 검출(피해는 미확인), 약에 견디는 잡초 증가(원인 별도 조사)'}},
+    {id:'m3', x:84, y:72, icon:'🌲', name:'주변 숲', bars:[{l:'새 종류',a:19,b:24,u:'종'},{l:'곤충 종류',a:46,b:45,u:'종'}],
+     rec:['하천에서 늘어난 물새 일부가 숲에 둥지를 틂','곤충 종류는 뚜렷한 변화 없음','숲 가장자리에서 약에 견디는 잡초 일부 발견'],
+     expert:'하천의 변화가 숲까지 조금씩 이어지고 있어요. 생태계 변화는 천천히 나타날 수 있어서 오랫동안 관찰해야 해요.',
+     note:{title:'주변 숲 조사 기록', text:'물새 둥지 증가로 새 19종 → 24종, 숲 가장자리에 약에 견디는 잡초 → 장기 관찰 필요'}}
+  ],
+  links:{
+    left:[{id:'L1',t:'미생물로 하천의 오염 물질을 분해함'},{id:'L2',t:'깨끗해진 하천에 물고기가 늘어 물새가 모여듦'},{id:'L3',t:'농업용수로를 따라 재조합 미생물이 논으로 퍼짐'},{id:'L4',t:'같은 제초제를 오래 써서 약에 견디는 잡초가 늘어남'}],
+    right:[{id:'R1',t:'오염된 하천이 복원됨'},{id:'R2',t:'논의 어린 벼가 물새 피해를 입음'},{id:'R3',t:'흙 속 생태계가 바뀔 수 있어 위험 평가가 필요함'},{id:'R4',t:'기존 방제 방법의 효과가 떨어짐'}],
+    ans:{L1:'R1',L2:'R2',L3:'R3',L4:'R4'},
+    why:{L1:'미생물이 오염 물질을 분해하면 하천이 깨끗해져요.',L2:'물새는 먹이를 찾아 주변 논까지 날아가요.',L3:'처음 보는 미생물이 흙에 들어가면 원래 살던 생물에 영향을 줄 수 있어요.',L4:'약에 견디는 잡초는 기존 제초제로 잘 없어지지 않아요.'}
+  },
+  judges:[
+    {t:'하천 수질은 복원 사업 이후 좋아졌다.', a:'yes', why:'BOD, 용존 산소, 물고기 종류 자료로 확인할 수 있어요.'},
+    {t:'논의 벼 피해는 하천에 늘어난 물새 때문이다.', a:'yes', why:'청둥오리 수가 4배로 늘었고, 논에서 벼를 먹는 모습이 관찰되었어요.'},
+    {t:'논 흙에서 발견된 재조합 미생물이 이미 농작물에 피해를 주었다.', a:'more', why:'미생물이 검출된 것은 사실이지만 농작물 피해는 아직 확인되지 않았어요. 위험한지 더 조사해야 해요.'},
+    {t:'약에 견디는 잡초가 늘었으니 재조합 미생물이 원인인 것이 분명하다.', a:'more', why:'같은 제초제를 오래 쓴 것도 원인이 될 수 있어요. 하천과 관련된 변화가 있다고 모든 변화를 하천 탓으로 단정하면 안 돼요.'}
+  ],
+  plan:{
+    zones:[
+      {id:'pre',label:'① 시작하기 전에 미리 확인해요',ic:'📝',sub:'사업을 하기 전에 안전한지, 어떤 영향이 있을지 조사하기'},
+      {id:'dur',label:'② 하는 동안 계속 지켜봐요',ic:'🔭',sub:'사업을 하는 동안 꾸준히 살펴보고 지키기'},
+      {id:'risk',label:'③ 문제가 생기면 바로 해결해요',ic:'🚨',sub:'피해나 위험이 발견되었을 때 막고 돕기'}],
+    cards:[
+      {id:'w1', t:'환경 영향 조사', ok:['pre'], why:'사업이 주변 하천·농경지에 어떤 영향을 줄지 시작 전에 조사해야 미리 대비할 수 있어요.'},
+      {id:'w2', t:'재조합 미생물 안전성 평가', ok:['pre'], why:'환경에 내보내기 전에 안전한지 평가하는 것이 중요해요.'},
+      {id:'w3', t:'지속적인 생태계 관찰', ok:['dur'], why:'생태계 변화는 천천히 나타나므로 사업 중에도 계속 관찰해야 해요.'},
+      {id:'w7', t:'농업용수 속 미생물 정기 검사', ok:['dur'], why:'미생물이 논으로 퍼지는지 사업 기간 내내 확인해야 해요.'},
+      {id:'w4', t:'생물 다양성 보호 구역 지정', ok:['dur'], why:'돌아온 생물을 지키려면 사업을 하는 동안 계속 보호해야 해요.'},
+      {id:'w8', t:'물새 피해 농가 지원·논 보호 그물 설치', ok:['risk'], why:'물새 피해가 확인되었을 때 농가를 돕는 대책이에요.'},
+      {id:'w5', t:'제초제 바꾸기·잡초 관리 방법 바꾸기', ok:['risk'], why:'약에 견디는 잡초가 확인되면 같은 약을 반복하지 않고 관리 방법을 바꿔야 해요.'},
+      {id:'w6', t:'미생물 확산 차단과 주민 알림', ok:['risk'], why:'위험이 발견되었을 때 피해가 퍼지지 않도록 빠르게 대응하는 대책이에요.'}
+    ]
+  },
+  report:{
+    pos:['p4'], neg:['n4'],
+    personal:['깨끗해진 하천을 주민이 다시 이용할 수 있게 됨','농민이 물새 때문에 벼 피해를 입음','농민은 약에 견디는 잡초 때문에 잡초 관리가 어려워짐'],
+    social:['미생물로 오염된 하천이 복원되고 생물이 돌아옴','늘어난 물새가 주변 농경지까지 영향을 주는 생태계 변화가 생김','재조합 미생물이 농경지로 퍼져 흙 속 생태계가 바뀔 위험을 평가해야 함']
+  }
+}
+};
+const CASE_IDS = ['c1','c2','c3','c4'];
+
+// 최종 보고서: 생각 정리하기 (사건별로 떠올릴 장면, 나의 다짐)
+const FINAL_SCENES = {
+  c1:['치료비 때문에 치료를 못 받는 사람이 있었다','약을 만드는 과정에서 변이가 발견되었다','처방 없이 약을 나눠 먹으려는 사람이 있었다'],
+  c2:['안전성 심사 자료를 자세히 볼 수 없었다','포장에 유전자 변형 표시가 없는 제품이 있었다','근거 없는 SNS 주장이 빠르게 퍼졌다'],
+  c3:['실험에 쓰이는 동물이 고통을 겪을 수 있었다','생명을 물건처럼 만들고 버릴까 걱정하는 의견이 있었다','복제된 동물을 누가 책임질지 정해지지 않았다'],
+  c4:['깨끗해진 하천에 모인 물새가 논에 피해를 주었다','복원에 쓴 미생물이 농경지까지 퍼졌다','하천이 깨끗해지자 떠났던 생물이 돌아왔다']
+};
+const FINAL_PLEDGES = [
+  // 생명 존중
+  '사람뿐 아니라 동물과 모든 생명을 소중히 여기겠다',
+  '기술 때문에 고통받는 생명이 없는지 관심을 갖겠다',
+  '생명을 물건처럼 쉽게 여기는 생각에 반대하겠다',
+  // 생활 속 실천
+  '약은 처방받은 대로만 올바르게 사용하겠다',
+  '식품을 고를 때 포장의 표시를 꼼꼼히 확인하겠다',
+  '생활 속 작은 실천으로 환경과 생태계를 지키겠다',
+  // 판단하는 태도
+  '새로운 기술 소식을 들으면 근거가 되는 자료부터 확인하겠다',
+  '기술의 좋은 점과 나쁜 점을 함께 생각하겠다',
+  '근거 없는 소문은 퍼뜨리지 않겠다',
+  '그 기술이 모든 사람에게 공정한지 생각해 보겠다',
+  '생명기술에 대한 여러 사람의 의견을 끝까지 들어 보겠다'
+];
+const FINAL_OPTS = ['안전성 검증과 지속적인 관리','생명 존중과 윤리적 책임','모든 사람이 혜택을 누릴 수 있는 공정한 접근','사회적 합의와 투명한 정보 공개','생태계와 환경 보호'];
+
+/* ===================== [3] 상태 · 저장 ===================== */
+const STORE_KEY = 'bioImpact_save_v1';
+function freshCase(){ return {phase:0, reached:0, done:false, p:{}, notes:[], d:{}}; }
+function freshState(){ return {name:'', started:false, cases:{c1:freshCase(),c2:freshCase(),c3:freshCase(),c4:freshCase()}, final:{choice:'',cid:'',scene:'',pledge:''}, view:{screen:'start', cid:null}}; }
+let S = freshState();
+function load(){
+  try{ const raw = localStorage.getItem(STORE_KEY); if(raw){ const o = JSON.parse(raw); if(o && o.cases){ S = Object.assign(freshState(), o); CASE_IDS.forEach(id=>{ S.cases[id] = Object.assign(freshCase(), S.cases[id]||{}); }); } } }catch(e){ S = freshState(); }
+}
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
+
+/* 저장 기록 정리: 사건 내용(데이터)을 수정한 뒤에도 예전 기록 때문에 오류가 나지 않도록
+   현재 데이터에 없는 기록과 범위를 벗어난 선택을 지웁니다. */
+function validNoteIds(cid){
+  const C=CASES[cid], ids=[];
+  if(cid==='c1'){ C.people.forEach(p=>p.qs.forEach((q,i)=>{ if(q.key) ids.push('iv-'+p.id+'-'+i); })); C.docs.forEach(d=>ids.push('doc-'+d.id)); }
+  if(cid==='c2'){ C.spots.forEach(x=>ids.push('spot-'+x.id)); ids.push('claims','an-prod','an-chain'); }
+  if(cid==='c3'){ C.speakers.forEach(x=>x.qs.forEach((q,i)=>{ if(q.key) ids.push('hr-'+x.id+'-'+i); })); ids.push('values'); }
+  if(cid==='c4'){ ids.push('river','judge'); C.sites.forEach(x=>ids.push('site-'+x.id)); }
+  return ids;
+}
+// 기록의 제목·내용을 현재 데이터에서 다시 가져오기 (데이터를 고친 뒤에도 수첩 내용이 맞도록)
+function noteSource(cid, id){
+  const C=CASES[cid]; let m;
+  if((m=id.match(/^iv-(\w+)-(\d+)$/))){ const p=C.people.find(x=>x.id===m[1]); const q=p&&p.qs[+m[2]]; return q&&q.key ? q.key : null; }
+  if((m=id.match(/^doc-(\w+)$/))){ const d=C.docs.find(x=>x.id===m[1]); return d&&d.note; }
+  if((m=id.match(/^spot-(\w+)$/))){ const x=C.spots.find(y=>y.id===m[1]); return x&&x.note; }
+  if((m=id.match(/^hr-(\w+)-(\d+)$/))){ const x=C.speakers.find(y=>y.id===m[1]); const q=x&&x.qs[+m[2]]; return q&&q.key ? q.key : null; }
+  if((m=id.match(/^site-(\w+)$/))){ const x=C.sites.find(y=>y.id===m[1]); return x&&x.note; }
+  return null;
+}
+function sanitize(){
+  CASE_IDS.forEach(cid=>{
+    const cs=S.cases[cid], ok=validNoteIds(cid);
+    if(!Array.isArray(cs.notes)) cs.notes=[];
+    cs.notes = cs.notes.filter(n=>n && ok.includes(n.id));
+    cs.notes.forEach(n=>{ const src=noteSource(cid,n.id); if(src){ n.title=src.title; n.text=src.text; } });
+    if(typeof cs.d!=='object' || !cs.d) cs.d={};
+    if(typeof cs.p!=='object' || !cs.p) cs.p={};
+    cs.phase = Math.min(Math.max(0, cs.phase|0), 4);
+    cs.reached = Math.min(Math.max(0, cs.reached|0), 4);
+  });
+  // 끌어다 놓기 판: 지금 없는 카드나 맞지 않는 배치가 있으면 그 판을 처음부터 다시
+  [['c1','quad',CASES.c1.quad.cards,2],['c2','claims',CASES.c2.claims.cards,1],['c4','plan',CASES.c4.plan.cards,3],['c1','pe',CASES.c1.policy.evidence,3],['c2','pe',CASES.c2.policy.evidence,3]].forEach(([cid,key,cards,ph])=>{
+    const cs=S.cases[cid], st=cs.d[key]; if(!st||!st.place) return;
+    const ids=cards.map(c=>c.id);
+    const bad = Object.entries(st.place).some(([id,z])=>!ids.includes(id) || !Array.isArray(z) || z.length>1)
+             || (st.solved && ids.some(id=>!(st.place[id]||[]).length));
+    if(bad){ delete cs.d[key]; delete cs.p[ph]; cs.reached=Math.min(cs.reached,ph); cs.phase=Math.min(cs.phase,ph); cs.done=false; }
+  });
+  // 선 잇기 판: 지금 없는 문장이 연결되어 있으면 그 판을 다시
+  [['c3','values',CASES.c3.values.left.map(x=>x.id),CASES.c3.values.right.map(x=>x.id),1],['c4','links',CASES.c4.links.left.map(x=>x.id),CASES.c4.links.right.map(x=>x.id),2]].forEach(([cid,key,L,R,ph])=>{
+    const cs=S.cases[cid], st=cs.d[key]; if(!st||!st.links) return;
+    const bad=Object.entries(st.links).some(([l,r])=>!L.includes(l)||!R.includes(r)) || (st.solved && L.some(l=>!st.links[l]));
+    if(bad){ delete cs.d[key]; if(cid==='c4') delete cs.d.jd; delete cs.p[ph]; cs.reached=Math.min(cs.reached,ph); cs.phase=Math.min(cs.phase,ph); cs.done=false; }
+  });
+  // 사건 03 공청회: 예전 방식(발언 1개 + 쟁점 고르기) 기록 정리
+  const hr=S.cases.c3.d.hr;
+  if(hr){ const SP=CASES.c3.speakers;
+    if(!hr.last||!hr.asked){ delete S.cases.c3.d.hr; }
+    else { if(!SP.some(x=>x.id===hr.cur)) hr.cur=null;
+      Object.keys(hr.last).forEach(k=>{ const x=SP.find(y=>y.id===k); if(!x||!x.qs[hr.last[k]]) delete hr.last[k]; }); }
+  }
+  const hkeys=validNoteIds('c3').filter(id=>id.startsWith('hr-'));
+  if(!hkeys.every(id=>S.cases.c3.notes.some(n=>n.id===id))) delete S.cases.c3.p[0];
+  // 사건 01 인터뷰: 없어진 질문 번호 정리
+  const iv=S.cases.c1.d.iv;
+  if(iv){ const P=CASES.c1.people;
+    if(!P.some(p=>p.id===iv.cur)) iv.cur=null;
+    Object.keys(iv.last||{}).forEach(pid=>{ const p=P.find(x=>x.id===pid); if(!p || iv.last[pid]==null || !p.qs[iv.last[pid]]) delete iv.last[pid]; });
+    Object.keys(iv.asked||{}).forEach(pid=>{ const p=P.find(x=>x.id===pid); iv.asked[pid] = p ? (iv.asked[pid]||[]).filter(i=>p.qs[i]) : []; });
+    // 핵심 진술을 다 모으지 못했다면 1단계를 다시 완료해야 함
+    const keys=validNoteIds('c1').filter(id=>id.startsWith('iv-'));
+    if(!keys.every(id=>S.cases.c1.notes.some(n=>n.id===id))) delete S.cases.c1.p[0];
+  }
+  save();
+}
+function resetAll(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} S = freshState(); }
+
+/* ===================== [4] 공통 유틸 ===================== */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; };
+// 데이터 순서를 고정된 방식으로 섞기 (새로고침해도 같은 순서 유지)
+function seeded(arr, seed){ let s=0; for(const ch of seed) s=(s*31+ch.charCodeAt(0))%9973; const b=arr.slice(); for(let i=b.length-1;i>0;i--){ s=(s*7919+17)%9973; const j=s%(i+1); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2200); }
+
+function confirmBox(title, msg, okLabel, onOk){
+  const m=$('#modal');
+  m.innerHTML=`<div class="box" role="dialog" aria-modal="true"><h3>${esc(title)}</h3><p>${esc(msg)}</p><div class="acts"><button class="btn ghost" data-a="no">취소</button><button class="btn" data-a="ok">${esc(okLabel)}</button></div></div>`;
+  m.classList.remove('hidden');
+  m.onclick = e => { const a=e.target.closest('[data-a]'); if(e.target===m || (a && a.dataset.a==='no')){ m.classList.add('hidden'); } else if(a && a.dataset.a==='ok'){ m.classList.add('hidden'); onOk(); } };
+  $('[data-a="ok"]', m).focus();
+}
+
+// 마우스를 올리면 세부 정보를 보여 주는 말풍선
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest && e.target.closest('[data-tip]'); const tip=$('#tip');
+  if(el){ tip.textContent = el.getAttribute('data-tip'); tip.classList.add('on'); } else tip.classList.remove('on');
+});
+document.addEventListener('mousemove', e => { const tip=$('#tip'); if(tip.classList.contains('on')){ const x=Math.min(e.clientX+14, innerWidth-tip.offsetWidth-8); tip.style.left=x+'px'; tip.style.top=(e.clientY+16)+'px'; } });
+
+/* 조사 수첩 */
+function addNote(cid, id, kind, title, text){
+  const cs=S.cases[cid]; if(cs.notes.some(n=>n.id===id)) return false;
+  cs.notes.push({id, kind, title, text}); save(); updateNbCount(); renderNotebook(); toast('📒 조사 수첩에 기록했어요: '+title); return true;
+}
+function totalNotes(){ return CASE_IDS.reduce((s,id)=>s+S.cases[id].notes.length,0); }
+function updateNbCount(){ $('#nbCnt').textContent = totalNotes(); }
+function renderNotebook(){
+  const b=$('#nbBody'); let h='';
+  CASE_IDS.forEach(id=>{ const C=CASES[id], cs=S.cases[id]; if(!cs.notes.length) return;
+    h+=`<div class="nb-case"><i style="background:${C.color}"></i>${C.no} ${esc(C.short)}</div>`;
+    cs.notes.forEach(n=>{ h+=`<div class="nb-item"><span class="k">${esc(n.kind)}</span><b>${esc(n.title)}</b>${esc(n.text)}</div>`; });
+  });
+  b.innerHTML = h || '<p class="nb-empty">아직 기록이 없어요. 사건을 조사하면 핵심 진술과 자료가 여기에 모여요.</p>';
+}
+function toggleNotebook(on){ $('#notebook').classList.toggle('on', on===undefined ? !$('#notebook').classList.contains('on') : on); }
+
+/* 인물 그림 (표정 변화) */
+function avatar(lookId, mood){
+  const p = LOOKS[lookId] || LOOKS.cit; mood = mood || 'neutral';
+  const hairBack = {
+    long:`<path d="M31 62 Q28 26 60 26 Q92 26 89 62 L92 106 Q60 114 28 106Z" fill="${p.hair}"/>`,
+    bob:`<path d="M31 62 Q28 26 60 26 Q92 26 89 62 L90 86 Q60 92 30 86Z" fill="${p.hair}"/>`,
+    bun:`<circle cx="60" cy="24" r="11" fill="${p.hair}"/>`,
+    short:'', side:''}[p.hs] || '';
+  const hairFront = {
+    long:`<path d="M34 56 Q37 32 60 31 Q83 32 86 56 Q74 42 56 45 Q42 47 34 56Z" fill="${p.hair}"/>`,
+    bob:`<path d="M34 58 Q36 31 60 30 Q84 31 86 58 Q80 44 60 43 Q42 43 34 58Z" fill="${p.hair}"/>`,
+    bun:`<path d="M34 56 Q36 32 60 31 Q84 32 86 56 Q78 41 60 41 Q42 41 34 56Z" fill="${p.hair}"/>`,
+    short:`<path d="M33 58 Q32 29 60 29 Q88 29 87 58 Q84 44 72 41 Q58 46 44 42 Q36 46 33 58Z" fill="${p.hair}"/>`,
+    side:`<path d="M33 60 Q31 28 62 28 Q90 30 87 56 Q76 38 46 46 Q37 50 33 60Z" fill="${p.hair}"/>`}[p.hs] || '';
+  const eyes = {
+    happy:`<path d="M45 63 Q50 57 55 63" stroke="#2A2A2A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M65 63 Q70 57 75 63" stroke="#2A2A2A" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    surprised:`<circle cx="50" cy="62" r="4.2" fill="#2A2A2A"/><circle cx="70" cy="62" r="4.2" fill="#2A2A2A"/>`,
+    sad:`<circle cx="50" cy="64" r="3.2" fill="#2A2A2A"/><circle cx="70" cy="64" r="3.2" fill="#2A2A2A"/>`
+  }[mood] || `<circle cx="50" cy="62" r="3.4" fill="#2A2A2A"/><circle cx="70" cy="62" r="3.4" fill="#2A2A2A"/>`;
+  const brows = {
+    sad:`<path d="M44 55 L55 51" /><path d="M65 51 L76 55" />`,
+    worried:`<path d="M44 54 L55 51" /><path d="M65 51 L76 54" />`,
+    surprised:`<path d="M44 51 Q50 46 56 50" /><path d="M64 50 Q70 46 76 51" />`,
+    thinking:`<path d="M44 52 Q50 48 56 52" /><path d="M65 54 L76 54" />`,
+    happy:`<path d="M44 53 Q50 50 56 53" /><path d="M64 53 Q70 50 76 53" />`
+  }[mood] || `<path d="M45 54 L55 53" /><path d="M65 53 L75 54" />`;
+  const mouth = {
+    happy:`<path d="M50 79 Q60 91 70 79 Z" fill="#8A2E3B"/>`,
+    sad:`<path d="M51 86 Q60 79 69 86" stroke="#8A2E3B" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    worried:`<path d="M51 84 Q55 80 60 84 Q65 88 69 84" stroke="#8A2E3B" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    surprised:`<ellipse cx="60" cy="84" rx="4.5" ry="5.5" fill="#8A2E3B"/>`,
+    thinking:`<path d="M54 84 Q62 83 68 80" stroke="#8A2E3B" stroke-width="3" fill="none" stroke-linecap="round"/>`
+  }[mood] || `<path d="M53 82 Q60 85 67 82" stroke="#8A2E3B" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  const glasses = /glasses/.test(p.acc) ? `<g fill="none" stroke="#2A2A2A" stroke-width="2"><circle cx="50" cy="62" r="8"/><circle cx="70" cy="62" r="8"/><path d="M58 62 L62 62"/></g>` : '';
+  const coat = /coat/.test(p.acc) ? `<path d="M22 140 Q22 102 60 101 Q98 102 98 140Z" fill="#FFFFFF" stroke="#C9D1E0" stroke-width="1.5"/><path d="M50 102 L60 128 L70 102 Z" fill="${p.shirt}"/>` : '';
+  const tie = /tie/.test(p.acc) ? `<path d="M57 104 L63 104 L65 128 L60 134 L55 128Z" fill="#C2334D"/>` : '';
+  const blush = mood==='happy' ? `<ellipse cx="44" cy="73" rx="5" ry="3" fill="#F28B8B" opacity=".5"/><ellipse cx="76" cy="73" rx="5" ry="3" fill="#F28B8B" opacity=".5"/>` : '';
+  const tear = mood==='sad' ? `<path d="M73 69 Q71 74 73 76 Q76 74 73 69Z" fill="#7EC3F2"/>` : '';
+  return `<svg viewBox="0 0 120 140" aria-hidden="true">${hairBack}
+    <path d="M22 140 Q22 102 60 101 Q98 102 98 140Z" fill="${p.shirt}"/>${coat}${tie}
+    <rect x="53" y="86" width="14" height="18" rx="5" fill="${p.skin}"/>
+    <circle cx="60" cy="62" r="27" fill="${p.skin}"/>
+    <ellipse cx="33" cy="64" rx="4" ry="6" fill="${p.skin}"/><ellipse cx="87" cy="64" rx="4" ry="6" fill="${p.skin}"/>
+    ${hairFront}${eyes}<g stroke="#3A2A20" stroke-width="2.6" stroke-linecap="round" fill="none">${brows}</g>${glasses}${blush}${tear}${mouth}</svg>`;
+}
+
+/* 막대 그래프 (마우스를 올리면 세부 정보) */
+function barChart(groups, labels){
+  labels = labels || ['치료 전','치료 후'];
+  const W=540, LX=178, BW=290, H=46+groups.length*66;
+  let g=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="비교 그래프">`;
+  g+=`<rect x="${LX}" y="8" width="14" height="14" rx="3" fill="#B9C2D6"/><text x="${LX+20}" y="20" font-size="15" fill="#4A5675">${labels[0]}</text>`;
+  g+=`<rect x="${LX+110}" y="8" width="14" height="14" rx="3" fill="var(--cc)"/><text x="${LX+130}" y="20" font-size="15" fill="#4A5675">${labels[1]}</text>`;
+  groups.forEach((d,i)=>{
+    const y=36+i*66, max=Math.max(d.a,d.b)*1.2, w=BW;
+    const wa=Math.max(4,d.a/max*w), wb=Math.max(4,d.b/max*w);
+    const words=d.label.length>11 ? [d.label.slice(0,d.label.lastIndexOf(' ',11)>0?d.label.lastIndexOf(' ',11):11), d.label.slice(d.label.lastIndexOf(' ',11)>0?d.label.lastIndexOf(' ',11)+1:11)] : [d.label];
+    words.forEach((wd,k)=>{ g+=`<text x="0" y="${y+(words.length>1?16+k*19:26)}" font-size="15" font-weight="700" fill="#1B2540">${esc(wd)}</text>`; });
+    g+=`<rect class="hov" x="${LX}" y="${y+2}" width="${wa}" height="21" rx="5" fill="#B9C2D6" data-tip="${esc(labels[0])} · ${esc(d.label)}: ${d.a}${d.unit}"/>`;
+    g+=`<text x="${LX+6+wa}" y="${y+18}" font-size="14" fill="#4A5675">${d.a}${d.unit}</text>`;
+    g+=`<rect class="hov" x="${LX}" y="${y+27}" width="${wb}" height="21" rx="5" fill="var(--cc)" data-tip="${esc(labels[1])} · ${esc(d.label)}: ${d.b}${d.unit}"/>`;
+    g+=`<text x="${LX+6+wb}" y="${y+43}" font-size="14" font-weight="800" fill="#1B2540">${d.b}${d.unit}</text>`;
+  });
+  return g+'</svg>';
+}
+
+/* ===================== [5] 화면: 라우팅 · 시작 · 본부 ===================== */
+function go(screen, cid){
+  S.view={screen, cid:cid||null}; save(); render(); window.scrollTo(0,0);
+}
+function render(){
+  const v=S.view, scr=$('#screen'); toggleNotebook(false);
+  if(!S.started) v.screen='start';
+  const crumb=$('#crumb');
+  if(v.screen==='start'){ crumb.textContent=''; renderStart(scr); }
+  else if(v.screen==='hq'){ crumb.textContent='조사단 본부'; renderHQ(scr); }
+  else if(v.screen==='case' && CASES[v.cid]){ crumb.textContent='조사단 본부 › '+CASES[v.cid].no+' '+CASES[v.cid].short; renderCase(scr, v.cid); }
+  else if(v.screen==='final' && allDone()){ crumb.textContent='조사단 본부 › 나의 생각 정리'; renderFinal(scr); }
+  else { S.view={screen:'hq'}; crumb.textContent='조사단 본부'; renderHQ(scr); }
+  $('#hqBtn').classList.toggle('hidden', v.screen==='start'); $('#nbBtn').classList.toggle('hidden', v.screen==='start');
+}
+const allDone = () => CASE_IDS.every(id=>S.cases[id].done);
+
+function caseArt(cid){
+  const arts = {
+    c1:`<svg viewBox="0 0 120 100"><rect x="30" y="18" width="60" height="70" rx="10" fill="#fff" stroke="#E2456B" stroke-width="4"/><rect x="42" y="8" width="36" height="16" rx="5" fill="#E2456B"/><rect x="38" y="46" width="44" height="22" rx="11" fill="#FDEBF0" stroke="#E2456B" stroke-width="3"/><path d="M60 46 V68" stroke="#E2456B" stroke-width="3"/><path d="M50 32 h20 M60 26 v12" stroke="#E2456B" stroke-width="4" stroke-linecap="round"/></svg>`,
+    c2:`<svg viewBox="0 0 120 100"><path d="M18 22 h14 l10 46 h52 l8 -32 H38" fill="none" stroke="#1F9D63" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="48" cy="80" r="7" fill="#1F9D63"/><circle cx="88" cy="80" r="7" fill="#1F9D63"/><rect x="50" y="40" width="16" height="20" rx="3" fill="#FFE45C" stroke="#1B2540" stroke-width="2"/><rect x="70" y="34" width="16" height="26" rx="3" fill="#fff" stroke="#1B2540" stroke-width="2"/></svg>`,
+    c3:`<svg viewBox="0 0 120 100"><path d="M60 14 V84" stroke="#6D4AE0" stroke-width="5" stroke-linecap="round"/><path d="M24 30 H96" stroke="#6D4AE0" stroke-width="5" stroke-linecap="round"/><path d="M24 30 L12 58 H36Z M96 30 L84 58 H108Z" fill="#EEE9FD" stroke="#6D4AE0" stroke-width="3" stroke-linejoin="round"/><rect x="40" y="82" width="40" height="8" rx="4" fill="#6D4AE0"/><circle cx="60" cy="14" r="6" fill="#FFE45C" stroke="#1B2540" stroke-width="2"/></svg>`,
+    c4:`<svg viewBox="0 0 120 100"><path d="M0 70 Q30 52 60 70 T120 70 V100 H0Z" fill="#0E8FA8"/><path d="M0 80 Q30 64 60 80 T120 80" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/><path d="M78 60 Q78 20 98 14 Q100 46 78 60Z" fill="#3FA36B"/><path d="M78 60 Q86 36 96 22" stroke="#1B2540" stroke-width="2" fill="none"/><circle cx="34" cy="30" r="12" fill="#FFE45C"/></svg>`
+  };
+  return arts[cid];
+}
+
+function renderStart(el){
+  const has = S.name || totalNotes()>0;
+  el.innerHTML = `<section class="start">
+    <div>
+      <h1 class="title">BIO IMPACT<span>생명기술이 바꾼 세상</span></h1>
+      <p class="sub">하나의 기술, 달라지는 우리의 삶</p>
+      <div class="badge-card">
+        <h3>생명기술 사회영향 조사단 임명장</h3>
+        <p>당신은 신입 조사관입니다. 네 개의 사건을 조사하고, 생명기술이 개인과 사회를 어떻게 바꾸었는지 보고서를 완성하세요.</p>
+        <label for="nameIn" class="hidden">조사관 이름 또는 별명</label>
+        <input id="nameIn" maxlength="14" placeholder="조사관 이름 또는 별명" value="${esc(S.name)}" autocomplete="off">
+        <div class="row">
+          <button class="btn" id="startBtn">${has?'이어서 조사하기':'조사단 본부로 출근하기'}</button>
+          ${has?'<button class="btn ghost" id="restartBtn">처음부터 다시 시작</button>':''}
+        </div>
+        <p class="note">진행 상황은 이 컴퓨터의 브라우저에 자동 저장됩니다. 예상 소요 시간 25~35분</p>
+      </div>
+    </div>
+    <div class="start-art">${startArt()}</div>
+  </section>`;
+  const begin=()=>{ const n=$('#nameIn').value.trim(); if(!n){ $('#nameIn').focus(); toast('조사관 이름 또는 별명을 입력하세요.'); return; } S.name=n; S.started=true; go('hq'); };
+  $('#startBtn').onclick=begin;
+  $('#nameIn').onkeydown=e=>{ if(e.key==='Enter') begin(); };
+  if($('#restartBtn')) $('#restartBtn').onclick=()=>confirmBox('처음부터 다시 시작할까요?','지금까지 조사한 기록과 보고서가 모두 지워집니다.','모두 지우고 시작',()=>{ resetAll(); updateNbCount(); renderNotebook(); render(); toast('새로운 조사를 시작합니다.'); });
+}
+function startArt(){
+  return `<svg viewBox="0 0 520 440" role="img" aria-label="조사단 사무실의 증거판">
+    <rect x="20" y="20" width="480" height="330" rx="24" fill="#2E3B5C"/><rect x="34" y="34" width="452" height="302" rx="16" fill="#3A4870"/>
+    <path d="M120 110 L270 190 L400 100 M270 190 L170 270 M270 190 L380 260" stroke="#FFE45C" stroke-width="3" stroke-dasharray="6 6" fill="none"/>
+    <g transform="rotate(-5 120 110)"><rect x="66" y="64" width="110" height="88" rx="6" fill="#fff"/><rect x="66" y="64" width="110" height="22" rx="6" fill="#E2456B"/><text x="80" y="81" font-size="14" font-weight="800" fill="#fff">사건 01</text><rect x="80" y="98" width="80" height="8" rx="4" fill="#E6E9F0"/><rect x="80" y="114" width="60" height="8" rx="4" fill="#E6E9F0"/></g>
+    <g transform="rotate(4 400 100)"><rect x="346" y="56" width="110" height="88" rx="6" fill="#fff"/><rect x="346" y="56" width="110" height="22" rx="6" fill="#1F9D63"/><text x="360" y="73" font-size="14" font-weight="800" fill="#fff">사건 02</text><rect x="360" y="90" width="80" height="8" rx="4" fill="#E6E9F0"/><rect x="360" y="106" width="50" height="8" rx="4" fill="#E6E9F0"/></g>
+    <g transform="rotate(3 170 270)"><rect x="116" y="226" width="110" height="88" rx="6" fill="#fff"/><rect x="116" y="226" width="110" height="22" rx="6" fill="#6D4AE0"/><text x="130" y="243" font-size="14" font-weight="800" fill="#fff">사건 03</text><rect x="130" y="260" width="80" height="8" rx="4" fill="#E6E9F0"/><rect x="130" y="276" width="64" height="8" rx="4" fill="#E6E9F0"/></g>
+    <g transform="rotate(-4 380 260)"><rect x="326" y="216" width="110" height="88" rx="6" fill="#fff"/><rect x="326" y="216" width="110" height="22" rx="6" fill="#0E8FA8"/><text x="340" y="233" font-size="14" font-weight="800" fill="#fff">사건 04</text><rect x="340" y="250" width="80" height="8" rx="4" fill="#E6E9F0"/><rect x="340" y="266" width="56" height="8" rx="4" fill="#E6E9F0"/></g>
+    <circle cx="270" cy="190" r="34" fill="#FFE45C" stroke="#1B2540" stroke-width="4"/><text x="270" y="198" text-anchor="middle" font-size="24">🔍</text>
+    <circle cx="120" cy="66" r="7" fill="#D63B4D"/><circle cx="400" cy="58" r="7" fill="#D63B4D"/><circle cx="170" cy="228" r="7" fill="#D63B4D"/><circle cx="380" cy="218" r="7" fill="#D63B4D"/>
+    <rect x="60" y="360" width="400" height="20" rx="8" fill="#C9D1E0"/>
+    <rect x="110" y="380" width="14" height="50" fill="#C9D1E0"/><rect x="396" y="380" width="14" height="50" fill="#C9D1E0"/>
+    <g transform="translate(420 300)"><rect x="0" y="40" width="70" height="20" rx="4" fill="#FFFDF2" stroke="#1B2540" stroke-width="2"/><rect x="6" y="26" width="58" height="16" rx="3" fill="#FFE45C" stroke="#1B2540" stroke-width="2"/></g>
+  </svg>`;
+}
+
+function caseProgress(cid){ const cs=S.cases[cid]; return Math.round(Object.keys(cs.p).length/4*100); }
+function renderHQ(el){
+  const doneN = CASE_IDS.filter(id=>S.cases[id].done).length;
+  const files = CASE_IDS.map(id=>{ const C=CASES[id], cs=S.cases[id], pr=cs.done?100:caseProgress(id);
+    const st = cs.done ? '조사 완료' : (pr>0 ? `조사 중 · ${Object.keys(cs.p).length}/4 단계` : '조사 전');
+    return `<button class="file" data-cid="${id}" style="--fc:${C.color};--fs:${C.soft}" aria-label="${C.no} ${esc(C.title)} ${st}">
+      <div class="fhead"><div class="fno">${C.no}</div><div class="ftitle">${esc(C.title)}</div></div>
+      <div class="fart">${caseArt(id)}</div>
+      <div class="fbody"><div class="fplace">📍 ${esc(C.place)}</div>
+        <div class="fstate"><span>${st}</span><span>증거 ${cs.notes.length}</span></div>
+        <div class="prog"><i style="width:${pr}%"></i></div></div>
+      ${cs.done?'<span class="stamp">조사 완료</span>':''}
+    </button>`; }).join('');
+  el.innerHTML = `<section class="hq">
+    <div class="hq-top">
+      <div><h2>${esc(S.name)} 조사관, 출근을 환영합니다</h2><p>사건 파일을 골라 조사를 시작하세요. 순서는 자유입니다.</p></div>
+      <div class="hq-stats">
+        <div class="stat"><b>${doneN} / 4</b><span>완료한 사건</span></div>
+        <div class="stat"><b>${totalNotes()}</b><span>수집한 증거</span></div>
+        <div class="stat"><b>${CASE_IDS.filter(id=>S.cases[id].p[2]).length} / 4</b><span>영향 분석 완료</span></div>
+      </div>
+    </div>
+    <div class="board"><div class="files">${files}</div></div>
+    <div class="hq-bottom">
+      <div class="final-door ${allDone()?'open':''}"><span class="ic">${allDone()?'📘':'🔒'}</span>
+        <div><b>생명기술 조사에 대한 나의 생각 정리</b><p>${allDone()?'네 사건의 조사를 모두 마쳤어요. 조사한 내용을 바탕으로 나의 생각을 정리해 보세요.':`네 사건을 모두 완료하면 열립니다. (남은 사건 ${4-doneN}개)`}</p></div>
+        <button class="btn" id="finalBtn" ${allDone()?'':'disabled'}>나의 생각 정리하기</button></div>
+      <div class="hq-tools"><button class="btn ghost small" id="toStart">처음 화면</button><button class="btn ghost small" id="resetBtn">전체 초기화</button></div>
+    </div>
+  </section>`;
+  $$('.file',el).forEach(b=>b.onclick=()=>{ const cid=b.dataset.cid, cs=S.cases[cid];
+    if(cs.done){ confirmBox(`${CASES[cid].no} 다시 보기`, '보고서를 다시 볼까요, 아니면 이 사건을 처음부터 다시 조사할까요? 다시 조사하면 이 사건의 기록이 지워집니다.', '처음부터 다시 조사', ()=>{ S.cases[cid]=freshCase(); save(); updateNbCount(); renderNotebook(); go('case',cid); });
+      const m=$('#modal .acts'); const v=document.createElement('button'); v.className='btn ghost'; v.textContent='보고서 보기'; v.onclick=()=>{ $('#modal').classList.add('hidden'); cs.phase=4; go('case',cid); }; m.insertBefore(v, m.lastElementChild);
+    } else go('case',cid); });
+  $('#finalBtn').onclick=()=>go('final');
+  $('#toStart').onclick=()=>go('start');
+  $('#resetBtn').onclick=()=>confirmBox('전체 초기화','모든 사건 기록, 조사 수첩, 보고서가 지워집니다. 계속할까요?','초기화',()=>{ resetAll(); updateNbCount(); renderNotebook(); render(); toast('초기화했습니다.'); });
+}
+
+/* ===================== [6] 사건 공통 틀 ===================== */
+const PHASE_RENDER = {}; // PHASE_RENDER[cid] = [fn0, fn1, fn2, fn3]
+function renderCase(el, cid){
+  REDRAW = [];
+  const C=CASES[cid], cs=S.cases[cid];
+  if(cs.phase>cs.reached) cs.phase=cs.reached;
+  const names=[...C.phases,'사건 보고서'];
+  const steps=names.map((n,i)=>{ const cls=[i===cs.phase?'cur':'', (cs.p[i]||(i===4&&cs.done))?'done':'', i<=cs.reached?'reach':''].join(' ');
+    return `<button class="step ${cls}" data-i="${i}" ${i<=cs.reached?'':'disabled'}>${i+1}<span class="lbl">. ${esc(n)}</span></button>`; }).join('');
+  el.innerHTML = `<section class="case" style="--cc:${C.color};--cs:${C.soft}">
+    <div class="case-head"><span class="cno">${C.no}</span><h2>${esc(C.title)}</h2><nav class="stepper" aria-label="조사 단계">${steps}</nav></div>
+    <div class="case-body" id="caseBody"></div>
+    <div class="case-foot">
+      <button class="btn ghost" id="prevBtn">${cs.phase===0?'← 본부로':'← 이전 단계'}</button>
+      <span class="hint" id="footHint"></span>
+      <button class="btn cbtn" id="nextBtn"></button>
+    </div></section>`;
+  $$('.step',el).forEach(b=>b.onclick=()=>{ const i=+b.dataset.i; if(i<=cs.reached){ cs.phase=i; save(); renderCase(el,cid); window.scrollTo(0,0);} });
+  $('#prevBtn').onclick=()=>{ if(cs.phase===0) go('hq'); else { cs.phase--; save(); renderCase(el,cid); window.scrollTo(0,0);} };
+  const body=$('#caseBody');
+  if(cs.phase<4){ PHASE_RENDER[cid][cs.phase](body, ctx(cid)); }
+  else renderCaseReport(body, cid);
+  updateFoot(cid);
+}
+function ctx(cid){ const cs=S.cases[cid]; return { cid, C:CASES[cid], cs, d:cs.d, complete:()=>completePhase(cid, cs.phase), save, rerender:()=>renderCase($('#screen'),cid) }; }
+function completePhase(cid, i){
+  const cs=S.cases[cid]; const first=!cs.p[i];
+  cs.p[i]=true; cs.reached=Math.max(cs.reached, i+1); save(); updateFoot(cid);
+  $$('.step').forEach(b=>{ const k=+b.dataset.i; if(k<=cs.reached){ b.disabled=false; b.classList.add('reach'); } if(cs.p[k]) b.classList.add('done'); });
+  if(first) toast(i<3 ? `✅ ${CASES[cid].phases[i]} 완료! 다음 단계로 이동할 수 있어요.` : '✅ 마지막 단계를 마쳤어요. 사건 보고서를 확인하세요.');
+}
+function updateFoot(cid){
+  const cs=S.cases[cid], nb=$('#nextBtn'), hint=$('#footHint'); if(!nb) return;
+  if(cs.phase<4){
+    const ok=!!cs.p[cs.phase];
+    nb.disabled=!ok; nb.textContent = cs.phase===3 ? '사건 보고서 보기 →' : '다음 단계 →';
+    hint.textContent = ok ? '이 단계를 완료했어요.' : '활동을 마치면 다음 단계로 넘어갈 수 있어요.';
+    nb.onclick=()=>{ if(!cs.p[cs.phase]) return; cs.phase++; save(); renderCase($('#screen'),cid); window.scrollTo(0,0); };
+  } else {
+    nb.disabled=false; nb.textContent = cs.done ? '조사단 본부로' : '조사 완료 처리하고 본부로';
+    hint.textContent = cs.done ? '이 사건은 조사 완료되었습니다.' : '보고서를 확인한 뒤 조사 완료를 눌러 주세요.';
+    nb.onclick=()=>{ if(!cs.done){ cs.done=true; save(); toast(`🗂️ ${CASES[cid].no} 조사 완료!`); } go('hq'); };
+  }
+}
+function mission(icon, title, text){ return `<div class="mission"><span class="mi">${icon}</span><div><b>${esc(title)}</b><p>${text}</p></div></div>`; }
+
+/* ===================== [7] 상호작용 부품 ===================== */
+let REDRAW = [];
+window.addEventListener('resize', ()=>REDRAW.forEach(f=>{ try{ f(); }catch(e){} }));
+
+/* (1) 증거판: 카드를 끌어다 구역에 놓기
+   cfg = {key, store, cards:[{id,t,ok:[zone],why,dual}], zones:[{id,label,ic,sub,cls}], multi, layout, mode:'strict'|'advisory', help, onSolved, solvedText} */
+function dndBoard(host, cfg){
+  const st = cfg.store[cfg.key] || (cfg.store[cfg.key] = {place:{}, solved:false, checked:false});
+  const order = seeded(cfg.cards, cfg.key);
+  let sel = null, msg = '';
+  const placed = id => st.place[id] || [];
+  const zoneName = z => cfg.zones.find(x=>x.id===z).label;
+  const locked = () => cfg.mode==='strict' && st.solved;
+
+  function mark(cardId, zone){
+    if(!st.checked) return '';
+    const c = cfg.cards.find(x=>x.id===cardId);
+    return c.ok.includes(zone) ? 'good' : (cfg.mode==='strict' ? 'badc' : '');
+  }
+  function draw(){
+    const poolCards = order.filter(c => cfg.multi || !placed(c.id).length);
+    const pool = poolCards.map(c=>{ const n=placed(c.id).length;
+      return `<div class="ecard ${sel===c.id?'sel':''} ${cfg.multi&&n?'used':''}" draggable="${!locked()}" data-card="${c.id}" tabindex="0" role="button">${esc(c.t)}${cfg.multi&&n?`<span class="n">배치 ${n}</span>`:''}</div>`; }).join('')
+      || '<span class="dnd-help">모든 카드를 배치했어요.</span>';
+    const zones = cfg.zones.map(z=>{
+      const chips = order.filter(c=>placed(c.id).includes(z.id)).map(c=>{ const m=mark(c.id,z.id);
+        const why = (m==='badc') ? `<span class="why">${esc(c.why||'다시 생각해 보세요.')}</span>` : '';
+        return `<div class="chip ${m}" draggable="${!locked()}" data-card="${c.id}" data-from="${z.id}"><span>${esc(c.t)}${why}</span>${locked()?'':`<button class="x" data-rm="${c.id}" data-z="${z.id}" aria-label="빼기">×</button>`}</div>`; }).join('');
+      return `<div class="zone ${z.cls||''}" data-zone="${z.id}"><h4>${z.ic||''} ${esc(z.label)}</h4>${z.sub?`<div class="sub">${esc(z.sub)}</div>`:''}${chips}</div>`; }).join('');
+    host.innerHTML = `${locked()?'':`<div class="pool" data-zone="__pool">${pool}</div><p class="dnd-help">${cfg.help||'카드를 끌어다 알맞은 구역에 놓으세요. (카드를 클릭한 뒤 구역을 클릭해도 됩니다)'}</p>`}
+      <div class="zones ${cfg.layout}">${zones}</div>
+      <div class="dnd-msg">${msg}</div>
+      ${locked()?'':`<div style="margin-top:10px;display:flex;gap:8px"><button class="btn cbtn" data-act="check">${cfg.checkLabel||(cfg.mode==='strict'?'분류 확인하기':'계획 검토하기')}</button></div>`}`;
+    bind();
+  }
+  function place(cardId, zone, from){
+    if(locked()) return;
+    let arr = placed(cardId).slice();
+    if(from) arr = arr.filter(z=>z!==from);
+    if(zone && zone!=='__pool'){ if(cfg.multi){ if(!arr.includes(zone)) arr.push(zone); } else arr=[zone]; }
+    st.place[cardId]=arr; st.checked=false; msg=''; sel=null; save(); draw();
+  }
+  function bind(){
+    $$('[data-card]',host).forEach(e=>{
+      e.addEventListener('dragstart', ev=>{ ev.dataTransfer.setData('text/plain', JSON.stringify({c:e.dataset.card, f:e.dataset.from||''})); ev.dataTransfer.effectAllowed='move'; });
+      if(e.classList.contains('ecard')){ e.onclick=()=>{ sel = sel===e.dataset.card ? null : e.dataset.card; draw(); }; e.onkeydown=ev=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); e.click(); } }; }
+    });
+    $$('[data-zone]',host).forEach(z=>{
+      z.addEventListener('dragover', ev=>{ ev.preventDefault(); z.classList.add('over'); });
+      z.addEventListener('dragleave', ()=>z.classList.remove('over'));
+      z.addEventListener('drop', ev=>{ ev.preventDefault(); z.classList.remove('over'); let o; try{ o=JSON.parse(ev.dataTransfer.getData('text/plain')); }catch(e){ return; } if(o && o.c) place(o.c, z.dataset.zone, o.f); });
+      z.addEventListener('click', ev=>{ if(sel && !ev.target.closest('.ecard') && !ev.target.closest('.x') && z.dataset.zone!=='__pool') place(sel, z.dataset.zone, null); });
+    });
+    $$('[data-rm]',host).forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); place(b.dataset.rm, null, b.dataset.z); });
+    const ck=$('[data-act="check"]',host); if(ck) ck.onclick=check;
+  }
+  function check(){
+    const un = cfg.cards.filter(c=>!placed(c.id).length);
+    if(un.length){ st.checked=false; msg=`<div class="fb warn"><b>아직 배치하지 않은 카드가 ${un.length}장 있어요.</b>모든 카드를 구역에 놓은 뒤 확인하세요.</div>`; draw(); return; }
+    if(cfg.mode==='advisory'){
+      const empty = cfg.zones.filter(z=>!cfg.cards.some(c=>placed(c.id).includes(z.id)));
+      if(empty.length){ msg=`<div class="fb warn"><b>비어 있는 단계가 있어요.</b>‘${esc(empty[0].label)}’ 단계에도 대책을 하나 이상 넣어 보세요.</div>`; st.checked=false; draw(); return; }
+      st.checked=true;
+      const diff = cfg.cards.filter(c=>!placed(c.id).some(z=>c.ok.includes(z)));
+      let h = `<div class="fb ok"><b>관리 계획을 검토했어요.</b>${diff.length? '대부분 단계에 맞게 배치했어요. 아래 대책은 다른 단계에 두는 방법도 생각해 보세요.' : '각 대책이 필요한 시점을 잘 고려했어요.'}</div>`;
+      diff.forEach(c=>{ h+=`<div class="fb info"><b>${esc(c.t)} → 추천: ${c.ok.map(zoneName).join(' 또는 ')}</b>${esc(c.why)} 그래도 지금 배치가 더 낫다고 생각하면 그대로 두어도 괜찮아요.</div>`; });
+      msg=h; st.solved=true; save(); draw(); cfg.onSolved && cfg.onSolved(); return;
+    }
+    st.checked=true;
+    const wrong = cfg.cards.filter(c=>placed(c.id).some(z=>!c.ok.includes(z)));
+    if(wrong.length){ msg=`<div class="fb bad"><b>빨간색 카드 ${wrong.length}장을 다시 생각해 보세요.</b>카드 아래 설명을 읽고 다른 구역으로 옮겨 보세요.</div>`; save(); draw(); return; }
+    st.solved=true; save();
+    msg = solvedHTML(); draw(); cfg.onSolved && cfg.onSolved();
+  }
+  function solvedHTML(){
+    let h=`<div class="fb ok"><b>${cfg.solvedTitle||'모두 알맞게 분류했어요!'}</b>${cfg.solvedText||''}</div>`;
+    cfg.cards.filter(c=>c.dual).forEach(c=>{ const miss=c.ok.filter(z=>!placed(c.id).includes(z));
+      h+=`<div class="fb info"><b>‘${esc(c.t)}’ — ${c.ok.map(zoneName).join(' + ')}</b>${esc(c.dual)}${miss.length?` (이 카드는 ‘${miss.map(zoneName).join(', ')}’에도 해당해요.)`:''}</div>`; });
+    return h;
+  }
+  if(st.solved && cfg.mode==='strict'){ msg=solvedHTML(); }
+  draw();
+}
+
+/* (2) 선 잇기
+   cfg = {key, store, left:[{id,t}], right:[{id,t}], ans:{l:r}, why:{l:txt}, onSolved, solvedText} */
+function connectBoard(host, cfg){
+  const st = cfg.store[cfg.key] || (cfg.store[cfg.key] = {links:{}, solved:false, checked:false});
+  let sel=null, msg='';
+  const L = seeded(cfg.left, cfg.key+'L');
+  function draw(){
+    host.innerHTML = `<div class="connect"><svg class="lines"></svg>
+      <div class="ccol">${L.map(l=>{ const w = st.checked && st.links[l.id] && st.links[l.id]!==cfg.ans[l.id];
+        return `<button class="cnode left ${sel===l.id?'sel':''} ${st.links[l.id]?'linked':''} ${w?'wrong':''}" data-l="${l.id}" draggable="${!st.solved}">${esc(l.t)}${w?`<span class="why">${esc(cfg.why[l.id])}</span>`:''}<span class="dot"></span></button>`; }).join('')}</div>
+      <div></div>
+      <div class="ccol">${cfg.right.map(r=>`<button class="cnode right" data-r="${r.id}">${esc(r.t)}${r.sub?`<small class="rsub">${esc(r.sub)}</small>`:''}<span class="dot"></span></button>`).join('')}</div>
+    </div>
+    <p class="dnd-help">${st.solved?'모든 연결이 알맞아요.':'왼쪽 문장을 클릭한 뒤 오른쪽 항목을 클릭하면 선이 연결됩니다. (끌어다 놓아도 됩니다) 다시 클릭하면 연결을 바꿀 수 있어요.'}</p>
+    <div>${msg}</div>
+    ${st.solved?'':'<div style="margin-top:8px"><button class="btn cbtn" data-act="check">연결 확인하기</button></div>'}`;
+    $$('[data-l]',host).forEach(b=>{
+      b.onclick=()=>{ if(st.solved) return; sel = sel===b.dataset.l ? null : b.dataset.l; draw(); };
+      b.addEventListener('dragstart', ev=>{ ev.dataTransfer.setData('text/plain', b.dataset.l); });
+    });
+    $$('[data-r]',host).forEach(b=>{
+      b.onclick=()=>{ if(st.solved||!sel) return; st.links[sel]=b.dataset.r; sel=null; st.checked=false; msg=''; save(); draw(); };
+      b.addEventListener('dragover', ev=>ev.preventDefault());
+      b.addEventListener('drop', ev=>{ ev.preventDefault(); if(st.solved) return; const l=ev.dataTransfer.getData('text/plain'); if(cfg.ans[l]!==undefined){ st.links[l]=b.dataset.r; st.checked=false; msg=''; save(); draw(); } });
+    });
+    const ck=$('[data-act="check"]',host); if(ck) ck.onclick=check;
+    requestAnimationFrame(lines);
+  }
+  function lines(){
+    const box=$('.connect',host); if(!box) return; const svg=$('svg.lines',box); const br=box.getBoundingClientRect();
+    let h='';
+    Object.entries(st.links).forEach(([l,r])=>{
+      const a=$(`[data-l="${l}"] .dot`,box), b=$(`[data-r="${r}"] .dot`,box); if(!a||!b) return;
+      const ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
+      const x1=ra.left+ra.width/2-br.left, y1=ra.top+ra.height/2-br.top, x2=rb.left+rb.width/2-br.left, y2=rb.top+rb.height/2-br.top;
+      const col = st.solved ? '#159A5B' : (st.checked && cfg.ans[l]!==r ? '#D63B4D' : 'var(--cc)');
+      h+=`<path d="M${x1} ${y1} C${x1+60} ${y1} ${x2-60} ${y2} ${x2} ${y2}" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    });
+    svg.innerHTML=h;
+  }
+  function check(){
+    const un=cfg.left.filter(l=>!st.links[l.id]);
+    if(un.length){ msg=`<div class="fb warn"><b>아직 연결하지 않은 문장이 ${un.length}개 있어요.</b></div>`; draw(); return; }
+    st.checked=true;
+    const wrong=cfg.left.filter(l=>st.links[l.id]!==cfg.ans[l.id]);
+    if(wrong.length){ msg=`<div class="fb bad"><b>빨간 선 ${wrong.length}개를 다시 연결해 보세요.</b>문장 아래 힌트를 참고하세요.</div>`; save(); draw(); return; }
+    st.solved=true; msg=`<div class="fb ok"><b>모두 알맞게 연결했어요!</b>${cfg.solvedText||''}</div>`; save(); draw(); cfg.onSolved && cfg.onSolved();
+  }
+  if(st.solved) msg=`<div class="fb ok"><b>모두 알맞게 연결했어요!</b>${cfg.solvedText||''}</div>`;
+  REDRAW.push(lines);
+  draw();
+}
+
+/* (3) 대응 방안: 모든 대책을 함께 추진하되, 대책마다 필요한 근거를 조사 자료에서 찾아 연결 */
+function policyEvidence(host, c){
+  const P=c.C.policy;
+  host.innerHTML = `<div id="peb"></div><div id="pes"></div>`;
+  const summary=()=>{ $('#pes',host).innerHTML = `<div class="panel" style="margin-top:12px"><h3>근거를 갖춘 대응 방안</h3>
+    <div class="result-grid">${P.options.map(o=>`<div class="rcard"><b>${o.icon} ${esc(o.title)}</b><span class="g">기대 효과</span> ${esc(o.good)}<br><span class="l">한계</span> ${esc(o.limit)}</div>`).join('')}</div>
+    <div class="fb info"><b>정리</b>한 가지 대책만으로는 이 사건의 여러 문제를 모두 해결할 수 없어요. 각 대책은 서로 다른 근거에서 출발하고 저마다 한계가 있어서, 함께 추진해야 서로의 빈틈을 메울 수 있어요.</div></div>`; };
+  dndBoard($('#peb',host), {key:'pe', store:c.d, cards:P.evidence, multi:false, layout:P.options.length===3?'cols3':'cols4', mode:'strict',
+    zones:P.options.map(o=>({id:o.id, label:o.title, ic:o.icon, sub:o.hint||o.desc})),
+    help:'카드에 담긴 문제를 읽고, 그 문제를 해결하는 대책 칸에 놓으세요. 카드마다 알맞은 칸은 하나예요. (카드를 클릭한 뒤 칸을 클릭해도 됩니다)',
+    checkLabel:'근거 확인하기',
+    solvedTitle:'모든 대책의 근거를 찾았어요!',
+    solvedText:'대책은 “좋아 보이는 것”이 아니라 조사로 확인한 근거에서 출발해야 해요.',
+    onSolved:()=>{ summary(); c.complete(); }});
+  if(c.d.pe && c.d.pe.solved) summary();
+}
+
+/* (4) 순서 연결 (원인 → 결과의 흐름) */
+function chainBoard(host, c, items, key, onSolved){
+  const st = c.d[key] || (c.d[key] = {seq:[], solved:false, checked:false});
+  const order = seeded(items, key);
+  let msg = st.solved ? '<div class="fb ok"><b>흐름을 알맞게 연결했어요!</b>검증 자료가 부족하면 소비자가 판단할 근거가 없어 근거 없는 주장이 퍼지기 쉽고, 결국 사회적 논란으로 이어질 수 있어요.</div>' : '';
+  function draw(){
+    const rest = order.filter(i=>!st.seq.includes(i.id));
+    const slots = [0,1,2,3].map(i=>{ const id=st.seq[i]; const it=items.find(x=>x.id===id); const w = st.checked && id && items[i].id!==id;
+      return `${i?'<span class="arrow">→</span>':''}<button class="slot ${id?'fill':''} ${w?'wrong':''}" data-slot="${i}"><span class="sn">${i+1}</span>${it?esc(it.t):'<span class="dnd-help">여기에 놓기</span>'}</button>`; }).join('');
+    host.innerHTML = `${st.solved?'':`<div class="pool" data-pool="1">${rest.map(i=>`<div class="ecard" draggable="true" data-it="${i.id}" tabindex="0" role="button">${esc(i.t)}</div>`).join('')||'<span class="dnd-help">모든 카드를 놓았어요.</span>'}</div><p class="dnd-help">카드를 순서대로 클릭하거나 칸으로 끌어다 놓으세요. 칸을 클릭하면 카드가 빠집니다.</p>`}
+      <div class="slots">${slots}</div><div>${msg}</div>
+      ${st.solved?'':`<button class="btn cbtn" data-act="check" ${st.seq.filter(Boolean).length===4?'':'disabled'}>흐름 확인하기</button>`}`;
+    $$('[data-it]',host).forEach(e=>{ e.onclick=()=>{ const i=[0,1,2,3].find(k=>!st.seq[k]); if(i===undefined) return; st.seq[i]=e.dataset.it; st.checked=false; msg=''; save(); draw(); };
+      e.onkeydown=ev=>{ if(ev.key==='Enter'){ e.click(); } };
+      e.addEventListener('dragstart', ev=>ev.dataTransfer.setData('text/plain', e.dataset.it)); });
+    $$('[data-slot]',host).forEach(s=>{ const i=+s.dataset.slot;
+      s.onclick=()=>{ if(st.solved) return; st.seq[i]=null; st.checked=false; msg=''; save(); draw(); };
+      s.addEventListener('dragover', ev=>ev.preventDefault());
+      s.addEventListener('drop', ev=>{ ev.preventDefault(); if(st.solved) return; const id=ev.dataTransfer.getData('text/plain'); if(!items.some(x=>x.id===id)) return; st.seq=st.seq.map(x=>x===id?null:x); st.seq[i]=id; st.checked=false; msg=''; save(); draw(); });
+    });
+    const ck=$('[data-act="check"]',host); if(ck) ck.onclick=()=>{ st.checked=true;
+      const ok = items.every((x,i)=>st.seq[i]===x.id);
+      if(ok){ st.solved=true; msg='<div class="fb ok"><b>흐름을 알맞게 연결했어요!</b>검증 자료가 부족하면 소비자가 판단할 근거가 없어 근거 없는 주장이 퍼지기 쉽고, 결국 사회적 논란으로 이어질 수 있어요.</div>'; save(); draw(); onSolved(); }
+      else { msg='<div class="fb bad"><b>빨간 칸의 순서를 다시 생각해 보세요.</b>무엇이 먼저 일어나야 다음 일이 생길 수 있을지 떠올려 보세요.</div>'; save(); draw(); } };
+  }
+  draw();
+}
+
+/* ===================== [8] 사건별 화면 ===================== */
+
+/* ---------- 사건 01 ---------- */
+function c1Scene(){
+  return `<svg class="bg" viewBox="0 0 700 330" aria-hidden="true">
+    <rect width="700" height="330" fill="#FFF3F6"/>
+    <rect x="0" y="250" width="700" height="80" fill="#F6DDE4"/>
+    <rect x="30" y="30" width="170" height="120" rx="10" fill="#DDF0FF" stroke="#E7B6C3" stroke-width="6"/>
+    <path d="M115 30 V150 M30 90 H200" stroke="#E7B6C3" stroke-width="5"/>
+    <rect x="250" y="26" width="200" height="54" rx="12" fill="#E2456B"/>
+    <text x="350" y="60" text-anchor="middle" font-size="20" font-weight="800" fill="#fff">시민 의견 청취실</text>
+    <rect x="490" y="34" width="170" height="104" rx="8" fill="#fff" stroke="#E7B6C3" stroke-width="3"/>
+    <text x="505" y="60" font-size="14" font-weight="800" fill="#E2456B">신약 ‘리젠맥스’ 허가</text>
+    <rect x="505" y="72" width="130" height="8" rx="4" fill="#F1D2DA"/><rect x="505" y="88" width="110" height="8" rx="4" fill="#F1D2DA"/><rect x="505" y="104" width="120" height="8" rx="4" fill="#F1D2DA"/>
+    <g transform="translate(250 100)"><path d="M10 0 L0 60 M10 0 L20 60 M10 0 V60" stroke="#7A86A3" stroke-width="3"/><rect x="-6" y="-22" width="34" height="24" rx="4" fill="#1B2540"/><circle cx="11" cy="-10" r="7" fill="#7A86A3"/></g>
+    <g transform="translate(620 160)"><rect x="0" y="50" width="40" height="40" rx="6" fill="#C9A27A"/><path d="M20 50 Q0 20 10 0 Q22 20 20 50 Q30 10 44 6 Q40 34 20 50" fill="#3FA36B"/></g>
+    <g transform="translate(40 180)"><rect x="0" y="40" width="34" height="34" rx="6" fill="#C9A27A"/><path d="M17 40 Q2 16 10 0 Q20 18 17 40 Q26 8 36 6 Q34 28 17 40" fill="#3FA36B"/></g>
+  </svg>`;
+}
+PHASE_RENDER.c1 = [
+  // 1. 시민의 목소리 (인터뷰)
+  function(el, c){
+    const st = c.d.iv || (c.d.iv = {cur:null, last:{}, mood:{}, asked:{}});
+    const P = c.C.people;
+    const keyIds = []; P.forEach(p=>p.qs.forEach((q,i)=>{ if(q.key) keyIds.push('iv-'+p.id+'-'+i); }));
+    const got = () => keyIds.filter(id=>c.cs.notes.some(n=>n.id===id)).length;
+    function draw(){
+      const people = P.map(p=>{ const left = p.qs.filter((q,i)=>q.key && !c.cs.notes.some(n=>n.id==='iv-'+p.id+'-'+i)).length;
+        return `<button class="person ${st.cur===p.id?'sel':''}" data-p="${p.id}" aria-label="${esc(p.name)} ${esc(p.role)}">${avatar(p.id, st.mood[p.id]||p.mood)}<span class="pn">${esc(p.name)}</span><span class="ping ${left?'':'ok'}">${left?left:'✓'}</span></button>`; }).join('');
+      const cur = P.find(p=>p.id===st.cur);
+      let talk;
+      if(!cur) talk = `<div class="talk"><div class="bubble" style="margin-top:12px">👈 왼쪽 취재 공간에서 이야기를 듣고 싶은 사람을 클릭하세요. 노란 숫자는 아직 듣지 못한 <b>핵심 진술</b>의 수예요.</div><div class="fb info"><b>조사 팁</b>같은 신약이라도 사람마다 겪는 변화가 달라요. 누가, 어떤 점에서 좋아지거나 어려워졌는지 귀 기울여 보세요.</div></div>`;
+      else {
+        const last = (st.last[cur.id]!=null && cur.qs[st.last[cur.id]]) ? st.last[cur.id] : null;
+        const text = last!=null ? cur.qs[last].a : cur.intro;
+        const keyNow = last!=null && cur.qs[last].key ? `<div class="keynote">📌 핵심 진술을 조사 수첩에 기록했어요: ${esc(cur.qs[last].key.title)}</div>` : '';
+        talk = `<div class="talk"><div class="talk-who">${avatar(cur.id, st.mood[cur.id]||cur.mood)}<div><b>${esc(cur.name)}</b><span>${esc(cur.role)}</span></div></div>
+          <div class="bubble pop">${esc(text)}</div>${keyNow}
+          <div class="qlist">${cur.qs.map((q,i)=>`<button class="qbtn ${(st.asked[cur.id]||[]).includes(i)?'asked':''}" data-q="${i}">💬 ${esc(q.q)}</button>`).join('')}</div></div>`;
+      }
+      el.innerHTML = mission('🎙️','시민의 목소리를 들어 보세요', `${esc(c.C.intro)} <br>네 사람과 대화해 <span class="counter">핵심 진술 ${got()}/${keyIds.length}</span>개를 모으세요.`)
+        + `<div class="two"><div class="scene">${c1Scene()}<div class="people">${people}</div></div><div class="panel">${talk}</div></div>`;
+      $$('[data-p]',el).forEach(b=>b.onclick=()=>{ st.cur=b.dataset.p; save(); draw(); });
+      $$('[data-q]',el).forEach(b=>b.onclick=()=>{ const i=+b.dataset.q, q=cur.qs[i];
+        st.last[cur.id]=i; st.mood[cur.id]=q.mood; st.asked[cur.id]=[...new Set([...(st.asked[cur.id]||[]),i])];
+        if(q.key) addNote(c.cid, 'iv-'+cur.id+'-'+i, '핵심 진술 · '+cur.name, q.key.title, q.key.text);
+        save(); draw();
+        if(got()===keyIds.length && !c.cs.p[0]) c.complete();
+      });
+    }
+    draw();
+  },
+  // 2. 자료 분석
+  function(el, c){
+    const D = c.C.docs; const st = c.d.docs || (c.d.docs = {cur:D[0].id, sel:{}, ok:{}, fb:{}});
+    function draw(){
+      const doc = D.find(x=>x.id===st.cur); const sel = st.sel[doc.id] || []; const solved = !!st.ok[doc.id];
+      const fb = st.fb[doc.id] || {};
+      let body='';
+      if(doc.chart) body += barChart(doc.chart.groups);
+      if(doc.guide) body += `<div class="fb info"><b>📋 올바른 의약품 사용 안내</b>${doc.guide.map(g=>'· '+esc(g)).join('<br>')}</div>`;
+      body += `<div class="task">✏️ ${esc(doc.task)}</div>`;
+      if(doc.mode==='lines') body += `<div class="lines">${doc.items.map((it,i)=>{ const on=sel.includes(i); const w=fb.wrong&&fb.wrong.includes(i);
+          return `<button class="ln ${on?'on':''} ${w?'wrong':''}" data-i="${i}" ${solved?'disabled':''}><span class="tx">${esc(it.t)}</span>${w?`<br><small style="color:var(--bad);font-weight:700">↳ ${esc(it.why)}</small>`:''}</button>`; }).join('')}</div>`;
+      else body += `<div class="cards-pick">${doc.items.map((it,i)=>{ const on=sel.includes(i); const w=fb.wrong&&fb.wrong.includes(i);
+          return `<button class="pick ${on?'on':''} ${w?'wrong':''}" data-i="${i}" ${solved?'disabled':''}><b>${esc(it.h)}</b>${esc(it.t)}${w?`<br><small style="color:var(--bad);font-weight:700">↳ ${esc(it.why)}</small>`:''}</button>`; }).join('')}</div>`;
+      if(solved) body += `<div class="fb ok"><b>분석 완료! 조사 수첩에 보관했어요.</b>${esc(doc.done)}</div>`;
+      else { if(fb.msg) body += fb.msg; body += `<div style="margin-top:10px"><button class="btn cbtn" id="docCheck" ${sel.length?'':'disabled'}>표시한 내용 확인</button></div>`; }
+      const n = D.filter(d=>st.ok[d.id]).length;
+      el.innerHTML = mission('🔍','자료를 분석하세요', `자료를 하나씩 열고 핵심 내용을 직접 표시하세요. 그래프 막대에 마우스를 올리면 세부 수치가 보여요. <span class="counter">분석 완료 ${n}/${D.length}</span>`)
+        + `<div class="docs"><div class="doclist">${D.map(d=>`<button class="docbtn ${d.id===st.cur?'cur':''} ${st.ok[d.id]?'ok':''}" data-d="${d.id}"><span class="di">${d.icon}</span>${esc(d.title)}</button>`).join('')}
+            <div class="fb info" style="font-size:13.5px"><b>알아 두기</b>모든 수치와 사례는 학습을 위한 가상 자료예요.</div></div>
+          <article class="paper"><h3>${esc(doc.title)} <span class="tag fake">가상 자료</span></h3><div class="meta">${esc(doc.meta)}</div>${body}</article></div>`;
+      $$('[data-d]',el).forEach(b=>b.onclick=()=>{ st.cur=b.dataset.d; save(); draw(); });
+      $$('[data-i]',el).forEach(b=>b.onclick=()=>{ const i=+b.dataset.i; const s=st.sel[doc.id]||[]; st.sel[doc.id] = s.includes(i)?s.filter(x=>x!==i):[...s,i]; st.fb[doc.id]={}; save(); draw(); });
+      const ck=$('#docCheck',el); if(ck) ck.onclick=()=>{
+        const s=st.sel[doc.id]||[]; const wrong=s.filter(i=>!doc.items[i].ok); const miss=doc.items.map((it,i)=>it.ok&&!s.includes(i)?i:-1).filter(i=>i>=0);
+        if(!wrong.length && !miss.length){ st.ok[doc.id]=true; st.fb[doc.id]={}; addNote(c.cid,'doc-'+doc.id,'분석 자료',doc.note.title,doc.note.text); save(); draw();
+          if(D.every(d=>st.ok[d.id])) c.complete(); else { const nx=D.find(d=>!st.ok[d.id]); setTimeout(()=>toast('다음 자료: '+nx.title),1200); } return; }
+        let m='';
+        if(wrong.length) m+=`<div class="fb bad"><b>알맞지 않은 표시가 ${wrong.length}개 있어요.</b>빨간 테두리 아래 설명을 읽고 표시를 지워 보세요.</div>`;
+        if(miss.length) m+=`<div class="fb warn"><b>아직 찾지 못한 내용이 ${miss.length}개 있어요.</b>과제 문장을 다시 읽고 자료를 살펴보세요.</div>`;
+        st.fb[doc.id]={wrong, msg:m}; save(); draw(); };
+    }
+    draw();
+  },
+  // 3. 영향 분류
+  function(el, c){
+    el.innerHTML = mission('🧩','증거판에서 영향을 분류하세요','카드를 네 칸에 나눠 놓으세요. <b>누구에게</b> 생긴 일인지(한 사람·한 가족인지, 많은 사람·사회 전체인지), <b>좋은 일</b>인지 <b>나쁜 일</b>인지 생각해 보세요. 카드마다 알맞은 칸은 하나예요.') + '<div id="bd"></div>';
+    dndBoard($('#bd',el), {key:'quad', store:c.d, cards:c.C.quad.cards, multi:false, layout:'quad', mode:'strict',
+      zones:[{id:'ip',label:'개인에게 미치는 긍정적 영향',ic:'🙂',cls:'zp',sub:'한 사람이나 한 가족에게 생긴 좋은 일'},{id:'in',label:'개인에게 미치는 부정적 영향',ic:'😟',cls:'zn',sub:'한 사람이나 한 가족에게 생긴 나쁜 일'},{id:'sp',label:'사회에 미치는 긍정적 영향',ic:'🏙️',cls:'zp',sub:'많은 사람이나 사회 전체에 생긴 좋은 일'},{id:'sn',label:'사회에 미치는 부정적 영향',ic:'⚠️',cls:'zn',sub:'많은 사람이나 사회 전체에 생긴 나쁜 일'}],
+      solvedText:'같은 신약이라도 한 사람에게는 새 삶이나 돈 걱정을 주고, 사회 전체에는 치료 기회나 불공평 같은 변화를 가져와요. 하나의 기술이 개인과 사회에 각각 다른 영향을 준다는 점을 기억하세요.',
+      onSolved:()=>c.complete()});
+  },
+  // 4. 대응 방안
+  function(el, c){
+    el.innerHTML = mission('🏛️','대응 방안의 근거를 찾으세요','신약의 혜택을 넓히면서 안전성을 지키기 위해 세 가지 대책을 함께 추진합니다. 조사한 자료 가운데 각 대책이 왜 필요한지 보여 주는 근거를 찾아 연결하세요.') + '<div id="pb"></div>';
+    policyEvidence($('#pb',el), c);
+  }
+];
+
+/* ---------- 사건 02 ---------- */
+function martSVG(){
+  const box=(x,y,w,h,f)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${f}" stroke="#1B2540" stroke-width="1.5"/>`;
+  let shelfItems='';
+  [[70,135],[70,190],[70,245],[240,135],[240,190],[240,245]].forEach(([x,y],k)=>{ for(let i=0;i<5;i++){ const cols=['#FFE45C','#FFB4A2','#9ED9B5','#A9C6FF','#FFD08A']; shelfItems+=box(x+i*28,y,22,40,cols[(i+k)%5]); } });
+  return `<svg viewBox="0 0 800 400" aria-hidden="true">
+    <rect width="800" height="400" fill="#F1FAF4"/><rect y="320" width="800" height="80" fill="#DDEFE3"/>
+    <path d="M0 330 H800 M0 360 H800" stroke="#CBE5D4" stroke-width="2"/>
+    <rect x="40" y="18" width="300" height="56" rx="14" fill="#1F9D63"/><text x="190" y="54" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">MIRAE MART 미래 마트</text>
+    <rect x="58" y="120" width="164" height="190" rx="6" fill="#fff" stroke="#9CCFB2" stroke-width="4"/>
+    <rect x="228" y="120" width="164" height="190" rx="6" fill="#fff" stroke="#9CCFB2" stroke-width="4"/>
+    <path d="M58 180 H222 M58 235 H222 M58 290 H222 M228 180 H392 M228 235 H392 M228 290 H392" stroke="#9CCFB2" stroke-width="4"/>
+    ${shelfItems}
+    <rect x="96" y="98" width="88" height="22" rx="5" fill="#FFE45C"/><text x="140" y="114" text-anchor="middle" font-size="13" font-weight="800" fill="#1B2540">과자·간식</text>
+    <rect x="266" y="98" width="88" height="22" rx="5" fill="#FFE45C"/><text x="310" y="114" text-anchor="middle" font-size="13" font-weight="800" fill="#1B2540">두부·콩</text>
+    <rect x="400" y="36" width="140" height="112" rx="8" fill="#fff" stroke="#1B2540" stroke-width="3"/><path d="M414 128 L440 120 L462 110 L486 92 L508 80 L526 70" stroke="#1F9D63" stroke-width="4" fill="none"/><text x="412" y="56" font-size="13" font-weight="800" fill="#1B2540">쌀 생산량</text>
+    <rect x="566" y="36" width="140" height="112" rx="8" fill="#1B2540"/><text x="580" y="58" font-size="13" font-weight="800" fill="#9ED9B5">공급 현황</text><rect x="580" y="70" width="100" height="8" rx="4" fill="#3A4870"/><rect x="580" y="88" width="80" height="8" rx="4" fill="#3A4870"/><rect x="580" y="106" width="110" height="8" rx="4" fill="#3A4870"/>
+    <rect x="440" y="214" width="80" height="120" rx="10" fill="#2E3B5C"/><rect x="450" y="226" width="60" height="44" rx="5" fill="#A9E4C6"/><text x="480" y="254" text-anchor="middle" font-size="12" font-weight="800" fill="#1B2540">안전 정보</text>
+    <rect x="590" y="186" width="170" height="130" rx="8" fill="#D8B48A" stroke="#A4805A" stroke-width="4"/>
+    <rect x="602" y="198" width="66" height="44" fill="#FFFDF2" transform="rotate(-3 635 220)"/><rect x="680" y="200" width="66" height="44" fill="#FFF2B3" transform="rotate(4 713 222)"/><rect x="606" y="256" width="66" height="44" fill="#DFF2FF" transform="rotate(2 640 278)"/><rect x="684" y="258" width="62" height="44" fill="#FFE3EA" transform="rotate(-4 715 280)"/>
+    <g transform="translate(310 318)"><path d="M0 0 h14 l10 40 h56 l8 -28 H22" fill="none" stroke="#7A86A3" stroke-width="4" stroke-linejoin="round"/><circle cx="32" cy="50" r="6" fill="#7A86A3"/><circle cx="72" cy="50" r="6" fill="#7A86A3"/></g>
+  </svg>`;
+}
+function lineChart(){
+  const D = CASES.c2.prod, W=600, H=230, x0=50, x1=560, y0=190, y1=30;
+  const X = i => x0 + i*(x1-x0)/(D.years.length-1);
+  const ser = [{n:'쌀 생산량',u:'만 톤',v:D.rice,c:'#1F9D63',mn:350,mx:560},{n:'식량 지원이 필요한 사람',u:'만 명',v:D.short,c:'#D9822B',mn:40,mx:150}];
+  let g=`<svg class="chart" viewBox="0 0 ${W} ${H+20}" role="img" aria-label="쌀 생산량과 식량 지원이 필요한 사람 수 변화">`;
+  g+=`<rect x="${X(2)-14}" y="${y1-10}" width="${X(5)-X(2)+28}" height="${y0-y1+14}" fill="#E4F6EC" rx="8"/><text x="${X(2)-8}" y="${y1+4}" font-size="12.5" font-weight="800" fill="#1F9D63">든든벼 도입 이후</text>`;
+  D.years.forEach((yr,i)=>{ g+=`<text x="${X(i)}" y="${y0+24}" text-anchor="middle" font-size="13" fill="#4A5675">${yr}</text>`; });
+  g+=`<path d="M${x0-10} ${y0} H${x1+10}" stroke="#C7D0E0" stroke-width="2"/>`;
+  ser.forEach(s=>{ const Y=v=>y0-(v-s.mn)/(s.mx-s.mn)*(y0-y1);
+    g+=`<polyline points="${s.v.map((v,i)=>X(i)+','+Y(v)).join(' ')}" fill="none" stroke="${s.c}" stroke-width="4" stroke-linejoin="round"/>`;
+    s.v.forEach((v,i)=>{ g+=`<circle class="hov" cx="${X(i)}" cy="${Y(v)}" r="9" fill="#fff" stroke="${s.c}" stroke-width="4" data-tip="${D.years[i]}년 ${s.n}: ${v}${s.u}"/>`; });
+  });
+  g+=`<rect x="60" y="${H+2}" width="14" height="6" fill="#1F9D63"/><text x="80" y="${H+10}" font-size="13" fill="#1B2540">쌀 생산량(만 톤)</text><rect x="240" y="${H+2}" width="14" height="6" fill="#D9822B"/><text x="260" y="${H+10}" font-size="13" fill="#1B2540">식량 지원이 필요한 사람(만 명)</text>`;
+  return g+'</svg>';
+}
+PHASE_RENDER.c2 = [
+  // 1. 미래 마트 조사
+  function(el, c){
+    const SP=c.C.spots; const st=c.d.mart || (c.d.mart={cur:null});
+    const has = id => c.cs.notes.some(n=>n.id==='spot-'+id);
+    function draw(){
+      const n=SP.filter(s=>has(s.id)).length; const cur=SP.find(s=>s.id===st.cur);
+      let z;
+      if(!cur) z=`<div class="bubble" style="margin-top:12px">🛒 마트 곳곳의 초록 표시를 클릭해 식품 포장, 자료, 소비자 의견을 살펴보세요. 연 자료는 조사 수첩에 자동으로 기록돼요.</div><div class="fb info"><b>조사 팁</b>식품 표시에는 무엇이 적혀 있는지, 생산량은 어떻게 변했는지, 소비자는 왜 서로 다른 의견을 갖는지 살펴보세요.</div>`;
+      else {
+        let b='';
+        if(cur.kind==='label'||cur.kind==='supply') b=`<table class="label-tbl">${cur.rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${r[1]}</td></tr>`).join('')}</table>`;
+        if(cur.kind==='chart') b=lineChart()+'<p class="dnd-help">점에 마우스를 올리면 연도별 수치가 보여요.</p>';
+        if(cur.kind==='posts') b=cur.posts.map(p=>`<div class="post"><div class="who">${esc(p[0])}</div>${esc(p[1])}</div>`).join('');
+        z=`<h3>${cur.icon} ${esc(cur.title)} <span class="tag fake">가상 자료</span></h3>${b}${cur.say?`<div class="fb info">${esc(cur.say)}</div>`:''}
+          <div class="keynote" style="margin-top:12px">📒 조사 수첩에 자동 기록됨 — ${esc(cur.note.title)}</div>`;
+      }
+      el.innerHTML = mission('🛒','미래 마트를 조사하세요', `${esc(c.C.intro)} <span class="counter">조사 ${n}/${SP.length}</span>`)
+        + `<div class="two"><div class="mart">${martSVG()}${SP.map(s=>`<button class="hot ${has(s.id)?'ok':''} ${st.cur===s.id?'cur':''}" style="left:${s.x}%;top:${s.y}%" data-s="${s.id}" aria-label="${esc(s.label)} 조사">${s.icon}<span class="hl">${esc(s.label)}</span></button>`).join('')}</div>
+          <div class="panel zoom">${z}</div></div>`;
+      $$('[data-s]',el).forEach(b=>b.onclick=()=>{ st.cur=b.dataset.s; const sp=SP.find(x=>x.id===st.cur);
+        addNote(c.cid,'spot-'+sp.id,'미래 마트 자료',sp.note.title,sp.note.text); save(); draw();
+        if(SP.every(x=>has(x.id)) && !c.cs.p[0]) c.complete(); });
+    }
+    draw();
+  },
+  // 2. 근거 판단
+  function(el, c){
+    el.innerHTML = mission('🧐','주장과 근거를 구분하세요','SNS 글, 공식 심사 자료, 소비자 의견을 네 구역으로 분류하세요. 자극적인 주장이라도 근거가 없으면 과학적 사실로 받아들이면 안 돼요.') + '<div id="bd"></div>';
+    dndBoard($('#bd',el), {key:'claims', store:c.d, cards:c.C.claims.cards, zones:c.C.claims.zones, multi:false, layout:'cols4', mode:'strict',
+      solvedText:'객관적 자료는 측정·시험 결과처럼 누가 확인해도 같은 것이고, 의견은 사람마다 다를 수 있는 생각이에요. 근거 없는 주장은 퍼뜨리지 말고, 아직 조사 중인 문제는 “위험하다”나 “안전하다”로 단정하지 말고 계속 확인해야 해요.',
+      onSolved:()=>{ addNote(c.cid,'claims','근거 판단','자료의 신뢰성 판단','공식 심사·통계는 객관적 자료, SNS 단정은 근거 부족, 장기 영향은 추가 검증 필요'); c.complete(); }});
+  },
+  // 3. 영향 분석
+  function(el, c){
+    const st=c.d.an || (c.d.an={pick:null, mcqOk:false});
+    const opts=[
+      {t:'든든벼 도입 이후 쌀 생산량이 늘고, 식량 지원이 필요한 사람이 줄었다.', ok:true, why:'두 자료가 같은 시기에 함께 변했어요. 식량 자원 확보라는 긍정적 영향을 보여 줘요.'},
+      {t:'생산량이 늘었으므로 든든벼는 완전히 안전하다고 할 수 있다.', ok:false, why:'생산량과 안전성은 서로 다른 문제예요. 안전성은 별도의 검증 자료로 판단해야 해요.'},
+      {t:'2035년에는 식량 부족 문제가 완전히 해결되었다.', ok:false, why:'아직 68만 명이 식량 지원을 필요로 해요. 문제가 줄었지만 완전히 해결된 것은 아니에요.'}];
+    function draw(){
+      el.innerHTML = mission('📊','긍정적 영향과 부정적 영향을 분석하세요','① 그래프에서 식량 확보 효과를 확인하고, ② 검증 자료가 부족할 때 왜 사회적 논란이 생기는지 흐름을 완성하세요.')
+       + `<div class="two"><div class="panel"><h3>① 생산량 자료 읽기 <span class="tag pos">긍정적 영향</span></h3>${lineChart()}
+           <b style="font-size:15.5px">자료에서 알 수 있는 내용으로 가장 알맞은 것은?</b>
+           <div class="mcq">${opts.map((o,i)=>`<button class="qbtn ${st.pick===i?(o.ok?'':'')+'asked':''}" data-m="${i}" ${st.mcqOk?'disabled':''} style="${st.pick===i?(o.ok?'border-color:var(--ok);background:var(--ok-soft);color:var(--ink)':'border-color:var(--bad);background:var(--bad-soft);color:var(--ink)'):''}">${esc(o.t)}</button>`).join('')}</div>
+           ${st.pick!=null?`<div class="fb ${opts[st.pick].ok?'ok':'bad'}"><b>${opts[st.pick].ok?'맞아요!':'다시 생각해 보세요.'}</b>${esc(opts[st.pick].why)}</div>`:''}</div>
+         <div class="panel"><h3>② 논란이 생기는 흐름 <span class="tag neg">부정적 영향</span></h3>${st.mcqOk?'<div id="ch"></div>':'<div class="fb info">① 문제를 먼저 해결하면 열려요.</div>'}</div></div>`;
+      $$('[data-m]',el).forEach(b=>b.onclick=()=>{ const i=+b.dataset.m; st.pick=i; if(opts[i].ok){ st.mcqOk=true; addNote(c.cid,'an-prod','자료 해석','식량 확보 효과','신품종 도입 후 생산량 증가·식량 지원 필요 인구 감소. 단, 생산량은 안전성의 증거가 아님'); } save(); draw(); });
+      if(st.mcqOk) chainBoard($('#ch',el), c, c.C.chain, 'chain', ()=>{ addNote(c.cid,'an-chain','자료 해석','논란이 생기는 과정','검증 자료 공개 부족 → 판단 근거 부족 → 자극적 주장 확산 → 사회적 논란'); c.complete(); });
+    }
+    draw();
+  },
+  // 4. 보급 정책
+  function(el, c){
+    el.innerHTML = mission('🏛️','보급 정책의 근거를 찾으세요','든든벼 보급 정책은 안전성 검증, 정보 공개, 식품 표시, 사후 관리로 이루어져요. 조사한 자료 가운데 각 요소가 왜 필요한지 보여 주는 근거를 찾아 연결하세요.') + '<div id="pb"></div>';
+    policyEvidence($('#pb',el), c);
+  }
+];
+
+/* ---------- 사건 03 ---------- */
+PHASE_RENDER.c3 = [
+  // 1. 생명윤리 공청회 (발언자마다 핵심 질문 2개)
+  function(el, c){
+    const SP=c.C.speakers; const st=c.d.hr || (c.d.hr={cur:null, last:{}, mood:{}, asked:{}});
+    if(!st.last) st.last={}; if(!st.mood) st.mood={}; if(!st.asked) st.asked={};
+    const keyIds=[]; SP.forEach(p=>p.qs.forEach((q,i)=>{ if(q.key) keyIds.push('hr-'+p.id+'-'+i); }));
+    const has=id=>c.cs.notes.some(n=>n.id===id);
+    const got=()=>keyIds.filter(has).length;
+    function draw(){
+      const cur=SP.find(x=>x.id===st.cur);
+      let stage;
+      if(!cur) stage=`<div class="podium">${avatar('pol','neutral').replace('aria-hidden','style="opacity:0" aria-hidden')}<div class="pod">발언대</div></div>
+        <div class="speech">🎤 사회자: 지금부터 생명 복제 기술 활용 범위에 관한 공청회를 시작하겠습니다. <b>위쪽 패널석에서 발언자를 선택해</b> 질문해 보세요. 노란 숫자는 아직 듣지 못한 핵심 진술의 수예요.</div>`;
+      else {
+        const last=(st.last[cur.id]!=null && cur.qs[st.last[cur.id]]) ? st.last[cur.id] : null;
+        const text= last!=null ? cur.qs[last].a : cur.intro;
+        const keyNow= last!=null && cur.qs[last].key ? `<div class="keynote" style="margin-top:8px">📌 핵심 진술을 조사 수첩에 기록했어요: ${esc(cur.qs[last].key.title)}</div>` : '';
+        stage=`<div class="podium">${avatar(cur.id, st.mood[cur.id]||cur.mood)}<div class="pod">${esc(cur.name)} · ${esc(cur.role)}</div></div>
+          <div class="speech pop">“${esc(text)}”${keyNow}
+            <div class="qlist" style="margin-top:10px">${cur.qs.map((q,i)=>`<button class="qbtn ${(st.asked[cur.id]||[]).includes(i)?'asked':''}" data-q="${i}">💬 ${esc(q.q)}</button>`).join('')}</div></div>`;
+      }
+      el.innerHTML = mission('⚖️','생명윤리 공청회에 참석했어요', `${esc(c.C.intro)} <br>다섯 사람에게 질문해 <span class="counter">핵심 진술 ${got()}/${keyIds.length}</span>개를 모으세요.`)
+        + `<div class="hall"><div class="panelists">${SP.map(x=>{ const left=x.qs.filter((q,i)=>q.key && !has('hr-'+x.id+'-'+i)).length;
+            return `<button class="panelist ${st.cur===x.id?'cur':''}" data-s="${x.id}">${avatar(x.id, st.mood[x.id]||x.mood)}<span class="nm">${esc(x.name)}</span><span class="rl">${esc(x.role)}</span><span class="ping ${left?'':'ok'}" style="position:absolute;top:2px;right:4px">${left||'✓'}</span></button>`; }).join('')}</div>
+          <div class="stage">${stage}</div></div>`;
+      $$('[data-s]',el).forEach(b=>b.onclick=()=>{ st.cur=b.dataset.s; save(); draw(); });
+      $$('[data-q]',el).forEach(b=>b.onclick=()=>{ const i=+b.dataset.q, q=cur.qs[i];
+        st.last[cur.id]=i; st.mood[cur.id]=q.mood; st.asked[cur.id]=[...new Set([...(st.asked[cur.id]||[]),i])];
+        if(q.key) addNote(c.cid,'hr-'+cur.id+'-'+i,'공청회 · '+cur.name,q.key.title,q.key.text);
+        save(); draw();
+        if(got()===keyIds.length) c.complete(); });
+    }
+    draw();
+  },
+  // 2. 의견 비교
+  function(el, c){
+    el.innerHTML = mission('🧭','주장이 중시하는 가치를 연결하세요','공청회에서 나온 말이 무엇을 가장 중요하게 여기는지 선으로 이으세요. 오른쪽 칸의 설명을 읽고, 왼쪽 문장의 <b>핵심 낱말</b>(도움, 아프지 않게, 돌봐야, 규칙 등)을 찾아보세요. 칸마다 문장이 2개씩 연결돼요.') + '<div class="panel"><div id="cb"></div></div>';
+    const V=c.C.values;
+    connectBoard($('#cb',el), {key:'values', store:c.d, left:V.left, right:V.right, ans:Object.fromEntries(V.left.map(l=>[l.id,l.a])), why:Object.fromEntries(V.left.map(l=>[l.id,l.why])),
+      solvedText:'‘기술이 도움이 된다’는 생각과 ‘생명을 소중히 해야 한다’는 생각은 서로 부딪힐 수 있어요. 그래서 누가 책임질지, 어떤 규칙을 지킬지 함께 정하는 것이 중요해요.',
+      onSolved:()=>{ addNote(c.cid,'values','의견 비교','가치의 충돌','기술 활용의 필요성 ↔ 생명 존중, 그리고 권리·의무와 사회적 책임'); c.complete(); }});
+  },
+  // 3. 생명윤리 기준 만들기
+  function(el, c){
+    const PR=c.C.principles, STC=c.C.stances; const st=c.d.eb || (c.d.eb={chosen:[], stance:null, reviewed:false});
+    function draw(){
+      const has=id=>st.chosen.some(x=>x.id===id);
+      const ready = st.chosen.length>=3 && st.chosen.every(x=>x.r>=0) && st.stance;
+      let review='';
+      if(st.reviewed && ready){
+        const n=[];
+        if(!has('r1')) n.push(['warn','‘생명 존중’이 빠져 있어요. 생명 경시 현상을 막을 기준이 약해질 수 있어요.']);
+        if(!has('r2')) n.push(['warn','‘안전성 검토’가 빠져 있어요. 건강하지 못하게 태어나는 생명이나 예상하지 못한 문제를 미리 확인하기 어려워요.']);
+        if(!has('r3')) n.push(['info','‘사회적 합의’ 없이 정한 기준은 사람들의 공감을 얻기 어려울 수 있어요.']);
+        const s=STC.find(x=>x.id===st.stance); n.push([st.stance==='strict'?'ok':'warn', s.note]);
+        if(st.stance!=='strict') n.push(['info','이 입장을 유지해도 괜찮아요. 다만 위의 한계를 어떻게 보완할지 권고문에 덧붙여 보세요. 다시 판단하려면 입장을 바꾸면 돼요.']);
+        if(has('r1')&&has('r2')&&st.stance==='strict') n.push(['ok','생명 존중과 안전성을 함께 고려하면서 기술의 도움도 살리려는 균형 잡힌 기준이에요.']);
+        review = n.map(x=>`<div class="fb ${x[0]}">${esc(x[1])}</div>`).join('') + `<div style="margin-top:10px"><button class="btn cbtn" id="toDecree">이 기준으로 권고문 작성</button></div>`;
+      }
+      el.innerHTML = mission('📐','나만의 생명윤리 기준을 만드세요','원칙 카드를 오른쪽 기준판으로 끌어다 놓고(3~5개), 각 원칙이 왜 필요한지 이유를 고르세요. 마지막으로 생명 복제 기술의 허용 범위에 대한 입장을 정하세요.')
+        + `<div class="two"><div class="panel"><h3>생명기술 활용 원칙</h3><div class="principles">${PR.map(p=>`<div class="pcard ${has(p.id)?'used':''}" draggable="${!has(p.id)}" data-pr="${p.id}" tabindex="0" role="button">＋ ${esc(p.t)}</div>`).join('')}</div>
+            <p class="dnd-help">카드를 끌어다 놓거나 클릭하면 기준판에 추가돼요.</p>
+            <h3 style="margin-top:16px">생명 복제 기술의 허용 범위</h3><div class="stance">${STC.map(s=>`<button class="pick ${st.stance===s.id?'on':''}" data-st="${s.id}">${esc(s.t)}</button>`).join('')}</div></div>
+          <div><div class="ethics-board" id="eboard"><h3 style="color:var(--c3);margin-bottom:8px">나의 생명윤리 기준 (${st.chosen.length}/5)</h3>
+            ${st.chosen.map((x,k)=>{ const p=PR.find(q=>q.id===x.id); return `<div class="erow"><b>${esc(p.t)}</b><select data-rs="${k}" aria-label="${esc(p.t)}가 필요한 이유"><option value="-1">왜 필요할까요? 이유 고르기</option>${p.reasons.map((r,i)=>`<option value="${i}" ${x.r===i?'selected':''}>${esc(r)}</option>`).join('')}</select><button class="btn ghost small" data-del="${k}">빼기</button></div>`; }).join('') || '<p class="dnd-help">여기에 원칙 카드를 놓으세요.</p>'}</div>
+            <div style="margin-top:10px"><button class="btn cbtn" id="reviewE" ${ready?'':'disabled'}>기준 검토하기</button> <span class="dnd-help">${ready?'':(st.chosen.length<3?'원칙을 3개 이상 고르세요.':(!st.chosen.every(x=>x.r>=0)?'모든 원칙의 이유를 고르세요.':'허용 범위 입장을 고르세요.'))}</span></div>
+            ${review}</div></div>`;
+      const add=id=>{ if(has(id)) return; if(st.chosen.length>=5){ toast('원칙은 5개까지 넣을 수 있어요.'); return; } st.chosen.push({id, r:-1}); st.reviewed=false; save(); draw(); };
+      $$('[data-pr]',el).forEach(p=>{ p.onclick=()=>add(p.dataset.pr); p.onkeydown=e=>{ if(e.key==='Enter') add(p.dataset.pr); }; p.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',p.dataset.pr)); });
+      const eb=$('#eboard',el); eb.addEventListener('dragover',e=>{ e.preventDefault(); eb.classList.add('over'); }); eb.addEventListener('dragleave',()=>eb.classList.remove('over'));
+      eb.addEventListener('drop',e=>{ e.preventDefault(); eb.classList.remove('over'); const id=e.dataTransfer.getData('text/plain'); if(PR.some(p=>p.id===id)) add(id); });
+      $$('[data-rs]',el).forEach(s=>s.onchange=()=>{ st.chosen[+s.dataset.rs].r=+s.value; st.reviewed=false; save(); draw(); });
+      $$('[data-del]',el).forEach(b=>b.onclick=()=>{ st.chosen.splice(+b.dataset.del,1); st.reviewed=false; save(); draw(); });
+      $$('[data-st]',el).forEach(b=>b.onclick=()=>{ st.stance=b.dataset.st; st.reviewed=false; save(); draw(); });
+      $('#reviewE',el).onclick=()=>{ st.reviewed=true; save(); draw(); };
+      const td=$('#toDecree',el); if(td) td.onclick=()=>{ c.complete(); c.cs.phase=3; save(); c.rerender(); window.scrollTo(0,0); };
+    }
+    draw();
+  },
+  // 4. 권고문 완성
+  function(el, c){
+    const dc=c.d.dc || (c.d.dc={extra:'', adopted:false});
+    const EX=c.C.extras;
+    if(dc.extra && !EX.includes(dc.extra)) dc.extra='';
+    function draw(){
+      el.innerHTML = mission('📜','생명윤리위원회 권고문','선택한 원칙과 이유로 권고문이 만들어졌어요. 덧붙이고 싶은 내용이 있으면 하나 고른 뒤 권고문을 채택하세요.')
+        + decreeHTML(c.cid) + `<div class="panel" style="max-width:820px;margin:14px auto 0"><b>덧붙이고 싶은 내용 고르기 (선택)</b>
+          <p class="dnd-help" style="margin:2px 0 8px">하나를 고르거나, 다시 눌러 선택을 취소할 수 있어요.</p>
+          <div class="cards-pick">${EX.map((x,i)=>`<button class="pick ${dc.extra===x?'on':''}" data-x="${i}">${esc(x)}</button>`).join('')}</div>
+          <div style="margin-top:12px"><button class="btn cbtn" id="adopt">${dc.adopted?'권고문 다시 채택하기':'권고문 채택하기'}</button></div></div>`;
+      $$('[data-x]',el).forEach(b=>b.onclick=()=>{ const x=EX[+b.dataset.x]; dc.extra = dc.extra===x ? '' : x; save(); draw(); });
+      $('#adopt',el).onclick=()=>{ dc.adopted=true; save(); c.complete(); draw(); toast('권고문을 채택했어요.'); };
+    }
+    draw();
+  }
+];
+function decreeHTML(cid){
+  const C=CASES.c3, st=S.cases.c3.d.eb||{chosen:[],stance:null}, dc=S.cases.c3.d.dc||{extra:''};
+  const s=C.stances.find(x=>x.id===st.stance);
+  return `<div class="decree"><h3>생명윤리위원회 권고문</h3><div class="no">생명 복제 기술의 활용 범위에 관한 권고 · 조사관 ${esc(S.name)} 작성</div>
+    <p>본 위원회는 공청회에서 연구자, 동물복지 전문가, 생명윤리 전문가, 시민, 정책 담당자의 의견을 들었다. 생명 복제 기술은 사람과 사회에 도움이 될 수 있지만, 생명의 권리와 의무, 생명 경시에 관한 문제를 함께 안고 있다. 이에 다음과 같이 권고한다.</p>
+    <p style="margin-top:10px"><b>허용 범위:</b> ${s?esc(s.t):'—'}</p>
+    <ol>${st.chosen.map(x=>{ const p=C.principles.find(q=>q.id===x.id); return `<li><b>${esc(p.t)}</b> — ${x.r>=0?esc(p.reasons[x.r]):''}</li>`; }).join('')}</ol>
+    ${dc.extra?`<p><b>덧붙이는 말:</b> ${esc(dc.extra)}</p>`:''}
+    <p style="margin-top:8px">기술을 사용할 수 있다는 것과 사용해도 된다는 것은 다르다. 위원회는 기술의 도움과 생명 존중이 함께 지켜지도록 이 기준을 계속 점검할 것을 권고한다.</p>
+    ${dc.adopted?'<div class="seal">위원회<br>채택</div>':''}</div>`;
+}
+
+/* ---------- 사건 04 ---------- */
+function riverSVG(after){
+  const water = after ? '#4FB6D8' : '#8A7A4E';
+  const bank = after ? '#7CC47F' : '#A99A6B';
+  let extra='';
+  if(after){
+    extra += `<g fill="#F2B33D"><path d="M200 230 q14 -10 28 0 q-14 10 -28 0z"/><path d="M226 230 l8 -6 v12z"/></g><g fill="#F28B8B"><path d="M420 250 q14 -10 28 0 q-14 10 -28 0z"/><path d="M446 250 l8 -6 v12z"/></g><g fill="#fff"><path d="M560 225 q12 -9 24 0 q-12 9 -24 0z"/><path d="M582 225 l7 -5 v10z"/></g>`;
+    extra += `<g stroke="#2E8A6E" stroke-width="4" stroke-linecap="round"><path d="M90 200 v-40 M100 200 v-50 M110 200 v-36 M660 200 v-44 M670 200 v-52 M680 200 v-38"/></g>`;
+    extra += `<g transform="translate(520 120)"><path d="M0 10 q10 -12 20 0 q10 -12 20 0" stroke="#1B2540" stroke-width="3" fill="none"/></g><circle cx="700" cy="50" r="26" fill="#FFE45C"/>`;
+  } else {
+    extra += `<g fill="#EFE7CF" opacity=".9"><ellipse cx="180" cy="215" rx="30" ry="7"/><ellipse cx="380" cy="240" rx="40" ry="8"/><ellipse cx="590" cy="220" rx="26" ry="6"/></g>`;
+    extra += `<g><rect x="300" y="226" width="20" height="14" rx="3" fill="#D9D9D9" transform="rotate(20 310 233)"/><rect x="480" y="248" width="26" height="12" rx="3" fill="#C2334D" transform="rotate(-15 493 254)"/><path d="M240 250 q14 -10 28 0 q-14 10 -28 0z" fill="#9AA0A6" transform="rotate(180 254 250)"/></g>`;
+    extra += `<g stroke="#8C7B4A" stroke-width="4" stroke-linecap="round"><path d="M90 200 v-14 M100 200 v-10 M670 200 v-12"/></g><circle cx="700" cy="50" r="26" fill="#D8D2B8"/>`;
+  }
+  return `<svg viewBox="0 0 800 320" aria-hidden="true"><rect width="800" height="320" fill="${after?'#DFF4FF':'#E9E4D3'}"/>
+    <path d="M0 150 Q200 120 400 150 T800 140 V320 H0Z" fill="${bank}"/>
+    <path d="M0 200 Q200 180 400 205 T800 195 V280 Q600 300 400 270 T0 280Z" fill="${water}"/>
+    <path d="M60 230 Q160 220 260 235 M460 255 Q560 245 660 258" stroke="#fff" stroke-width="3" fill="none" opacity="${after?'.7':'.25'}"/>
+    ${extra}</svg>`;
+}
+function mapSVG(){
+  return `<svg viewBox="0 0 800 420" aria-hidden="true"><rect width="800" height="420" fill="#E6F4E1"/>
+    <g>${Array.from({length:12},(_,i)=>`<rect x="${470+(i%4)*76}" y="${40+Math.floor(i/4)*62}" width="70" height="56" rx="4" fill="${['#F3E3A1','#DCEBA8','#EAD58A'][i%3]}" stroke="#C9B66A"/>`).join('')}</g>
+    <text x="560" y="30" font-size="15" font-weight="800" fill="#7A6A2A">농경지</text>
+    <path d="M-10 120 Q120 160 220 200 T330 300 Q360 360 300 430" stroke="#4FB6D8" stroke-width="34" fill="none" stroke-linecap="round"/>
+    <path d="M-10 120 Q120 160 220 200 T330 300 Q360 360 300 430" stroke="#9AD7EC" stroke-width="6" fill="none" stroke-dasharray="14 12"/>
+    <text x="150" y="150" font-size="15" font-weight="800" fill="#0E6F84" transform="rotate(18 150 150)">맑은내천</text>
+    <ellipse cx="128" cy="340" rx="110" ry="52" fill="#BFE3D9"/><g stroke="#2E8A6E" stroke-width="3">${[60,80,100,150,170,190].map(x=>`<path d="M${x} 350 v-18"/>`).join('')}</g>
+    <g>${[[620,270],[660,300],[700,268],[730,310],[640,340],[690,350],[760,280],[600,320]].map(([x,y])=>`<path d="M${x} ${y} l18 34 h-36z" fill="#3E8E5A"/><rect x="${x-3}" y="${y+34}" width="6" height="8" fill="#7A5A3A"/>`).join('')}</g>
+    <path d="M262 214 C330 200 380 180 470 150" stroke="#7CC8E2" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M262 214 C330 200 380 180 470 150" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="6 6"/>
+    <text x="318" y="176" font-size="13" font-weight="800" fill="#0E6F84" transform="rotate(-14 318 176)">농업용수로</text>
+    <g fill="#5A6A86">${[[520,110],[560,170],[640,100]].map(([x,y])=>`<path d="M${x} ${y} q8 -10 16 0 q-8 6 -16 0z"/><path d="M${x+6} ${y-4} q4 -8 10 -6"  stroke="#5A6A86" stroke-width="2" fill="none"/>`).join('')}</g>
+  </svg>`;
+}
+PHASE_RENDER.c4 = [
+  // 1. 환경 변화 비교
+  function(el, c){
+    const R=c.C.river, Q=c.C.riverQ; const st=c.d.rv || (c.d.rv={v:50, min:false, max:false, pick:[], ok:false, fb:''});
+    el.innerHTML = mission('🌊','하천의 복원 전후를 비교하세요', `${esc(c.C.intro)} <br>슬라이더를 <b>왼쪽 끝과 오른쪽 끝</b>까지 움직이며 두 모습과 관측 자료를 비교하세요.`)
+      + `<div class="two"><div><div class="compare" id="cmp">${riverSVG(false)}<div class="after" id="aft">${riverSVG(true)}</div><div class="divider" id="div"></div><span class="lbl" style="left:10px">복원 후</span><span class="lbl" style="right:10px">복원 전</span></div>
+          <input type="range" class="range" id="rng" min="0" max="100" value="${st.v}" aria-label="복원 전후 비교 슬라이더"><p class="dnd-help">오른쪽으로 밀면 복원 후 모습이, 왼쪽으로 밀면 복원 전 모습이 넓게 보여요.</p></div>
+        <div class="panel"><h3>맑은내천 수질 관측 자료 <span class="tag fake">가상 자료</span></h3>
+          <table class="datatbl"><thead><tr><th>측정 항목</th><th data-col="a">복원 전</th><th data-col="b">복원 후</th></tr></thead><tbody>${R.map(r=>`<tr><td>${esc(r.k)}</td><td data-col="a">${esc(r.a)}</td><td data-col="b">${esc(r.b)}</td></tr>`).join('')}</tbody></table>
+          <p class="dnd-help" style="margin-top:6px">BOD는 물속 오염 물질을 분해하는 데 필요한 산소의 양이에요. 오염될수록 높아져요.</p>
+          <div id="rq"></div></div></div>`;
+    const rng=$('#rng',el);
+    function apply(){ const v=+rng.value; st.v=v; $('#aft',el).style.clipPath=`inset(0 ${100-v}% 0 0)`; $('#div',el).style.left=`calc(${v}% - 2px)`;
+      $$('[data-col]',el).forEach(t=>t.classList.toggle('act', (t.dataset.col==='b')===(v>=50)));
+      if(v<=3 && !st.min){ st.min=true; } if(v>=97 && !st.max){ st.max=true; } save(); drawQ(); }
+    function drawQ(){ const q=$('#rq',el);
+      if(!(st.min&&st.max)){ q.innerHTML=`<div class="fb info">슬라이더 확인: 복원 전 ${st.min?'✓':'—'} / 복원 후 ${st.max?'✓':'—'}</div>`; return; }
+      if(q.dataset.ready && !q.dataset.dirty) return;
+      q.dataset.ready='1'; q.dataset.dirty='';
+      q.innerHTML=`<b style="display:block;margin-top:12px;font-size:15.5px">${esc(Q.q)}</b><div class="cards-pick" style="margin-top:6px">${Q.opts.map((o,i)=>`<button class="pick ${st.pick.includes(i)?'on':''}" data-k="${i}" ${st.ok?'disabled':''}>${esc(o.t)}</button>`).join('')}</div>${st.fb}${st.ok?'':'<button class="btn cbtn" id="rqc" style="margin-top:10px">근거 확인하기</button>'}`;
+      $$('[data-k]',q).forEach(b=>b.onclick=()=>{ const i=+b.dataset.k; st.pick=st.pick.includes(i)?st.pick.filter(x=>x!==i):[...st.pick,i]; st.fb=''; save(); q.dataset.dirty='1'; drawQ(); });
+      const k=$('#rqc',q); if(k) k.onclick=()=>{ const wrong=st.pick.filter(i=>!Q.opts[i].ok), miss=Q.opts.map((o,i)=>o.ok&&!st.pick.includes(i)?i:-1).filter(i=>i>=0);
+        if(!wrong.length&&!miss.length){ st.ok=true; st.fb='<div class="fb ok"><b>정확해요!</b>미생물을 이용한 복원 사업 뒤 수질 수치와 생물 종류가 함께 좋아졌어요. 교과서의 ‘오염된 환경 복원’에 해당하는 긍정적 영향이에요.</div>'; addNote(c.cid,'river','관측 자료','하천 수질 변화','복원 후 BOD 8.2 → 2.1, 용존 산소 3.1 → 8.4, 물고기 3종 → 11종'); save(); q.dataset.dirty='1'; drawQ(); c.complete(); }
+        else { st.fb = wrong.length? `<div class="fb bad">${esc(Q.opts[wrong[0]].why)}</div>` : `<div class="fb warn">수질을 보여 주는 근거가 더 있어요. 관측 자료 표를 다시 보세요.</div>`; save(); q.dataset.dirty='1'; drawQ(); } };
+    }
+    rng.oninput=apply; apply();
+  },
+  // 2. 생태계 조사
+  function(el, c){
+    const M=c.C.sites; const st=c.d.mp || (c.d.mp={cur:null});
+    const has=id=>c.cs.notes.some(n=>n.id==='site-'+id);
+    function draw(){
+      const n=M.filter(m=>has(m.id)).length, cur=M.find(m=>m.id===st.cur);
+      let p;
+      if(!cur) p=`<div class="bubble" style="margin-top:10px">🗺️ 지도의 조사 지점을 클릭하세요. 연 자료는 조사 수첩에 자동으로 기록되고, 네 지점을 모두 살펴봐야 원인을 판단할 수 있어요.</div><div class="fb warn"><b>조사 팁</b>하천의 변화가 물새와 농업용수로를 통해 농경지로 어떻게 이어졌는지 찾아보세요. 하지만 모든 변화가 하천 때문인지는 따로 확인해야 해요.</div>`;
+      else p=`<h3>${cur.icon} ${esc(cur.name)} <span class="tag fake">가상 조사 자료</span></h3>${barChart(cur.bars.map(b=>({label:b.l,unit:b.u,a:b.a,b:b.b})),['3년 전','최근'])}
+          <ul style="margin:4px 0 0;padding-left:20px;font-size:15px">${cur.rec.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
+          <div class="expert">${avatar('eco','thinking')}<p><b>생태 조사 전문가</b><br>${esc(cur.expert)}</p></div>
+          <div class="keynote" style="margin-top:10px">📒 조사 수첩에 자동 기록됨 — ${esc(cur.note.title)}</div>`;
+      el.innerHTML = mission('🗺️','생태계를 조사하세요', `하천의 변화가 습지, 농경지, 숲으로 어떻게 이어졌는지 네 지점의 자료를 확인하세요. <span class="counter">조사 ${n}/${M.length}</span>`)
+        + `<div class="two"><div class="mapwrap">${mapSVG()}${M.map(m=>`<button class="pin ${has(m.id)?'ok':''} ${st.cur===m.id?'cur':''}" style="left:${m.x}%;top:${m.y}%" data-m="${m.id}"><span class="pb"><span>${m.icon}</span></span><span class="pl">${esc(m.name)}</span></button>`).join('')}</div><div class="panel scroll" style="max-height:calc(100vh - 280px)">${p}</div></div>`;
+      $$('[data-m]',el).forEach(b=>b.onclick=()=>{ st.cur=b.dataset.m; const m=M.find(x=>x.id===st.cur);
+        addNote(c.cid,'site-'+m.id,'생태계 조사',m.note.title,m.note.text); save(); draw();
+        if(M.every(x=>has(x.id))) c.complete(); });
+    }
+    draw();
+  },
+  // 3. 원인과 결과
+  function(el, c){
+    const LK=c.C.links, J=c.C.judges; const st=c.d.jd || (c.d.jd={ans:{}, checked:false, solved:false});
+    el.innerHTML = mission('🔗','원인과 결과를 구별하세요','① 원인과 그로 인해 나타날 수 있는 결과를 연결하세요. ② 각 주장이 자료로 확인된 것인지, 추가 조사가 필요한지 판단하세요.')
+      + `<div class="two"><div class="panel"><h3>① 원인 → 결과 연결</h3><div id="cb"></div></div><div class="panel"><h3>② 주장 판단하기 <span class="h3hint">각 주장이 <b>자료로 확인된 것</b>인지, <b>추가 조사가 필요한 것</b>인지 골라 보세요.</span></h3><div id="jb"></div></div></div>`;
+    const lk = c.d.links;
+    function drawJ(){
+      const jb=$('#jb',el); if(!(c.d.links && c.d.links.solved)){ jb.innerHTML='<div class="fb info">① 연결을 먼저 완성하면 열려요.</div>'; return; }
+      jb.innerHTML = J.map((j,i)=>{ const a=st.ans[i]; const cls = st.checked&&a ? (a===j.a?'good':'badj') : '';
+        return `<div class="judge ${cls}"><span>${esc(j.t)}</span><div class="seg"><button data-j="${i}" data-v="yes" class="${a==='yes'?'on':''}" ${st.solved?'disabled':''}>자료로 확인됨</button><button data-j="${i}" data-v="more" class="${a==='more'?'on':''}" ${st.solved?'disabled':''}>추가 조사 필요</button></div>${st.checked&&a&&(a!==j.a||st.solved)?`<span class="why">${esc(j.why)}</span>`:''}</div>`; }).join('')
+        + (st.solved ? '<div class="fb ok"><b>원인과 결과를 잘 구별했어요!</b>하천 복원은 물새를 늘리고 미생물을 농경지로 퍼뜨리는 등 주변 생태계를 바꾸었어요. 하지만 약에 견디는 잡초처럼 다른 원인이 있을 수 있는 변화도 있어요. 자료로 확인된 것과 더 조사해야 할 것을 구별해야 해요.</div>'
+          : `<button class="btn cbtn" id="jc" ${Object.keys(st.ans).length===J.length?'':'disabled'}>판단 확인하기</button>${st.checked?'<div class="fb bad">빨간 주장의 설명을 읽고 다시 판단해 보세요.</div>':''}`);
+      $$('[data-j]',jb).forEach(b=>b.onclick=()=>{ st.ans[+b.dataset.j]=b.dataset.v; st.checked=false; save(); drawJ(); });
+      const k=$('#jc',jb); if(k) k.onclick=()=>{ st.checked=true; if(J.every((j,i)=>st.ans[i]===j.a)){ st.solved=true; addNote(c.cid,'judge','원인 판단','원인과 결과의 구별','수질 개선과 물새로 인한 벼 피해는 확인됨. 미생물의 위험과 잡초의 원인은 추가 조사 필요'); save(); drawJ(); c.complete(); } else { save(); drawJ(); } };
+    }
+    connectBoard($('#cb',el), {key:'links', store:c.d, left:LK.left, right:LK.right, ans:LK.ans, why:LK.why,
+      solvedText:'하나의 환경 복원 사업이 하천을 깨끗하게 했지만, 물새와 미생물을 통해 농경지의 생태계도 바꾸었어요. 기술의 좋은 영향과 예상하지 못한 영향을 함께 살펴야 해요.',
+      onSolved:()=>drawJ()});
+    drawJ();
+  },
+  // 4. 관리 계획
+  function(el, c){
+    el.innerHTML = mission('🛡️','환경 보호 관리 계획을 세우세요','대책 카드를 <b>언제</b> 하면 좋을지 세 칸에 나누어 놓으세요. 카드 이름의 핵심 낱말을 보세요. <b>평가·조사</b>는 시작 전, <b>관찰·검사·보호</b>는 하는 동안, <b>지원·차단·바꾸기</b>는 문제가 생겼을 때 하는 일이에요.') + '<div id="bd"></div>';
+    dndBoard($('#bd',el), {key:'plan', store:c.d, cards:c.C.plan.cards, zones:c.C.plan.zones, multi:false, layout:'cols3', mode:'advisory',
+      help:'카드를 끌어다 알맞은 칸에 놓으세요. 계획을 검토한 뒤에도 자유롭게 옮길 수 있어요.',
+      onSolved:()=>c.complete()});
+  }
+];
+
+/* ===================== [9] 보고서 생성 ===================== */
+function decisionOf(cid){
+  const cs=S.cases[cid], C=CASES[cid];
+  if(cid==='c1'||cid==='c2'){ const pe=cs.d.pe; if(!pe||!pe.solved) return [];
+    return C.policy.options.map(o=>`${o.title} — 근거: ${C.policy.evidence.filter(e=>(pe.place[e.id]||[]).includes(o.id)).map(e=>e.t.replace(/^\[[^\]]*\]\s*/,'')).join(' / ')}`); }
+  if(cid==='c3'){ const e=cs.d.eb; if(!e||!e.stance) return []; const s=C.stances.find(x=>x.id===e.stance);
+    return ['허용 범위: '+s.t, '윤리 원칙: '+e.chosen.map(x=>C.principles.find(p=>p.id===x.id).t).join(', ')]; }
+  if(cid==='c4'){ const pl=cs.d.plan; if(!pl) return []; return C.plan.zones.map(z=>z.label+' — '+(C.plan.cards.filter(k=>(pl.place[k.id]||[]).includes(z.id)).map(k=>k.t).join(', ')||'없음')); }
+  return [];
+}
+function resultOf(cid){
+  return {
+    c1:`바이오 의약품은 치료하기 어려웠던 질병을 치료하고 원격 진료로 진단을 도와 환자의 삶을 바꾸었다. 그러나 높은 치료비로 인한 치료 기회의 격차, 개발·실험 과정의 변이, 의약품 남용 문제도 함께 나타났다. 나는 치료 접근성 지원, 안전성 검증 강화, 올바른 사용 교육이 각각 왜 필요한지 조사 자료에서 근거를 찾아 함께 추진할 대응 방안을 정리했다.`,
+    c2:`유전자 변형 작물은 식량 자원을 확보해 식량 부족 문제를 줄이는 데 도움이 되었다. 그러나 안전성 검증 자료가 충분히 공개되지 않아 근거 없는 주장이 퍼지고 사회적 논란이 생겼다. 나는 안전성 검증, 정보 공개, 식품 표시, 사후 관리가 각각 왜 필요한지 조사 자료에서 근거를 찾아 보급 정책을 정리했다.`,
+    c3:`생명 복제 기술은 연구에 도움이 될 수 있지만, 복제된 생명의 권리와 의무, 생명 경시에 관한 사회적 문제를 함께 가진다. 나는 기술을 사용할 수 있는 것과 사용해도 되는 것을 구별하고, 선택한 윤리 원칙에 따라 권고문을 작성했다.`,
+    c4:`유전자 재조합 미생물을 이용한 복원 사업으로 오염된 하천이 깨끗해지고 생물이 돌아왔다. 그러나 늘어난 물새가 논에 피해를 주고, 미생물이 농업용수를 따라 논으로 퍼지는 등 주변 생태계에도 변화가 생겼다. 약에 견디는 잡초처럼 원인을 단정할 수 없는 변화는 추가 조사가 필요하다. 나는 사전 평가, 지속 관찰, 위험 대응 단계로 관리 계획을 세웠다.`
+  }[cid];
+}
+function impItem(id){ const t=TEXTBOOK.find(x=>x.id===id);
+  return `<div class="imp ${t.type==='pos'?'p':'n'}"><b>${esc(t.title)}</b> <span class="tag book">교과서</span><p>${esc(t.text)}</p></div>`; }
+function today(){ const d=new Date(); return `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}.`; }
+
+function renderCaseReport(el, cid){
+  const C=CASES[cid], cs=S.cases[cid], R=C.report;
+  const dec=decisionOf(cid);
+  el.innerHTML = `<article class="report" style="--cc:${C.color}">
+    <div class="rh"><div><div style="font-weight:800;color:${C.color}">${C.no} 사건 조사 보고서</div><h2>${esc(C.title)}</h2></div><div class="who">조사관 ${esc(S.name)}<br>${today()}</div></div>
+    <div class="rsec"><h4>조사한 주요 자료 (${cs.notes.length}건)</h4><ul>${cs.notes.map(n=>`<li><b>${esc(n.title)}</b> — ${esc(n.text)}</li>`).join('')}</ul></div>
+    <div class="rgrid">
+      <div class="rsec"><h4>생명기술의 긍정적 영향</h4>${R.pos.length? R.pos.map(impItem).join('<div style="height:6px"></div>') : '<div class="imp"><p>이 사건은 생명 복제의 윤리 문제를 중심으로 조사했어요. 공청회에서 연구자는 멸종 위기 동물 보존, 질병 연구에 도움이 될 수 있다는 활용 가능성을 제시했어요. <span class="tag fake">가상 사례</span></p></div>'}</div>
+      <div class="rsec"><h4>생명기술의 부정적 영향</h4>${R.neg.map(impItem).join('')}</div>
+      <div class="rsec"><h4>개인에게 나타난 변화 <span class="tag fake">가상 사례</span></h4><ul>${R.personal.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="rsec"><h4>사회에 나타난 변화 <span class="tag fake">가상 사례</span></h4><ul>${R.social.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    </div>
+    <div class="rsec"><h4>${(cid==='c1'||cid==='c2')?'대응 방안과 근거':'내가 결정한 대응 방안'}</h4>${dec.length?`<ul>${dec.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p>아직 대응 방안을 확정하지 않았어요.</p>'}</div>
+    ${cid==='c3' ? decreeHTML('c3') : ''}
+    <div class="rsec" style="margin-top:14px"><h4>최종 조사 결과</h4><p style="font-size:16px">${esc(resultOf(cid))}</p></div>
+  </article>`;
+}
+
+function impBtn(t){
+  return `<button class="imp imp-btn ${t.type==='pos'?'p':'n'}" data-imp="${t.id}"><b>${esc(t.title)}</b> <span class="tag book">교과서</span> <span class="tag ${t.type}">${CASES[t.cid].no}</span><p>${esc(t.text)}</p></button>`;
+}
+function showImp(el, id){
+  const t=TEXTBOOK.find(x=>x.id===id);
+  $$('[data-imp]',el).forEach(b=>b.classList.toggle('sel', b.dataset.imp===id));
+  $('#impDetail',el).innerHTML = `<div class="impd ${t.type==='pos'?'p':'n'}">
+    <div class="impd-h">${t.type==='pos'?'🙂 긍정적 영향':'⚠️ 부정적 영향'} · ${esc(t.title)} <span class="tag fake">${CASES[t.cid].no} 조사 사례</span></div>
+    <div class="rgrid"><div><b>👤 개인에게 나타난 변화</b><ul>${t.personal.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div><b>🏙️ 사회에 나타난 변화</b><ul>${t.social.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div></div>`;
+}
+function renderFinal(el){
+  const pos = TEXTBOOK.filter(t=>t.type==='pos'), neg=TEXTBOOK.filter(t=>t.type==='neg');
+  const caseOf = t => CASES[t.cid].no;
+  el.innerHTML = `<div style="padding:20px 16px"><article class="report">
+    <div class="rh"><div><div style="font-weight:800;color:var(--agency)">생명기술 사회영향 조사단</div><h2>생명기술 조사에 대한 나의 생각 정리</h2></div><div class="who">조사관 <b>${esc(S.name)}</b><br>${today()}<br>수집한 증거 ${totalNotes()}건</div></div>
+    <div class="rsec"><h4>생명기술의 영향 8가지 <span class="dnd-help" style="font-weight:600">카드를 누르면 개인과 사회에 나타난 변화를 볼 수 있어요.</span></h4>
+      <div class="rgrid">
+        <div>${pos.map(t=>impBtn(t)).join('')}</div>
+        <div>${neg.map(t=>impBtn(t)).join('')}</div>
+      </div>
+      <div id="impDetail"></div>
+    </div>
+    <div class="rsec"><h4>최종 학습 정리</h4><p style="font-size:16px">생명기술은 질병 치료, 식량 확보, 장애 극복, 환경 복원처럼 개인의 삶과 사회를 크게 바꾸는 긍정적 영향을 준다. 그러나 같은 기술이 의약품의 변이와 남용, 유전자 조작 식물의 안전성 논란, 생명 복제에 따른 윤리 문제, 생태계 변화 같은 부정적 영향도 낳을 수 있다. 하나의 기술이 개인과 사회에 동시에 여러 영향을 미치므로, 자료와 근거를 확인하고 안전성·접근성·생명 존중·환경 보호를 함께 고려해 바람직한 활용 방안을 판단해야 한다.</p></div>
+    <div class="final-q" id="fq"></div>
+  </article>
+  <div class="report-acts"><button class="btn ghost" id="backHQ">← 조사단 본부</button></div></div>`;
+  $('#backHQ',el).onclick=()=>go('hq');
+  $$('[data-imp]',el).forEach(b=>b.onclick=()=>showImp(el,b.dataset.imp));
+  showImp(el,'p1');
+  drawThink($('#fq',el));
+}
+
+/* 최종 질문: 글쓰기 대신 고르면서 생각 정리하기 */
+function josa(w, a, b){ const c=w.charCodeAt(w.length-1)-0xAC00; return (c>=0 && c<=11171 && c%28) ? a : b; }
+function drawThink(box){
+  const F=S.final;
+  if(!FINAL_OPTS.includes(F.choice)) F.choice='';
+  if(!CASE_IDS.includes(F.cid)) F.cid='';
+  if(!F.cid || !FINAL_SCENES[F.cid].includes(F.scene)) F.scene='';
+  if(!FINAL_PLEDGES.includes(F.pledge)) F.pledge='';
+  const step=(n,title,body,on)=>`<div class="tstep ${on?'':'off'}"><div class="tnum">${n}</div><div style="flex:1"><b>${title}</b>${on?`<div class="evi" style="margin-top:6px">${body}</div>`:''}</div></div>`;
+  const chips=(arr,cur,attr)=>arr.map((x,i)=>`<button class="evchip ${cur===x?'on':''}" data-${attr}="${i}">${esc(x)}</button>`).join('');
+  const caseChips=CASE_IDS.map(id=>`<button class="evchip ${F.cid===id?'on':''}" data-cs="${id}">${CASES[id].no} ${esc(CASES[id].short)}</button>`).join('');
+  let sentence='';
+  if(F.choice && F.cid && F.scene && F.pledge){
+    sentence=`<div class="mythink"><div class="mt-h">💡 나의 생각</div>나는 생명기술을 사람과 사회에 도움이 되게 쓰려면 <b>‘${esc(F.choice)}’${josa(F.choice,'을','를')}</b> 가장 중요하게 고려해야 한다고 생각한다. 왜냐하면 <b>${CASES[F.cid].no} ${esc(CASES[F.cid].short)}</b>에서 <b>${esc(F.scene.replace(/다$/,'다는'))} 것</b>을 확인했기 때문이다. 앞으로 나는 <b>${esc(F.pledge)}</b>.</div>`;
+  }
+  box.innerHTML=`<div class="fq">생명기술이 사람과 사회에 도움이 되도록 활용하려면 무엇을 가장 중요하게 고려해야 할까?</div>
+    <p class="dnd-help" style="margin:-4px 0 10px">순서대로 하나씩 고르면 나의 생각이 한 문단으로 정리돼요.</p>
+    ${step(1,'가장 중요하다고 생각하는 것은?', chips(FINAL_OPTS,F.choice,'f'), true)}
+    ${step(2,'그렇게 생각하게 된 사건은?', caseChips, !!F.choice)}
+    ${step(3,'그 사건에서 무엇을 보았나요?', F.cid?chips(FINAL_SCENES[F.cid],F.scene,'sc'):'', !!F.cid)}
+    ${step(4,'앞으로 나는 어떻게 할까요?', chips(FINAL_PLEDGES,F.pledge,'pl'), !!F.scene)}
+    ${sentence}`;
+  $$('[data-f]',box).forEach(b=>b.onclick=()=>{ F.choice=FINAL_OPTS[+b.dataset.f]; save(); drawThink(box); });
+  $$('[data-cs]',box).forEach(b=>b.onclick=()=>{ if(F.cid!==b.dataset.cs){ F.cid=b.dataset.cs; F.scene=''; } save(); drawThink(box); });
+  $$('[data-sc]',box).forEach(b=>b.onclick=()=>{ F.scene=FINAL_SCENES[F.cid][+b.dataset.sc]; save(); drawThink(box); });
+  $$('[data-pl]',box).forEach(b=>b.onclick=()=>{ F.pledge=FINAL_PLEDGES[+b.dataset.pl]; save(); drawThink(box); if(F.choice&&F.cid&&F.scene) toast('나의 생각을 정리했어요!'); });
+}
+
+/* ===================== [10] 시작 ===================== */
+$('#logoBtn').onclick=()=>{ if(S.started) go('hq'); };
+$('#hqBtn').onclick=()=>go('hq');
+$('#nbBtn').onclick=()=>toggleNotebook();
+$('#nbClose').onclick=()=>toggleNotebook(false);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ toggleNotebook(false); $('#modal').classList.add('hidden'); } });
+load(); sanitize(); updateNbCount(); renderNotebook(); render();
+</script>
+</body>
+</html>
