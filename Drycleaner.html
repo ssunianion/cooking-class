@@ -567,7 +567,7 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(G));}catch(e){}}
 function loadSave(){try{const t=localStorage.getItem(SAVE_KEY);return t?JSON.parse(t):null;}catch(e){return null;}}
-function newGame(mode){G={money:20000,sat:70,success:0,xp:0,tier:1,teacher:false,tierFilter:0,upg:{},orders:[],active:null,queue:[],served:{},no:101,done:0,mode:mode||'practice',clock:0,stock:{alk:5,neu:5,oxy:3,chl:3,dcs:4},mach:{},nat:{}};ensureMach();fillQueue();save();}
+function newGame(mode){G={run:Date.now().toString(36)+Math.random().toString(36).slice(2,6),earned:0,perfect:0,qsum:0,sid:'',shop:'',money:20000,sat:70,success:0,xp:0,tier:1,teacher:false,tierFilter:0,upg:{},orders:[],active:null,queue:[],served:{},no:101,done:0,mode:mode||'practice',clock:0,stock:{alk:5,neu:5,oxy:3,chl:3,dcs:4},mach:{},nat:{}};ensureMach();fillQueue();save();}
 
 function maxOrders(){return 2+(G.upg.basket1?1:0)+(G.upg.basket2?1:0);}
 function pool(){
@@ -913,6 +913,10 @@ function patBar(end,tot,w=80){return `<span style="display:inline-block;width:${
 /* ====================== 6. 화면 공통 요소 ====================== */
 function toast(msg,type='',ms=3200){const t=document.createElement('div');t.className='toast '+type;t.innerHTML=msg;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),ms);while($('#toasts').children.length>3)$('#toasts').firstChild.remove();}
 function openModal(html,onClose){const m=$('#modal');m.innerHTML=`<div class="box">${html}<button class="x" aria-label="닫기">✕</button></div>`;m.classList.remove('hidden');m._close=onClose;m.querySelector('.x').onclick=closeModal;}
+function askYes(msg,yesLabel,onYes,note){
+  openModal(`<div style="width:560px;text-align:center"><h2 style="font-size:28px">확인해 주세요</h2><p style="font-size:18px;line-height:1.6">${msg}</p>${note?`<p class="note">${note}</p>`:''}<div class="row" style="justify-content:center;gap:12px;margin-top:10px"><button class="btn main" id="ayYes">${yesLabel||'네'}</button><button class="btn" id="ayNo">취소</button></div></div>`);
+  $('#ayYes').onclick=()=>{closeModal();onYes();};$('#ayNo').onclick=closeModal;
+}
 function closeModal(){const m=$('#modal');m.classList.add('hidden');m.innerHTML='';if(m._close){const f=m._close;m._close=null;f();}}
 $('#modal').addEventListener('pointerdown',e=>{if(e.target.id==='modal'&&!$('#modal').dataset.lock)closeModal();});
 
@@ -941,7 +945,7 @@ addEventListener('pointerup',e=>{
 /* ---------- 상단 HUD ---------- */
 function renderHUD(){
   const st=G.stock||{};
-  $('#hud').innerHTML=`<div class="sign">세탁소 사장님</div>
+  $('#hud').innerHTML=`<div class="sign" title="학번 ${G.sid||''}">${G.shop||'세탁소 사장님'}<small style="font-size:13px;color:#7A5320;margin-left:6px">${G.sid||''}</small></div>
   <div class="stat"><small>보유 자금</small><b>${won(G.money)}</b></div>
   <div class="stat"><small>고객 만족도 ${Math.round(G.sat)}%</small><div class="satbar"><i style="width:${G.sat}%"></i></div></div>
   <div class="stat"><small>성공 · 레벨</small><b>${G.success}회 · Lv.${1+Math.floor(G.xp/4)}</b></div>
@@ -949,9 +953,10 @@ function renderHUD(){
   <button class="btn small" id="hStock" title="재료 구입" style="text-align:left;line-height:1.3;background:#F2FBF9"><small>세제</small> 약알칼리 <b>${st.alk}</b> · 중성 <b>${st.neu}</b><br><small>표백제</small> 산소계 <b>${st.oxy}</b> · 염소계 <b>${st.chl}</b> · <small>드라이</small> <b>${st.dcs}</b></button>
   <div class="sp"></div>
   <button class="btn" id="hDex">📘 섬유 도감</button>
+  <button class="btn" id="hRank">🏆 랭킹</button>
   <button class="btn" id="hShop">🛒 상점</button>
   <button class="btn" id="hMenu">☰ 메뉴</button>`;
-  $('#hDex').onclick=()=>openDex();$('#hShop').onclick=()=>openShop('supply');$('#hStock').onclick=()=>openShop('supply');$('#hMenu').onclick=openMenu;
+  $('#hDex').onclick=()=>openDex();$('#hShop').onclick=()=>openShop('supply');$('#hStock').onclick=()=>openShop('supply');$('#hMenu').onclick=openMenu;$('#hRank').onclick=openRank;
   $('#game').classList.toggle('neon',!!G.upg.neon);$('#game').classList.toggle('tiles',!!G.upg.tiles);
 }
 function navIcon(s){return s.ic==='IRON'?`<span style="width:34px;height:24px;display:inline-block">${ironIconSVG(2)}</span>`:s.ic;}
@@ -1055,6 +1060,7 @@ function deliverOrder(o){
   let m2=mult; if(m2>0){ if(late)m2*=.6; else { if(fast)m2+=.1; m2+=deco*.05*(m2>=1?1:0); } }
   if(late)dsat-=4;
   const total=Math.round(g.price*m2/100)*100, paid=o.paid||0, money=total-paid;
+  G.earned=(G.earned||0)+total;G.qsum=(G.qsum||0)+q;if(mult>=1.3)G.perfect=(G.perfect||0)+1;setTimeout(rankPush,500);
   G.money+=money;if(money>0)setTimeout(()=>earnFx(money,'전달 정산'),300);G.sat=clamp(G.sat+dsat,0,100);G.served[g.id]=(G.served[g.id]||0)+1;G.done++;
   if(mult>=1){G.success++;}
   G.xp+=mult>=1.3?3:mult>=1?2:mult>0?1:0;
@@ -1086,6 +1092,30 @@ function showTierUp(t){
   $('#tuOk').onclick=()=>{closeModal();go(STATION);};
 }
 
+/* ---------- 랭킹 ---------- */
+// 교사용: 학급 랭킹을 쓰려면 Google Apps Script 웹 앱 주소를 아래 따옴표 안에 붙여 넣어요. (교사 설정에서도 입력 가능)
+const RANK_URL_DEFAULT='https://script.google.com/macros/s/AKfycbxlvOqLGoNSD9Z3gZeYBsFeyrmntHO6nPFIVsNtmPg6AzNPX4c1wmsCiuQo5lRqS6ymuw/exec';
+const RANK_LOCAL='laundry_rank_local';
+function rankUrl(){try{return localStorage.getItem('laundry_rank_url')||RANK_URL_DEFAULT;}catch(e){return RANK_URL_DEFAULT;}}
+function myRec(){return {sid:G.sid,shop:G.shop,earned:Math.round(G.earned||0),perfect:G.perfect||0,done:G.done||0,avg:G.done?Math.round((G.qsum||0)/G.done):0,mode:G.mode,run:G.run};}
+function localList(){try{return Object.values(JSON.parse(localStorage.getItem(RANK_LOCAL)||'{}'));}catch(e){return [];}}
+function rankLocalSave(){if(!G||!G.sid)return;try{const m=JSON.parse(localStorage.getItem(RANK_LOCAL)||'{}');const r=myRec(),old=m[r.sid];if(!old||old.run===r.run||r.earned>=old.earned)m[r.sid]=r;localStorage.setItem(RANK_LOCAL,JSON.stringify(m));}catch(e){}}
+function rankPush(){if(!G||!G.sid)return;rankLocalSave();const u=rankUrl();if(!u)return;
+  try{fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(myRec())}).catch(()=>{});}catch(e){}}
+async function rankFetch(){const u=rankUrl();if(!u)return {list:localList(),online:false};
+  try{const r=await fetch(u+(u.includes('?')?'&':'?')+'action=list&t='+Date.now());const j=await r.json();return {list:j.list||[],online:true};}catch(e){return {list:localList(),online:false,err:true};}}
+async function openRank(){
+  openModal(`<div style="width:900px"><h2>🏆 세탁소 랭킹</h2><div id="rkBody" class="note" style="font-size:16px">불러오는 중…</div></div>`);
+  rankPush();const res=await rankFetch();const B=$('#rkBody');if(!B)return;
+  const list=res.list.map(r=>({...r,earned:+r.earned||0})).sort((a,b)=>b.earned-a.earned||b.perfect-a.perfect);
+  const medal=i=>['🥇','🥈','🥉'][i]||(i+1);
+  B.innerHTML=`<p style="margin:0 0 8px">${res.online?'📡 <b>학급 랭킹</b> — 모든 학생의 기록이 모여요.':res.err?'⚠️ 랭킹 서버에 연결하지 못해 <b>이 컴퓨터의 기록</b>만 보여요.':'💻 <b>이 컴퓨터의 기록</b>이에요. (선생님이 랭킹 주소를 설정하면 학급 랭킹이 돼요)'} 순위는 <b>누적 수익</b> 순이에요.</p>
+   <div style="max-height:520px;overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:16px">
+   <tr style="background:#E6F5F2"><th style="padding:8px">순위</th><th>학번</th><th style="text-align:left">세탁소 이름</th><th>누적 수익</th><th>완벽한 세탁</th><th>처리 주문</th><th>평균 점수</th><th>모드</th></tr>
+   ${list.length?list.map((r,i)=>`<tr style="border-bottom:1px solid #D7E8E5;${r.sid===G.sid?'background:#FFF4CC;font-weight:bold':''}"><td style="text-align:center;padding:7px;font-size:${i<3?22:16}px">${medal(i)}</td><td style="text-align:center">${String(r.sid).padStart(4,'0')}</td><td>${String(r.shop||'').replace(/[<>&]/g,'')}</td><td style="text-align:right;padding-right:12px">${won(r.earned)}</td><td style="text-align:center">${r.perfect||0}</td><td style="text-align:center">${r.done||0}</td><td style="text-align:center">${r.avg||0}</td><td style="text-align:center">${r.mode==='challenge'?'⏱️ 도전':'🌱 연습'}</td></tr>`).join(''):'<tr><td colspan="8" style="padding:20px;text-align:center">아직 기록이 없어요. 손님에게 옷을 전달하면 기록돼요!</td></tr>'}</table></div>
+   <div class="row" style="justify-content:space-between;margin-top:10px"><span class="note">내 기록: 누적 수익 ${won(G.earned||0)} · 완벽 ${G.perfect||0}회 · 처리 ${G.done||0}건</span><button class="btn" id="rkRe">🔄 새로고침</button></div>`;
+  $('#rkRe').onclick=()=>{closeModal();openRank();};
+}
 /* ---------- 상점 ---------- */
 const SHOP={
  supply:[{id:'alk',name:'약알칼리성 세제 5회분',price:3000,d:'면·마·합성 섬유의 일반 세탁용'},{id:'neu',name:'중성세제 5회분',price:4000,d:'견·모 등 섬세 의류용'},{id:'oxy',name:'산소계 표백제 5회분',price:3000,d:'비교적 순한 표백제'},{id:'chl',name:'염소계 표백제 5회분',price:2500,d:'표백력이 강한 표백제'},{id:'dcs',name:'드라이클리닝 전용 세제 5회분',price:4000,d:'유기 용제에 넣어 쓰는 드라이클리닝용 세제'}],
@@ -1121,13 +1151,15 @@ function openMenu(){
   $('#mMode').onclick=()=>{G.mode=G.mode==='challenge'?'practice':'challenge';G.queue.forEach(c=>c.arr=GT());G.orders.forEach(o=>{if(G.mode==='challenge'&&!o.due){o.dueT=dueTime(o);o.due=GT()+o.dueT;}if(G.mode==='practice'){o.due=null;}});if(G.mode==='practice')fillQueue();else G.nextArr=GT()+15;save();closeModal();go(STATION);toast(G.mode==='challenge'?'⏱️ 도전 모드! 손님이 기다리다 지치기 전에 처리해요.':'🌱 연습 모드: 시간 제한 없이 천천히 해요.','good');};
   $('#mTeach').onclick=()=>{closeModal();openTeacher();};
   $('#mTitle').onclick=()=>{save();closeModal();showTitle();};
-  $('#mReset').onclick=()=>{if(confirm('저장된 진행 상황을 모두 지우고 처음부터 시작할까요?')){try{localStorage.removeItem(SAVE_KEY);}catch(e){}closeModal();showTitle();}};
+  $('#mReset').onclick=()=>{closeModal();askYes('저장된 진행 상황을 모두 지우고 처음부터 시작할까요?','처음부터 시작',()=>{try{localStorage.removeItem(SAVE_KEY);}catch(e){}showTitle();});};
 }
 function openTeacher(){
   openModal(`<div style="width:620px"><h2>교사 설정</h2>${G.teacher?'':`<p class="note">교사 확인 번호를 입력하면 모든 단계를 개방할 수 있어요. (기본 번호: 교사용 안내 참고)</p><div class="row"><input id="tc" type="password" inputmode="numeric" style="font-size:18px;padding:8px;border-radius:10px;border:2px solid var(--teal);width:200px" placeholder="확인 번호"><button class="btn main" id="tcOk">확인</button></div>`}
   ${G.teacher?`<p>모든 단계가 열려 있어요. 이번 차시에 등장할 의복을 고르세요.</p><div class="row" id="tf">${[0,1,2,3].map(t=>`<button class="btn ${G.tierFilter===t?'sel':''}" data-t="${t}">${t?TIERS[t]+' 의복':'전체 의복'}</button>`).join('')}</div><p class="note" style="margin-top:10px">초급: 면·마·견·모 / 중급: 나일론·폴리에스테르·아크릴·스판덱스 / 고급: 레이온·아세테이트·혼방 의복. 바꾼 뒤 새로 오는 손님부터 적용돼요.</p>`:''}</div>`);
   if(!G.teacher){$('#tcOk').onclick=()=>{if($('#tc').value.trim()==='2022'){G.teacher=true;G.tier=3;save();toast('교사 모드: 모든 단계를 개방했어요.','good');closeModal();go(STATION);openTeacher();}else toast('확인 번호가 맞지 않아요.','bad');};}
   else document.querySelectorAll('#tf button').forEach(b=>b.onclick=()=>{G.tierFilter=+b.dataset.t;G.queue=[];fillQueue();save();closeModal();go(STATION);toast('대기 손님을 새로 불렀어요.','good');});
+  const tb=$('#modal .box');if(tb&&G.teacher){tb.insertAdjacentHTML('beforeend',`<div style="width:620px;margin-top:16px;border-top:2px dashed var(--tile2);padding-top:12px"><h3 style="font-family:var(--disp);color:var(--teal);font-size:22px">🏆 학급 랭킹 주소</h3><p class="note">Google Apps Script 웹 앱 주소를 넣으면 이 컴퓨터의 기록이 학급 랭킹으로 모여요. (모든 학생 컴퓨터에 넣으려면 파일 안의 RANK_URL_DEFAULT에 붙여 넣어 배포하세요)</p><div class="row"><input id="rkUrl" value="${rankUrl()}" placeholder="https://script.google.com/macros/s/…/exec" style="flex:1;font-size:14px;padding:8px;border-radius:10px;border:2px solid var(--teal)"><button class="btn" id="rkSave">저장</button></div></div>`);
+    $('#rkSave').onclick=()=>{try{localStorage.setItem('laundry_rank_url',$('#rkUrl').value.trim());}catch(e){}toast('랭킹 주소를 저장했어요.','good');rankPush();};}
 }
 
 /* ---------- 게임 방법 ---------- */
@@ -1213,15 +1245,31 @@ function showTitle(){
   T.innerHTML=titleArt()+`<div class="logo"><h1>세탁소<br>사장님</h1></div>
    <div class="menu"><button class="btn main" id="tStart">게임 시작</button><button class="btn" id="tCont" ${sv?'':'disabled'}>이어하기${sv?` <small style="font-size:15px;color:#577">(성공 ${sv.success}회 · ${won(sv.money)})</small>`:''}</button><button class="btn" id="tHow">게임 방법</button><button class="btn" id="tDex">섬유 학습 도감</button></div>
    <div class="ver">마우스로 옷을 끌어 기계에 넣고, 다리미를 직접 움직여요. 진행 상황은 이 브라우저에 자동 저장돼요.</div>`;
-  $('#tStart').onclick=()=>{if(sv&&!confirm('저장된 진행 상황이 있어요. 새로 시작하면 지워져요. 새로 시작할까요?'))return;chooseMode();};
-  $('#tCont').onclick=()=>{G=sv;['upg','served'].forEach(k=>G[k]=G[k]||{});ensureMach();G.orders.forEach(o=>{if(FG.includes(o.loc))o.loc=null;});if(!G.queue||!G.queue.length){G.queue=[];fillQueue();}G.queue.forEach(c=>{if(c.arr==null){c.arr=GT();c.pat=110;}});startGame();};
+  $('#tStart').onclick=()=>{if(sv)askYes('저장된 진행 상황이 있어요.<br>새로 시작하면 지금까지의 기록이 지워져요. 새로 시작할까요?','새로 시작하기',chooseMode,'이어하기는 아래 이어하기 버튼을 눌러요.');else chooseMode();};
+  $('#tCont').onclick=()=>{G=sv;G.earned=G.earned||0;G.perfect=G.perfect||0;G.qsum=G.qsum||0;G.run=G.run||Date.now().toString(36);if(!G.sid){askProfile(pr=>{G.sid=pr.sid;G.shop=pr.shop;save();$('#tCont').onclick();});return;}['upg','served'].forEach(k=>G[k]=G[k]||{});ensureMach();G.orders.forEach(o=>{if(FG.includes(o.loc))o.loc=null;});if(!G.queue||!G.queue.length){G.queue=[];fillQueue();}G.queue.forEach(c=>{if(c.arr==null){c.arr=GT();c.pat=110;}});startGame();};
   $('#tHow').onclick=openHow;$('#tDex').onclick=()=>openDex();
+}
+function askProfile(cb,init){
+  init=init||{};
+  openModal(`<div style="width:620px;text-align:center"><h2>🧺 나의 세탁소 등록</h2><p class="note" style="font-size:16px">랭킹에 올라갈 정보를 입력해요.</p>
+   <div style="text-align:left;margin:14px auto;width:420px">
+    <div class="lbl" style="font-size:17px">학번 (숫자 4자리)</div><input id="pfSid" maxlength="4" inputmode="numeric" value="${init.sid||''}" placeholder="예: 2105" style="font-size:24px;padding:10px 14px;border-radius:12px;border:2px solid var(--teal);width:100%;letter-spacing:4px">
+    <div class="lbl" style="font-size:17px;margin-top:14px">세탁소 이름 (최대 10글자)</div><input id="pfShop" maxlength="10" value="${init.shop||''}" placeholder="예: 뽀송뽀송 세탁소" style="font-size:22px;padding:10px 14px;border-radius:12px;border:2px solid var(--teal);width:100%">
+    <p id="pfErr" style="color:#D9483B;min-height:22px;margin:8px 0 0"></p></div>
+   <button class="btn main" id="pfOk">세탁소 문 열기</button></div>`);
+  const m=$('#modal');m.dataset.lock='1';const x=m.querySelector('.x');if(x)x.remove();
+  const sid=$('#pfSid');sid.addEventListener('input',()=>{sid.value=sid.value.replace(/\D/g,'').slice(0,4);});
+  const go_=()=>{const a=sid.value.trim(),b=$('#pfShop').value.trim().replace(/[<>&"']/g,'');
+    if(!/^\d{4}$/.test(a)){$('#pfErr').textContent='학번은 숫자 4자리로 입력해요.';return;}
+    if(!b){$('#pfErr').textContent='세탁소 이름을 입력해요.';return;}
+    delete m.dataset.lock;closeModal();cb({sid:a,shop:b.slice(0,10)});};
+  $('#pfOk').onclick=go_;$('#pfShop').addEventListener('keydown',e=>{if(e.key==='Enter')go_();});setTimeout(()=>sid.focus(),50);
 }
 function chooseMode(){
   openModal(`<div style="width:860px;text-align:center"><h2>어떻게 운영할까요?</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:10px">
    <button class="btn" id="cmP" style="padding:22px;text-align:left;line-height:1.6"><span style="font-family:var(--disp);font-size:30px">🌱 연습 모드</span><br>시간 제한이 없어요. 라벨과 도감을 천천히 보며 정확하게 관리하는 연습을 해요.<br><small>처음 하는 사람에게 추천</small></button>
    <button class="btn" id="cmC" style="padding:22px;text-align:left;line-height:1.6"><span style="font-family:var(--disp);font-size:30px">⏱️ 도전 모드</span><br>손님이 계속 찾아오고 인내심 게이지가 줄어요. 기계가 도는 동안 다른 옷을 처리하며 가게를 바쁘게 운영해요.<br><small>창이나 도감이 열려 있는 동안은 시간이 멈춰요</small></button></div></div>`);
-  $('#cmP').onclick=()=>{closeModal();newGame('practice');startGame();};$('#cmC').onclick=()=>{closeModal();newGame('challenge');startGame();};
+  $('#cmP').onclick=()=>{closeModal();askProfile(pr=>{newGame('practice');G.sid=pr.sid;G.shop=pr.shop;save();startGame();});};$('#cmC').onclick=()=>{closeModal();askProfile(pr=>{newGame('challenge');G.sid=pr.sid;G.shop=pr.shop;save();startGame();});};
 }
 function startGame(){$('#title').classList.add('hidden');$('#game').classList.remove('hidden');if(G.orders.length&&!act())G.active=G.orders[0].no;go(G.orders.length?(nextHint()||'inspect'):'reception');if(!G.done&&!G.orders.length)setTimeout(openHow,300);}
 /* ====================== 7. 작업 장소(장면) ====================== */
@@ -1840,9 +1888,10 @@ SCENES.iron=function(){
    <div id="shaverBox" class="abs" style="left:730px;top:640px;width:200px;height:160px;background:#F3EEE2;border:4px solid #C9AE7C;border-radius:18px;display:${o.st.pills>0?'block':'none'}"><div style="position:absolute;bottom:6px;width:100%;text-align:center;font-size:14px;color:#7A5320">보풀 제거기 <b id="pillN">${pillsLeft(o.st)}</b>개 남음</div></div>
    <div id="shaver" class="abs" style="left:770px;top:655px;width:120px;height:90px;z-index:9;cursor:grab;touch-action:none;display:${o.st.pills>0?'block':'none'}"><svg viewBox="0 0 120 90" width="100%" height="100%"><rect x="10" y="30" width="80" height="44" rx="18" fill="#F6A9B8" stroke="#8C3F55" stroke-width="3"/><rect x="88" y="34" width="24" height="36" rx="8" fill="#E8EEF0" stroke="#556" stroke-width="3"/><path d="M92 40 L108 40 M92 46 L108 46 M92 52 L108 52 M92 58 L108 58 M92 64 L108 64" stroke="#556" stroke-width="1.5"/><circle cx="34" cy="52" r="7" fill="#fff" stroke="#8C3F55" stroke-width="2"/><text x="48" y="24" font-size="11" text-anchor="middle" fill="#7A5320" font-weight="bold">보풀 제거기</text></svg></div>`;
   const P=$('#irP');
+  const NOIRON=!L.iron&&has(g,'spandex');
   function renderP(){
     const now=Date.now(),hot=S.tier&&now>=S.heatAt;
-    P.innerHTML=`<h3>다리미 온도</h3>${[1,2,3].map(t=>`<button class="btn ${S.tier===t?'sel':''}" data-tier="${t}" style="width:100%;margin-bottom:6px;text-align:left">${IRON_NAME[t]}<br><small>${IRON_RANGE[t]}</small></button>`).join('')}
+    P.innerHTML=`<h3>다리미 온도</h3>${NOIRON?'<div class="callout" style="background:#FFEDEA;border-color:#D9483B;margin:0 0 8px">🚫 <b>스판덱스</b>가 든 옷은 열에 매우 약해 <b>다림질할 수 없어요</b>. 아래 <b>넘어가기</b>를 눌러요.</div>':''}${[1,2,3].map(t=>`<button class="btn ${S.tier===t?'sel':''}" data-tier="${t}" ${NOIRON?'disabled':''} style="width:100%;margin-bottom:6px;text-align:left">${IRON_NAME[t]}<br><small>${IRON_RANGE[t]}</small></button>`).join('')}
     <div class="note" id="heat">${!S.tier?'온도를 골라요.':hot?'🔥 다리미가 데워졌어요!':'⏳ 다리미를 데우는 중…'}</div>
     <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:15px;cursor:pointer"><input type="checkbox" id="cov" ${S.cover?'checked':''} style="width:20px;height:20px"> 의복 위에 천(덧천) 덮기</label>
     <button class="btn small" id="irLab" style="width:100%;margin-top:10px">🏷️ 다림질 기호 확인</button>
@@ -1875,6 +1924,7 @@ SCENES.iron=function(){
   const iron=$('#ironEl');let dragging=false,off={x:0,y:0},lastP=null,raf=0,warned=false;
   iron.addEventListener('pointerdown',e=>{
     if(!S.placed){toast('먼저 의복을 다림판에 펼쳐 놓아요.','warn');return;}
+    if(NOIRON){toast('스판덱스가 든 옷은 열에 매우 약해 다림질할 수 없어요. 넘어가기를 눌러요.','bad',4200);return;}
     if(!S.tier){toast('먼저 다리미 온도를 골라요.','warn');return;}
     dragging=true;iron.setPointerCapture(e.pointerId);const p=lp(e,iron);off=p;iron.style.cursor='grabbing';e.preventDefault();});
   iron.addEventListener('pointermove',e=>{
@@ -1948,7 +1998,7 @@ SCENES.deliver=function(){
      ${s.moisture>15?'<div class="callout">⚠️ 아직 젖어 있어요. 건조를 마치고 전달하는 것이 좋아요.</div>':''}
      ${!o.steps.dry?'<div class="callout">⚠️ 건조 단계를 마치지 않았어요.</div>':''}
      <div class="row" style="margin-top:14px;justify-content:space-between"><span class="note">예상 점수는 전달하면 공개돼요.</span><button class="btn main" id="give">🎁 ${o.cust.name} 님에게 전달하기</button></div></div>`+plants();
-  $('#give').onclick=()=>{if((s.moisture>15||!o.steps.dry)&&!confirm('아직 덜 마른 상태예요. 그래도 손님에게 전달할까요?'))return;deliverOrder(o);refresh();};
+  $('#give').onclick=()=>{if(s.moisture>15||!o.steps.dry){askYes('아직 덜 마른 상태예요. 그래도 손님에게 전달할까요?','그래도 전달',()=>{deliverOrder(o);refresh();});return;}deliverOrder(o);refresh();};
 };
 
 /* ====================== 8. 시작 ====================== */
