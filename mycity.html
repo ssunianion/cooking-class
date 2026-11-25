@@ -220,6 +220,16 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .toast.out{opacity:0;transform:translateY(-8px)}
 
 .modal{position:fixed;inset:0;background:rgba(15,25,45,.5);display:grid;place-items:center;z-index:110}
+.incidents{position:absolute;left:10px;bottom:52px;width:250px;display:flex;flex-direction:column;gap:5px;z-index:4}
+.inc-title{font-size:12px;font-weight:900;color:#fff;background:rgba(207,74,64,.92);border-radius:9px;padding:5px 10px}
+.inc-item{display:flex;gap:8px;align-items:center;text-align:left;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:6px 9px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.inc-item b{display:block;font-size:12.5px;font-weight:900}
+.inc-item small{display:block;font-size:11.5px;color:var(--sub)}
+.inc-item .inc-ic{font-size:18px}
+.inc-item.bad{border-color:var(--bad);background:var(--bad-soft)}
+.inc-item.bad small{color:var(--bad);font-weight:800}
+.inc-item.go{border-color:var(--accent)}
+.inc-item.ok{border-color:var(--good);background:var(--good-soft)}
 .rank-btn{background:var(--gold-soft);border-color:var(--gold);color:var(--ink)}
 .rank-card{background:var(--panel);border-radius:18px;width:min(900px,95vw);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden}
 .rank-head{display:flex;align-items:center;padding:16px 20px 8px}
@@ -377,13 +387,14 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
         <button class="tool" id="zoomIn" title="확대" aria-label="확대">＋</button>
         <button class="tool" id="zoomOut" title="축소" aria-label="축소">－</button>
         <button class="tool" id="zoomFit">전체 보기</button>
-        <button class="tool" id="rangeBtn">관리 범위 보기</button>
+        <button class="tool" id="rangeBtn" title="스마트 도시 관리 센터(청록)·소방서(빨강)·경찰서(파랑)의 구역을 보여 줘요">관리·안전 구역 보기</button>
         <button class="tool" id="expandBtn" title="50,000금으로 동쪽·남쪽 땅을 넓혀요">🗺 땅 넓히기 (50,000금)</button>
         <button class="tool" id="redevBtn" title="200,000금으로 도시 건물을 세련된 외형으로 바꿔요">🏙 도시 재개발 (200,000금)</button>
         <button class="tool" id="pngBtn">도시 이미지 저장 (PNG)</button>
       </div>
       <div class="info" id="info" hidden></div>
       <div class="levelup" id="levelUp" hidden></div>
+      <div class="incidents" id="incidents" hidden></div>
       <div class="hintbar" id="hint"></div>
     </section>
   </section>
@@ -606,6 +617,8 @@ const UP_NOTE={
   h2:['',"수소 버스 1대를 더 운행해요.","수전해 설비를 늘려 그린 수소를 만들고, 수소 버스 1대를 더 운행해요."],
   health:['',"원격 진료실을 열어 의사와 화상으로 건강 상담을 해요.","인공지능 건강 분석으로 주민 한 사람 한 사람에게 맞춘 건강 관리를 해요."],
   biolab:['',"실험실을 늘려 신약 후보 물질을 더 빠르게 찾아요.","자동화 실험 로봇을 들여 신약 개발 기간을 크게 줄여요."],
+  fire:['',"소방차와 장비를 늘려 담당 구역이 반경 9칸으로 넓어져요.","드론 화재 감시 시스템으로 담당 구역이 반경 11칸까지 넓어져요."],
+  police:['',"순찰차를 늘려 담당 구역이 반경 9칸으로 넓어져요.","지능형 CCTV 관제로 담당 구역이 반경 11칸까지 넓어져요."],
   uam:['',"비행체 1대를 더 운항해요.","비행체 1대를 더 운항해 모두 3대가 하늘을 날아요."]
 };
 const facLv = f => f.lv||1;
@@ -628,6 +641,23 @@ function coveredBy(c){ const e=FAC.center, cx=(c.x+e.w/2)*TILE, cy=(c.y+e.h/2)*T
   return S.facilities.filter(o=>o!==c&&benefits(o)&&Math.hypot((o.x+FAC[o.type].w/2)*TILE-cx,(o.y+FAC[o.type].h/2)*TILE-cy)<=R); }
 function baseIncome(f){ const d=FAC[f.type]; return d.tax?Math.max(d.income,Math.floor(population()/10)):d.income; }
 function incomeAt(f,lv){ const cl=coverLv(f); return Math.round(baseIncome(f)*UP_MULT[lv-1]*(1+lvInfo().bonus)*(1+(cl?CENTER_BONUS[cl-1]:0))); }
+/* 소방서·경찰서 담당 구역 (반경 7칸) */
+const SAFETY_RS=[280,360,440];   // 소방서·경찰서 레벨별 담당 반경: 7칸 → 9칸 → 11칸
+const safetyR=f=>SAFETY_RS[Math.min(3,Math.max(1,(f&&f.lv)||1))-1];
+const isStation=t=>t==='fire'||t==='police';
+const ZONE={ center:{col:'30,150,135'}, fire:{col:'229,72,77'}, police:{col:'47,111,240'} };
+function zoneOf(f){ const z=ZONE[f.type]; if(!z) return null; return {col:z.col, R:f.type==='center'?CENTER_R[(f.lv||1)-1]:safetyR(f)}; }
+function zoneTarget(o){ const k=FAC[o.type].kind; return (k==='fusion'||k==='public'||k==='house')&&o.type!=='fire'&&o.type!=='police'; }
+function coveredByStation(type,wx,wy){ return S.facilities.filter(st=>st.type===type&&Math.hypot(facCenter(st)[0]-wx,facCenter(st)[1]-wy)<=safetyR(st)); }
+function safetyNote(f){
+  if(f.type==='fire'||f.type==='police'){
+    const [cx,cy]=facCenter(f), n=S.facilities.filter(o=>zoneTarget(o)&&Math.hypot(facCenter(o)[0]-cx,facCenter(o)[1]-cy)<=safetyR(f)).length;
+    return `<b>${f.type==='fire'?'🚒 소방':'🚓 치안'} 담당 구역 반경 ${safetyR(f)/TILE}칸</b> · 구역 안 건물 ${n}곳을 지켜요`;
+  }
+  if(!zoneTarget(f)) return null;
+  const [cx,cy]=facCenter(f), fi=coveredByStation('fire',cx,cy).length>0, po=coveredByStation('police',cx,cy).length>0;
+  return `${fi?'🚒 소방 구역 <b>안</b>':'🚒 소방 구역 <b style="color:var(--bad)">밖</b>'} · ${po?'🚓 치안 구역 <b>안</b>':'🚓 치안 구역 <b style="color:var(--bad)">밖</b>'}`;
+}
 function smartNote(f){
   const d=FAC[f.type];
   if(f.type==='center'){ const lv=facLv(f), n=coveredBy(f).length;
@@ -640,11 +670,12 @@ function smartNote(f){
 }
 function facIncome(f){ return incomeAt(f,facLv(f)); }
 function upgradeFac(id){
-  const f=getFac(id); if(!f||!isFusion(f)) return;
+  const f=getFac(id); if(!f||!(isFusion(f)||isStation(f.type))) return;
   const c=upCost(f); if(c==null) return;
   if(!spend(c)){ toast(`업그레이드 비용이 ${fmt(c-S.money)}금 부족해요.`,'bad'); return; }
-  const d=FAC[f.type], before=facIncome(f);
+  const d=FAC[f.type], before=facIncome(f), r0=safetyR(f);
   f.lv=facLv(f)+1; f.upAt=performance.now();
+  if(isStation(f.type)){ addFloat((f.x+d.w/2)*TILE,f.y*TILE+8,`Lv.${f.lv} 업그레이드!`,'#d38a00'); toast(`${d.name} Lv.${f.lv} 업그레이드 완료! 담당 구역이 반경 ${r0/TILE}칸 → ${safetyR(f)/TILE}칸으로 넓어졌어요.`,'good'); renderInfo(); refreshStats(); saveGame(false); return; }
   addFloat((f.x+d.w/2)*TILE,f.y*TILE+8,`Lv.${f.lv} 업그레이드!`,'#d38a00');
   toast(`${d.name} Lv.${f.lv} 업그레이드 완료! 수익 ${before}금 → ${facIncome(f)}금 (10초마다)`,'good');
   renderInfo(); refreshStats(); saveGame(false);
@@ -727,7 +758,7 @@ let cam={zoom:1,ox:0,oy:0}, cw=0, ch=0, didFit=false;
 const cardRefs={}, decorRefs={};
 
 /* ───────── 경제 ───────── */
-function spend(n){ n=Math.floor(n); if(!(n>=0)||S.money<n) return false; S.money-=n; onMoney(false); return true; }
+function spend(n){ n=Math.floor(n); if(!(n>=0)||S.money<n) return false; S.money-=n; S.spent=(S.spent||0)+n; onMoney(false); return true; }
 function gain(n){ n=Math.floor(n); if(!(n>0)) return; S.money=Math.min(S.money+n,MAX_MONEY); onMoney(true); }
 function onMoney(up){
   refreshCards();
@@ -740,6 +771,7 @@ function economyTick(){
   if(!(dt>0)) return; if(dt>MAX_DT) dt=MAX_DT;   // 탭 비활성·절전 후에도 수익이 몰려서 들어오지 않도록 제한
   for(const f of S.facilities){
     if(!FAC[f.type].income) continue;
+    if(f.onFire||f.closed) continue;   // 화재·도난 사건 중에는 영업 중단
     f.elapsed+=dt;
     if(f.elapsed>=CYCLE_MS){
       f.elapsed-=CYCLE_MS; if(f.elapsed>=CYCLE_MS) f.elapsed=0;
@@ -760,7 +792,7 @@ function addFloat(x,y,text,color,small){ floats.push({x,y,text,color,small:!!sma
 function serialize(){
   return JSON.stringify({ v:1, studentId:S.studentId||'', cityName:S.cityName, money:S.money, researched:S.researched,
     facilities:S.facilities.map(f=>({type:f.type,x:f.x,y:f.y,elapsed:Math.floor(f.elapsed),lv:facLv(f)})),
-    roads:Array.from(S.roads).join(''), trees:S.trees.map(t=>[t.x,t.y,t.v]), maxLevel:S.maxLevel||1, riders:S.riders||0, mapW:S.mapW||BASE_COLS, mapH:S.mapH||BASE_ROWS, redev:!!S.redev, modernOn:S.modernOn!==false, savedAt:Date.now() });
+    roads:Array.from(S.roads).join(''), trees:S.trees.map(t=>[t.x,t.y,t.v]), maxLevel:S.maxLevel||1, riders:S.riders||0, mapW:S.mapW||BASE_COLS, mapH:S.mapH||BASE_ROWS, redev:!!S.redev, modernOn:S.modernOn!==false, spent:Math.floor(S.spent||0), incidentsOn:!!S.incidentsOn, savedAt:Date.now() });
 }
 function saveGame(manual){
   if(!S.started) return false;
@@ -795,7 +827,7 @@ function sanitize(d){
       if(!Number.isInteger(r.x)||!Number.isInteger(r.y)) continue;
       if(!canPlaceIn(st,r.type,r.x,r.y,null)) continue;
       let e=Number(r.elapsed); if(!isFinite(e)||e<0) e=0; e=Math.min(e,CYCLE_MS-1);
-      const f=makeFac(st,r.type,r.x,r.y,e,null); f.born=0; f.lv=(FAC[r.type].kind==='fusion'&&[1,2,3].includes(r.lv))?r.lv:1; st.facilities.push(f);
+      const f=makeFac(st,r.type,r.x,r.y,e,null); f.born=0; f.lv=((FAC[r.type].kind==='fusion'||r.type==='fire'||r.type==='police')&&[1,2,3].includes(r.lv))?r.lv:1; st.facilities.push(f);
       if(!FAC[r.type].noResearch&&!st.researched.includes(r.type)) st.researched.push(r.type);
     }
   }
@@ -803,6 +835,10 @@ function sanitize(d){
   st.redev=d.redev===true; st.modernOn=d.modernOn!==false;
   st.studentId=(typeof d.studentId==='string'&&/^\d{4}$/.test(d.studentId))?d.studentId:'';
   st.maxLevel=(Number.isInteger(d.maxLevel)&&d.maxLevel>=1&&d.maxLevel<=LEVELS.length)?d.maxLevel:1;
+  // 누적 사용 금액 (예전 저장 파일은 지은 시설·확장·재개발 비용으로 추정)
+  st.spent=(typeof d.spent==='number'&&isFinite(d.spent)&&d.spent>=0)?Math.floor(d.spent):
+    st.facilities.reduce((n,f)=>n+invested(f),0)+(st.mapW===COLS?EXPAND_COST:0)+(st.redev?200000:0);
+  st.incidentsOn=d.incidentsOn===true;
   st.trees=st.trees.filter(t=>!st.facilities.some(f=>{const e=FAC[f.type];return t.x>=f.x&&t.x<f.x+e.w&&t.y>=f.y&&t.y<f.y+e.h;}));
   return st;
 }
@@ -1711,6 +1747,7 @@ function drawWorld(g,t,v,ui){
   drawComm(g,t);
   for(const f of S.facilities) if(f.type==='car'&&f.cars) f.cars.forEach((h,i)=>{ if(h.car&&h.car.px!=null) drawCar(g,h.car.px,h.car.py,h.car.ang,CAR_COLORS[(f.id+i)%5],t,true); });
   drawAgents(g,t,'road');
+  drawIncidentUnits(g,t);
   for(const b of buses) if(b.px!=null) drawBus(g,b,t);
   for(const f of S.facilities){ const c=f.unit&&f.unit.car; if(!c||c.px==null) continue; if(f.type==='police') drawPoliceCar(g,c.px,c.py,c.ang,t); else if(f.type==='fire') drawFireTruck(g,c.px,c.py,c.ang,t); }
   const items=[];
@@ -1722,6 +1759,7 @@ function drawWorld(g,t,v,ui){
     else drawFacInst(g,it.f,t,(moving&&drag.id===it.f.id)?.35:1);
   }
   for(const f of S.facilities) if(f.type==='uam') for(let k=facLv(f)-1;k>=0;k--){ const s=uamState(f,t,k); drawAircraft(g,s.x,s.y,s.alt,s.ang,t); }
+  drawIncidents(g,t);
   if(!ui) return;
   drawFog(g,t);
   for(const f of S.facilities){
@@ -1737,14 +1775,15 @@ function drawWorld(g,t,v,ui){
   }
   if(moving){ const f=getFac(drag.id); if(f) ghost(g,f.type,drag.tx,drag.ty,drag.valid,t); }
   { const sel=selId!==null?getFac(selId):null;
-    const list=S.facilities.filter(c=>c.type==='center'&&(showRange||(sel&&sel.id===c.id)));
-    let ghostC=null;
-    if(mode.kind==='build'&&mode.type==='center'&&hover){ const d=FAC.center; ghostC={x:Math.round(hover.x/TILE-d.w/2),y:Math.round(hover.y/TILE-d.h/2),lv:1}; }
-    if(moving){ const df=getFac(drag.id); if(df&&df.type==='center') ghostC={x:drag.tx,y:drag.ty,lv:facLv(df)}; }
-    const circ=(cx,cy,R,strong)=>{ g.save(); g.beginPath(); g.arc(cx,cy,R,0,Math.PI*2); g.fillStyle=strong?'rgba(45,165,150,.14)':'rgba(45,165,150,.08)'; g.fill(); g.setLineDash([10,7]); g.lineDashOffset=-t*.02; g.strokeStyle='rgba(30,150,135,.85)'; g.lineWidth=2.5/Math.max(.6,cam.zoom); g.stroke(); g.restore(); };
-    for(const c of list) circ((c.x+1.5)*TILE,(c.y+1.5)*TILE,CENTER_R[facLv(c)-1],false);
-    if(ghostC){ const gx=(ghostC.x+1.5)*TILE, gy=(ghostC.y+1.5)*TILE, R=CENTER_R[ghostC.lv-1]; circ(gx,gy,R,true);
-      for(const o of S.facilities) if(benefits(o)&&o.id!==(moving?drag.id:-1)){ const e=FAC[o.type]; if(Math.hypot((o.x+e.w/2)*TILE-gx,(o.y+e.h/2)*TILE-gy)<=R){ rr(g,o.x*TILE+1,o.y*TILE+1,e.w*TILE-2,e.h*TILE-2,9); g.strokeStyle='rgba(30,170,150,.9)'; g.lineWidth=3/Math.max(.6,cam.zoom); g.stroke(); } } }
+    // 관리·안전 구역: 스마트 도시 관리 센터(청록) · 소방서(빨강) · 경찰서(파랑)
+    const circ=(cx,cy,R,strong,col)=>{ g.save(); g.beginPath(); g.arc(cx,cy,R,0,Math.PI*2); g.fillStyle=`rgba(${col},${strong?.14:.07})`; g.fill(); g.setLineDash([10,7]); g.lineDashOffset=-t*.02; g.strokeStyle=`rgba(${col},.85)`; g.lineWidth=2.5/Math.max(.6,cam.zoom); g.stroke(); g.restore(); };
+    for(const c of S.facilities){ const z=zoneOf(c); if(!z) continue; if(!(showRange||(sel&&sel.id===c.id))) continue; const [cx,cy]=facCenter(c); circ(cx,cy,z.R,false,z.col); }
+    let ghostZ=null;
+    if(mode.kind==='build'&&hover&&ZONE[mode.type]){ const d=FAC[mode.type], gx=Math.round(hover.x/TILE-d.w/2), gy=Math.round(hover.y/TILE-d.h/2); ghostZ={type:mode.type,x:gx,y:gy,lv:1}; }
+    if(moving){ const df=getFac(drag.id); if(df&&ZONE[df.type]) ghostZ={type:df.type,x:drag.tx,y:drag.ty,lv:facLv(df)}; }
+    if(ghostZ){ const d=FAC[ghostZ.type], z=zoneOf({type:ghostZ.type,lv:ghostZ.lv}), gx=(ghostZ.x+d.w/2)*TILE, gy=(ghostZ.y+d.h/2)*TILE; circ(gx,gy,z.R,true,z.col);
+      for(const o of S.facilities){ if(o.id===(moving?drag.id:-1)) continue; if(ghostZ.type==='center'?!benefits(o):!zoneTarget(o)) continue;
+        const e=FAC[o.type]; if(Math.hypot((o.x+e.w/2)*TILE-gx,(o.y+e.h/2)*TILE-gy)<=z.R){ rr(g,o.x*TILE+1,o.y*TILE+1,e.w*TILE-2,e.h*TILE-2,9); g.strokeStyle=`rgba(${z.col},.9)`; g.lineWidth=3/Math.max(.6,cam.zoom); g.stroke(); } } }
   }
   if(mode.kind==='build'&&hover&&!pan){ const d=FAC[mode.type]; const tx=Math.round(hover.x/TILE-d.w/2), ty=Math.round(hover.y/TILE-d.h/2); ghost(g,mode.type,tx,ty,canPlace(mode.type,tx,ty,null)&&S.money>=d.cost,t); }
   if(mode.kind==='decor'&&hover&&!pan){
@@ -2164,8 +2203,176 @@ function expandLand(){
   for(let i=0;i<70;i++){ const c=document.createElement('i'); c.className='confetti'; c.style.left=(Math.random()*100)+'%'; c.style.background=cols[i%cols.length]; c.style.setProperty('--dx',((Math.random()*2-1)*120)+'px'); c.style.animationDelay=(Math.random()*.4)+'s'; box.appendChild(c); setTimeout(()=>c.remove(),2400); }
   toast(`${fmt(EXPAND_COST)}금으로 도시의 땅을 넓혔어요!`,'good');
 }
+/* ───────── 사건·사고 (누적 사용 금액 200,000금 이후) ─────────
+   화재 → 소방서가 소방차 출동 · 도난/교통사고 → 경찰서가 경찰차 출동 · 도로 파손 → 시청이 보수 차량 출동 */
+const INCIDENT_START=200000;
+const INC_INFO={
+  fire:    {icon:'🔥',name:'화재',     svc:'fire',     svcName:'소방서', unit:'소방차',      work:4500, wait:45000, reward:800, fail:'불이 번져 수리비가 들었어요', working:'불 끄는 중'},
+  theft:   {icon:'🚨',name:'도난 사건',svc:'police',   svcName:'경찰서', unit:'경찰차',      work:3500, wait:40000, reward:600, fail:'도둑이 물건을 훔쳐 달아났어요', working:'범인 체포 중'},
+  accident:{icon:'💥',name:'교통사고', svc:'police',   svcName:'경찰서', unit:'경찰차',      work:3500, wait:40000, reward:500, fail:'교통이 마비돼 손해가 났어요', working:'사고 처리 중'},
+  road:    {icon:'🚧',name:'도로 파손',svc:'cityhall', svcName:'시청',   unit:'도로 보수 차량', work:5000, wait:50000, reward:500, fail:'긴급 보수 비용이 들었어요', working:'도로 보수 중'}
+};
+let incidents=[], nextIncidentAt=0, incSeq=1;
+const incidentsActive=()=>(S.spent||0)>=INCIDENT_START;
+function incidentTick(){
+  if(!S.started||!incidentsActive()) return;
+  const now=performance.now();
+  if(!S.incidentsOn){
+    if(!$('modal').hidden) return;
+    S.incidentsOn=true; saveGame(false); nextIncidentAt=now+20000;
+    openModal('🚨 도시에 사건·사고가 생기기 시작했어요!',`<p>누적 사용 금액이 <b>${fmt(INCIDENT_START)}금</b>을 넘을 만큼 도시가 커졌어요. 이제 화재, 도난, 교통사고, 도로 파손이 가끔 일어나요.</p>
+      <p>🔥 화재 → <b>소방서</b>의 소방차가 출동해 불을 꺼요.<br>🚨 도난·💥 교통사고 → <b>경찰서</b>의 경찰차가 출동해요.<br>🚧 도로 파손 → <b>시청</b>의 도로 보수 차량이 출동해요.</p>
+      <p class="note">담당 기관이 없거나 도로로 갈 수 없으면 시간이 지나 피해가 생겨요. 사건을 해결하면 시민 감사금을 받아요.</p>`,[{label:'대비할게요!',cls:'primary'}]);
+    return;
+  }
+  if(!nextIncidentAt) nextIncidentAt=now+25000;
+  if(now<nextIncidentAt) return;
+  if(incidents.filter(i=>i.state!=='done').length>=2){ nextIncidentAt=now+8000; return; }
+  createIncident(); nextIncidentAt=now+45000+Math.random()*35000;
+}
+function createIncident(){
+  const now=performance.now();
+  const bldgs=S.facilities.filter(f=>{ const k=FAC[f.type].kind; return (k==='fusion'||k==='public'||k==='house')&&!f.onFire&&!f.closed; });
+  const shops=bldgs.filter(f=>FAC[f.type].income>0);
+  const roads=roadTiles().filter(t=>!incidents.some(i=>i.state!=='done'&&i.tx===t[0]&&i.ty===t[1]));
+  const types=[]; if(bldgs.length) types.push('fire','fire'); if(shops.length) types.push('theft'); if(roads.length) types.push('accident','road');
+  if(!types.length) return;
+  const type=rnd(types), info=INC_INFO[type], inc={id:incSeq++,type,t0:now,state:'new'};
+  if(type==='fire'||type==='theft'){
+    const pool=type==='fire'?bldgs.filter(b=>b.type!=='fire'):shops.filter(b=>b.type!=='police'); if(!pool.length) return; const f=rnd(pool); inc.facId=f.id; const [cx,cy]=facCenter(f); inc.wx=cx; inc.wy=cy;
+    inc.target=nearestRoad(cx/TILE-.5,cy/TILE-.5); if(type==='fire') f.onFire=inc.id; else f.closed=inc.id;
+    inc.place=FAC[f.type].name;
+  } else { const t=rnd(roads); inc.tx=t[0]; inc.ty=t[1]; inc.target=t; inc.wx=t[0]*TILE+20; inc.wy=t[1]*TILE+20; inc.place='도로'; }
+  dispatchIncident(inc); incidents.push(inc);
+  toast(`${info.icon} ${inc.place}에서 ${info.name} 발생! `+(inc.state==='responding'?`${info.svcName}에서 ${info.unit}이 출동해요.`:inc.outOfArea?`${info.svcName} 담당 구역 밖이라 출동할 수 없어요!`:`${info.svcName}이 없어 출동할 수 없어요!`), inc.state==='responding'?'':'bad');
+  renderIncidents();
+}
+function dispatchIncident(inc){
+  const info=INC_INFO[inc.type], now=performance.now();
+  let best=null;
+  const all=S.facilities.filter(f=>f.type===info.svc);
+  const inArea = info.svc==='cityhall' ? all : all.filter(st=>Math.hypot(facCenter(st)[0]-inc.wx,facCenter(st)[1]-inc.wy)<=safetyR(st));
+  inc.outOfArea = all.length>0 && inArea.length===0;
+  if(inc.target) for(const st of inArea){
+    const [cx,cy]=facCenter(st), sr=nearestRoad(cx/TILE-.5,cy/TILE-.5); if(!sr) continue;
+    const path=bfsPath(sr[0],sr[1],inc.target[0],inc.target[1]); if(path&&(!best||path.length<best.length)) best=path;
+  }
+  if(best){ inc.state='responding'; inc.unit={path:best,i:0,p:0,px:null,py:null,ang:0,dx:0,dy:0,kind:'truck',side:1}; }
+  else { inc.state='waiting'; inc.deadline=now+info.wait; }
+}
+function resolveIncident(inc,ok){
+  const info=INC_INFO[inc.type], f=inc.facId!=null?getFac(inc.facId):null;
+  inc.state='done'; inc.ok=ok; inc.doneAt=performance.now();
+  if(f){ if(f.onFire===inc.id) f.onFire=0; if(f.closed===inc.id) f.closed=0; }
+  if(ok){ gain(info.reward); addFloat(inc.wx,inc.wy-20,`해결! +${info.reward}금`,'#23885a');
+    toast(`${info.icon} ${info.svcName}이 ${inc.place} ${info.name}${hasBatchim(info.name)?'을':'를'} 해결했어요! 시민 감사금 +${info.reward}금`,'good'); }
+  else {
+    let fee = inc.type==='fire'&&f ? Math.round(invested(f)*0.3) : inc.type==='theft' ? 3000 : inc.type==='accident' ? 2000 : 3000;
+    fee=Math.min(fee,Math.floor(S.money)); S.money-=fee; onMoney(false);
+    addFloat(inc.wx,inc.wy-20,`피해 -${fmt(fee)}금`,'#cf4a40');
+    toast(`${info.icon} ${info.fail} (-${fmt(fee)}금) `+(inc.outOfArea?`이곳 가까이에 ${info.svcName}을 더 지어 담당 구역을 넓혀 보세요.`:`${info.svcName}을 지으면 ${info.unit}이 출동해요.`),'bad');
+  }
+  renderIncidents(); saveGame(false);
+}
+function updateIncidents(dt){
+  const now=performance.now();
+  for(const inc of incidents){
+    if(inc.state==='done') continue;
+    if(inc.facId!=null&&!getFac(inc.facId)){ inc.state='done'; inc.ok=true; inc.doneAt=now; continue; }
+    if(inc.state==='responding'){
+      const u=inc.unit, P=u.path;
+      if(u.i<P.length-1){
+        u.p+=dt/1000*4.5; while(u.p>=1&&u.i<P.length-1){ u.p-=1; u.i++; } if(u.i>=P.length-1) u.p=0;
+        const a=P[u.i], b=P[Math.min(u.i+1,P.length-1)], dx=b[0]-a[0], dy=b[1]-a[1]; if(dx||dy){ u.dx=dx; u.dy=dy; }
+        placeAgent(u,a[0]+dx*u.p,a[1]+dy*u.p,u.dx,u.dy,dt);
+      }
+      if(u.i>=P.length-1){ if(u.px==null) placeAgent(u,P[P.length-1][0],P[P.length-1][1],0,0,dt); inc.state='working'; inc.workStart=now; renderIncidents(); }
+    } else if(inc.state==='working'){ if(now-inc.workStart>=INC_INFO[inc.type].work) resolveIncident(inc,true); }
+    else if(inc.state==='waiting'){ if(now>=inc.deadline) resolveIncident(inc,false); }
+  }
+  incidents=incidents.filter(i=>!(i.state==='done'&&now-i.doneAt>4000));
+}
+function renderIncidents(){
+  const box=$('incidents'); if(!box) return;
+  const now=performance.now(), list=incidents;
+  if(!list.length){ box.hidden=true; box.innerHTML=''; return; }
+  box.hidden=false;
+  box.innerHTML='<div class="inc-title">🚨 사건·사고 현황</div>'+list.map(inc=>{
+    const info=INC_INFO[inc.type];
+    const st = inc.state==='responding'?`${info.svcName} ${info.unit} 출동 중`
+      : inc.state==='working'?info.working
+      : inc.state==='waiting'?`${inc.outOfArea?info.svcName+' 구역 밖!':info.svcName+' 없음!'} ${Math.max(0,Math.ceil((inc.deadline-now)/1000))}초 뒤 피해`
+      : inc.ok?'해결 완료!':'피해 발생';
+    const cls = inc.state==='done'?(inc.ok?'ok':'bad'):inc.state==='waiting'?'bad':'go';
+    return `<button class="inc-item ${cls}" data-id="${inc.id}"><span class="inc-ic">${info.icon}</span><span><b>${esc(inc.place)} ${info.name}</b><small>${st}</small></span></button>`;
+  }).join('');
+  box.querySelectorAll('.inc-item').forEach(b=>b.onclick=()=>{ const inc=incidents.find(i=>i.id===+b.dataset.id); if(!inc) return; cam.ox=cw/2-inc.wx*cam.zoom; cam.oy=ch/2-inc.wy*cam.zoom; clampCam(); });
+}
+/* 사건·사고 그림 */
+function drawFlame(g,x,y,sz,t,k){
+  const fl=1+Math.sin(t/90+k*1.7)*.18, h=sz*fl;
+  const gr=g.createLinearGradient(x,y,x,y-h); gr.addColorStop(0,'#ff3d00'); gr.addColorStop(.55,'#ff9800'); gr.addColorStop(1,'rgba(255,235,59,.9)');
+  g.fillStyle=gr; g.beginPath(); g.moveTo(x-sz*.45,y); g.quadraticCurveTo(x-sz*.55,y-h*.55,x+Math.sin(t/120+k)*2,y-h); g.quadraticCurveTo(x+sz*.55,y-h*.55,x+sz*.45,y); g.closePath(); g.fill();
+}
+function drawRepairVan(g,cx,cy,ang,t){
+  g.save(); g.translate(cx,cy); g.rotate(ang);
+  fillRR(g,-14,-5,30,15,4,'rgba(30,45,70,.22)'); fillRR(g,-16,-7,30,14,4,'#ff9800'); g.fillStyle='#ffffff'; g.fillRect(-16,-1,30,2.5);
+  fillRR(g,6,-5,5,10,2,'#d4ecff'); const bl=Math.floor(t/250)%2; fillRR(g,-4,-7,6,3,1,bl?'#ffeb3b':'#ffb300');
+  g.restore();
+}
+function incBubble(g,x,y,text,color){
+  g.font=`900 11px ${FONT}`; const w=g.measureText(text).width+14;
+  fillRR(g,x-w/2,y-10,w,20,10,color); g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(text,x,y+.5);
+  g.fillStyle=color; g.beginPath(); g.moveTo(x-4,y+9); g.lineTo(x+4,y+9); g.lineTo(x,y+14); g.closePath(); g.fill();
+}
+function drawIncidents(g,t){
+  for(const inc of incidents){
+    const info=INC_INFO[inc.type], f=inc.facId!=null?getFac(inc.facId):null;
+    const done=inc.state==='done', blink=Math.floor(t/350)%2;
+    if(inc.type==='fire'&&f&&!done){
+      const d=FAC[f.type], px=f.x*TILE, py=f.y*TILE, w=d.w*TILE, h=d.h*TILE;
+      const n=Math.max(3,d.w*2);
+      for(let k=0;k<n;k++) drawFlame(g,px+(k+.5)*w/n,py+h*.55+Math.sin(k*2.3)*h*.15,10+d.w*3,t,k);
+      for(let k=0;k<4;k++){ const p=((t/1700)+k/4)%1; circle(g,px+w/2+Math.sin(p*5+k)*10,py+h*.3-p*50,8+p*12,`rgba(80,80,90,${(1-p)*.45})`); }
+      if(inc.state==='working'&&inc.unit&&inc.unit.px!=null){
+        const ux=inc.unit.px, uy=inc.unit.py, cx=px+w/2, cy=py+h/2;
+        g.save(); g.strokeStyle='rgba(80,180,255,.85)'; g.lineWidth=3; g.setLineDash([6,4]); g.lineDashOffset=-t*.08;
+        g.beginPath(); g.moveTo(ux,uy); g.quadraticCurveTo((ux+cx)/2,Math.min(uy,cy)-40,cx,cy); g.stroke(); g.restore();
+        for(let k=0;k<6;k++){ const q=((t/500)+k/6)%1; circle(g,cx+Math.cos(k*1.3)*q*20,cy+Math.sin(k*1.3)*q*14,2,`rgba(150,210,255,${1-q})`); }
+      }
+    }
+    if(inc.type==='theft'&&f&&!done){
+      const d=FAC[f.type]; ring(g,(f.x+d.w/2)*TILE,(f.y+d.h/2)*TILE,(d.w+d.h)*TILE*.32+(t%900)/900*10,blink?'rgba(255,82,82,.7)':'rgba(47,111,240,.7)',3);
+      if(inc.state!=='working'){ const a=t/600; circle(g,(f.x+d.w/2)*TILE+Math.cos(a)*d.w*TILE*.45,(f.y+d.h)*TILE-6,4,'#2d2d2d'); fillRR(g,(f.x+d.w/2)*TILE+Math.cos(a)*d.w*TILE*.45+3,(f.y+d.h)*TILE-8,5,5,1,'#8d6e63'); }
+    }
+    if(inc.type==='accident'&&!done){
+      const x=inc.wx, y=inc.wy;
+      g.save(); g.translate(x-8,y-3); g.rotate(.6); fillRR(g,-11,-6,22,12,4,'#78a9ff'); g.restore();
+      g.save(); g.translate(x+8,y+4); g.rotate(-.9); fillRR(g,-11,-6,22,12,4,'#f28b82'); g.restore();
+      circle(g,x,y,5,'rgba(255,200,80,.8)');
+      for(let k=0;k<3;k++){ const p=((t/1400)+k/3)%1; circle(g,x+Math.sin(p*6)*4,y-6-p*24,4+p*6,`rgba(90,90,100,${(1-p)*.45})`); }
+      g.fillStyle=blink?'#ffb300':'#ff7043'; g.beginPath(); g.moveTo(x+16,y-14); g.lineTo(x+23,y-2); g.lineTo(x+9,y-2); g.closePath(); g.fill();
+    }
+    if(inc.type==='road'&&!done){
+      const x=inc.tx*TILE, y=inc.ty*TILE;
+      g.strokeStyle='#2b2b2b'; g.lineWidth=2; g.beginPath(); g.moveTo(x+8,y+12); g.lineTo(x+16,y+18); g.lineTo(x+13,y+24); g.lineTo(x+24,y+28); g.lineTo(x+31,y+22); g.moveTo(x+16,y+18); g.lineTo(x+24,y+14); g.stroke();
+      fillRR(g,x+12,y+17,14,9,4,'rgba(40,40,40,.55)');
+      for(const [cx,cy] of [[x+6,y+6],[x+34,y+6],[x+6,y+34],[x+34,y+34]]){ g.fillStyle='#ff7043'; g.beginPath(); g.moveTo(cx,cy-5); g.lineTo(cx+4,cy+4); g.lineTo(cx-4,cy+4); g.closePath(); g.fill(); g.fillStyle='#fff'; g.fillRect(cx-2.5,cy,5,1.5); }
+      if(inc.state==='working'){ for(let k=0;k<5;k++){ const q=((t/300)+k/5)%1; circle(g,x+20+Math.cos(k*2)*q*12,y+20-q*10,1.6,`rgba(255,220,80,${1-q})`); } }
+    }
+    const col = done?(inc.ok?'#23885a':'#cf4a40') : inc.state==='waiting'?(blink?'#cf4a40':'#e57373') : inc.state==='working'?'#ef8a3c':'#3d6fd8';
+    const label = done?(inc.ok?'해결!':'피해 발생') : inc.state==='working'?info.working : inc.state==='waiting'?`${info.icon} ${info.name}!`:`${info.icon} ${info.name} · 출동 중`;
+    incBubble(g,inc.wx,inc.wy-(f?FAC[f.type].h*TILE/2+14:30),label,col);
+  }
+}
+function drawIncidentUnits(g,t){
+  for(const inc of incidents){ const u=inc.unit; if(!u||u.px==null||inc.state==='done') continue;
+    const svc=INC_INFO[inc.type].svc;
+    if(svc==='fire') drawFireTruck(g,u.px,u.py,u.ang,t); else if(svc==='police') drawPoliceCar(g,u.px,u.py,u.ang,t); else drawRepairVan(g,u.px,u.py,u.ang,t); }
+}
 function maintainAgents(){
   if(!S.started) return;
+  incidentTick(); if(incidents.length) renderIncidents();
   updateLine();
   if(line.ok&&buses.length){ const rate=Math.min(1,.12+population()/600); for(const f of line.stops){ f.wait=Math.min(5,(f.wait||0)+rate*.5); } }
   const now=performance.now();
@@ -2178,13 +2385,14 @@ function maintainAgents(){
 }
 function updateAgents(dt){
   updateBuses(dt);
+  updateIncidents(dt);
   for(const a of traffic) updateRoamer(a,dt);
   for(const a of walkers) updateRoamer(a,dt);
   const now=performance.now(); spawnQueue=spawnQueue.filter(s=>{ if(s.at<=now){ s.fn(); return false; } return true; });
   for(const m of movers) updateMover(m,dt);
   traffic=traffic.filter(a=>!a.dead); walkers=walkers.filter(a=>!a.dead); movers=movers.filter(m=>!m.dead);
 }
-function clearAgents(){ traffic=[]; walkers=[]; movers=[]; spawnQueue=[]; buses=[]; }
+function clearAgents(){ traffic=[]; walkers=[]; movers=[]; spawnQueue=[]; buses=[]; incidents=[]; nextIncidentAt=0; renderIncidents(); }
 /* 그림 */
 function drawSedan(g,cx,cy,ang,color){
   g.save(); g.translate(cx,cy); g.rotate(ang);
@@ -2293,6 +2501,7 @@ function tryPlace(w,keep){
   if(d.residents>0) scheduleMigration(f);
   addFloat((tx+d.w/2)*TILE,ty*TILE+10,`-${d.cost}금`,'#cf4a40');
   if(d.kind==='house') toast(housesNeeded()>0?`${d.name} 완성! 다음 시설을 지으려면 주민 ${housesNeeded()}명분의 주거가 더 필요해요.`:`${d.name} 완성! 이제 다음 융합 시설을 지을 수 있어요.`,'good');
+  else if(type==='fire'||type==='police'){ const [cx,cy]=facCenter(f), n=S.facilities.filter(o=>zoneTarget(o)&&Math.hypot(facCenter(o)[0]-cx,facCenter(o)[1]-cy)<=safetyR(f)).length; toast(`${d.name} 완공! 반경 ${safetyR(f)/TILE}칸 담당 구역 안 건물 ${n}곳을 ${type==='fire'?'화재로부터':'범죄·사고로부터'} 지켜요. 주민 ${d.residents}명이 이주해 와요.`,'good'); }
   else if(d.kind==='public') toast(`${d.name} 완공! ${publicReason(type)[1]}라는 소문에 주민 ${d.residents}명이 이주해 와요.`+(d.income?` 10초마다 ${facIncome(f)}금의 수익도 생겨요.`:'')+(housesNeeded()>0?` 주거 ${housesNeeded()}명분이 더 필요해요.`:''),'good');
   else if(d.kind==='stop'){ const n=S.facilities.filter(q=>q.type==='stop').length; toast(n<2?`버스 정류장 ${n}번 설치! 정류장을 1곳 더 설치하면 노선이 생겨요.`:`버스 정류장 ${n}번 설치! 노선이 ${n}개 정류장으로 늘어났어요.`+(h2Buses()?'':' 수소충전소를 지어야 버스가 달려요.'),'good'); }
   else if(d.kind==='decor') toast(`${d.name}${hasBatchim(d.name)?'으로':'로'} 도시를 꾸몄어요!`,'good');
@@ -2660,6 +2869,7 @@ function renderInfo(){
     info.innerHTML=`<div class="ip-head"><canvas></canvas><div><b>${d.name}</b><small>건설비 ${fmt(d.cost)}금 · ${d.income?'문화 시설':'공공 시설'}</small></div><button class="ip-x" aria-label="닫기">×</button></div>
       <p class="ip-val">${d.desc}</p>
       <div class="ip-row"><span>이주한 주민</span><span id="ipRes"></span></div>
+      ${isStation(f.type)?`<div class="ip-up"><div class="ip-lv"><span class="stars">${'★'.repeat(facLv(f))}${'☆'.repeat(3-facLv(f))}</span><b>Lv.${facLv(f)}</b><span class="ip-upinfo">${facLv(f)<3?`다음 레벨 구역 <b>반경 ${SAFETY_RS[facLv(f)]/TILE}칸</b>`:'최고 레벨'}</span></div>${facLv(f)<3?`<div class="ip-upnote">${UP_NOTE[f.type][facLv(f)]}</div><button class="btn gold" id="ipUp"></button>`:''}</div>`:''}
       ${d.income?`<div class="ip-row"><span>수익</span><b>+${facIncome(f)}금 / 10초${lvInfo().bonus?` (등급 +${Math.round(lvInfo().bonus*100)}%)`:''}</b></div><div class="ip-bar"><i id="ipBar"></i></div><div class="ip-next" id="ipNext"></div>`:''}
       <p class="ip-val" style="font-weight:800;color:var(--good)">${d.income?`${josa(publicReason(f.type)[0],'이','가')} 좋아져 주민이 늘고, ${josaRo(publicReason(f.type)[2]||'운영')} 수익도 생겨요.`:`수익은 없지만 ${josa(publicReason(f.type)[0],'이','가')} 좋아져 주민이 늘고, 도로 위 차량도 늘어나요.`}</p>
       <p class="ip-tip">끌어서 옮길 수 있어요 (이동 무료).</p>
@@ -2693,6 +2903,7 @@ function renderInfo(){
     <div class="ip-actions">${deleteConfirm
       ?`<div class="ip-confirm">정말 철거할까요? 건설·업그레이드에 쓴 ${fmt(invested(f))}금의 50%인 ${fmt(refund)}금을 돌려받아요.</div><button class="btn danger" id="ipYes">철거하기</button><button class="btn" id="ipNo">취소</button>`
       :`<button class="btn danger" id="ipDel">철거하기 (+${refund}금 반환)</button>`}</div>`;
+  { const sf=safetyNote(f); if(sf) info.querySelector('.ip-head').insertAdjacentHTML('afterend',`<div class="ip-smart on" style="background:var(--panel2);color:var(--ink)">${sf}</div>`); }
   { const sn=smartNote(f); if(sn) info.querySelector('.ip-head').insertAdjacentHTML('afterend',`<div class="ip-smart${sn.on?' on':''}">${sn.text}</div>`); }
   paintIllu(info.querySelector('canvas'),f.type,58,48);
   info.querySelector('.ip-x').onclick=()=>{ selId=null; deleteConfirm=false; renderInfo(); };
@@ -2752,7 +2963,7 @@ $('rankRefresh').onclick=()=>loadRanking();
 document.querySelectorAll('.rank-tab').forEach(b=>b.onclick=()=>{ rankScope=b.dataset.scope; document.querySelectorAll('.rank-tab').forEach(x=>x.classList.toggle('on',x===b)); loadRanking(); });
 $('expandBtn').onclick=openExpand;
 $('redevBtn').onclick=openRedev;
-$('rangeBtn').onclick=()=>{ showRange=!showRange; $('rangeBtn').classList.toggle('on',showRange); $('rangeBtn').textContent=showRange?'관리 범위 숨기기':'관리 범위 보기'; };
+$('rangeBtn').onclick=()=>{ showRange=!showRange; $('rangeBtn').classList.toggle('on',showRange); $('rangeBtn').textContent=showRange?'구역 숨기기':'관리·안전 구역 보기'; };
 
 /* ───────── 알림 / 창 ───────── */
 function toast(msg,kind){
