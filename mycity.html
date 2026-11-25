@@ -220,6 +220,31 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .toast.out{opacity:0;transform:translateY(-8px)}
 
 .modal{position:fixed;inset:0;background:rgba(15,25,45,.5);display:grid;place-items:center;z-index:110}
+.rank-btn{background:var(--gold-soft);border-color:var(--gold);color:var(--ink)}
+.rank-card{background:var(--panel);border-radius:18px;width:min(900px,95vw);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden}
+.rank-head{display:flex;align-items:center;padding:16px 20px 8px}
+.rank-head h3{margin:0;font-size:20px;font-weight:900}
+.rank-x{margin-left:auto;border:none;background:none;font-size:26px;color:var(--sub);line-height:1}
+.rank-tools{display:flex;gap:6px;align-items:center;padding:0 20px 8px;flex-wrap:wrap}
+.rank-tab{border:1.5px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 14px;font-weight:800;font-size:13px}
+.rank-tab.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.rank-status{font-size:12px;color:var(--sub);margin-left:auto}
+.rank-rule{margin:0 20px 8px;font-size:12px;background:var(--panel2);border-radius:10px;padding:7px 11px;line-height:1.5}
+.rank-rule span{color:var(--sub)}
+.rank-mine{margin:0 20px 10px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.rank-mine div{background:var(--accent-soft);border-radius:10px;padding:7px 9px;font-size:11.5px;line-height:1.35}
+.rank-mine b{display:block;font-size:15px;font-weight:900}
+.rank-mine small{color:var(--sub)}
+.rank-body{overflow:auto;padding:0 20px 18px;min-height:140px}
+.rank-table{width:100%;border-collapse:collapse;font-size:13px}
+.rank-table th{position:sticky;top:0;background:var(--panel);text-align:center;font-size:11.5px;color:var(--sub);padding:7px 4px;border-bottom:2px solid var(--line)}
+.rank-table td{text-align:center;padding:7px 4px;border-bottom:1px solid var(--line)}
+.rank-table td.city{text-align:left;font-weight:800}
+.rank-table tr.me td{background:var(--gold-soft);font-weight:800}
+.rank-table .medal{font-size:18px}
+.rank-msg{text-align:center;color:var(--sub);padding:30px 10px;line-height:1.6;font-size:13.5px}
+.field-label{display:block;font-size:13px;font-weight:800;margin-top:8px}
+.field-err{color:var(--bad);font-size:12.5px;font-weight:700;min-height:18px}
 .modal-card{background:var(--panel);border-radius:18px;padding:22px 24px;width:min(440px,92vw);box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .modal-card h3{margin:0 0 10px;font-size:19px;font-weight:900}
 .modal-card p{margin:6px 0;line-height:1.55;font-size:13.5px}
@@ -298,12 +323,13 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <body>
 <header class="topbar">
   <div class="brand"><b>MY FUTURE CITY</b><span>나만의 미래 도시</span></div>
-  <button class="chip city" id="cityChip" title="클릭해서 도시 이름 바꾸기"><small>도시 이름 (클릭해서 변경)</small><strong id="cityName">-</strong></button>
+  <button class="chip city" id="cityChip" title="클릭해서 도시 이름 바꾸기"><small id="cityLabel">도시 이름 (클릭해서 변경)</small><strong id="cityName">-</strong></button>
   <div class="chip money" id="moneyChip"><small>보유 자금</small><strong id="moneyVal">500금</strong></div>
   <div class="chip" title="도시에 설치한 모든 건물·시설·장식·정류장 수 (도로·나무 제외)"><small>전체 설치 시설</small><strong id="countVal">0개</strong></div>
   <div class="chip pop" title="인구 / 주거 공간이 수용할 수 있는 주민 수"><small>인구 / 주거 수용</small><strong id="popVal">0명</strong></div>
   <div class="chip"><small>도로 위 차량</small><strong id="vehVal">0대</strong></div>
   <div class="spacer"></div>
+  <button class="btn rank-btn" id="rankBtn" title="반 친구들과 도시 순위를 비교해요">🏆 랭킹</button>
   <button class="btn" id="fsBtn" title="전체 화면으로 보기 (Esc로 나가기)">⛶ 전체 화면</button>
   <button class="btn primary" id="saveBtn">게임 저장</button>
   <button class="btn danger" id="resetBtn">초기화</button>
@@ -353,6 +379,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
         <button class="tool" id="zoomFit">전체 보기</button>
         <button class="tool" id="rangeBtn">관리 범위 보기</button>
         <button class="tool" id="expandBtn" title="50,000금으로 동쪽·남쪽 땅을 넓혀요">🗺 땅 넓히기 (50,000금)</button>
+        <button class="tool" id="redevBtn" title="200,000금으로 도시 건물을 세련된 외형으로 바꿔요">🏙 도시 재개발 (200,000금)</button>
         <button class="tool" id="pngBtn">도시 이미지 저장 (PNG)</button>
       </div>
       <div class="info" id="info" hidden></div>
@@ -362,6 +389,13 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   </section>
 </div>
 
+<div class="modal" id="rankModal" hidden><div class="rank-card">
+  <div class="rank-head"><h3>🏆 미래 도시 랭킹</h3><button class="rank-x" id="rankClose" aria-label="닫기">×</button></div>
+  <div class="rank-tools"><button class="rank-tab on" data-scope="class" id="rankTabClass">우리 반</button><button class="rank-tab" data-scope="all">전체</button><span class="rank-status" id="rankStatus"></span><button class="btn" id="rankRefresh">↻ 내 점수 올리고 새로고침</button></div>
+  <div class="rank-rule">순위 기준 <b>① 융합 시설 발전</b> → <b>② 공공 시설 종류</b> → <b>③ 땅 확장</b> → <b>④ 인구</b> → <b>⑤ 보유금</b> <span>(앞 기준이 같을 때만 다음 기준으로 비교해요)</span></div>
+  <div class="rank-mine" id="rankMine"></div>
+  <div class="rank-body" id="rankBody"></div>
+</div></div>
 <div class="start-screen" id="startScreen" role="region" aria-label="게임 시작 화면">
   <div class="start-card">
     <div class="start-sky" aria-hidden="true"><span class="sun"></span><div class="start-buildings"><i class="start-building"></i><i class="start-building"></i><i class="start-building"></i><i class="start-building"></i><i class="start-building"></i></div></div>
@@ -724,9 +758,9 @@ function addFloat(x,y,text,color,small){ floats.push({x,y,text,color,small:!!sma
 
 /* ───────── 저장/불러오기 ───────── */
 function serialize(){
-  return JSON.stringify({ v:1, cityName:S.cityName, money:S.money, researched:S.researched,
+  return JSON.stringify({ v:1, studentId:S.studentId||'', cityName:S.cityName, money:S.money, researched:S.researched,
     facilities:S.facilities.map(f=>({type:f.type,x:f.x,y:f.y,elapsed:Math.floor(f.elapsed),lv:facLv(f)})),
-    roads:Array.from(S.roads).join(''), trees:S.trees.map(t=>[t.x,t.y,t.v]), maxLevel:S.maxLevel||1, riders:S.riders||0, mapW:S.mapW||BASE_COLS, mapH:S.mapH||BASE_ROWS, savedAt:Date.now() });
+    roads:Array.from(S.roads).join(''), trees:S.trees.map(t=>[t.x,t.y,t.v]), maxLevel:S.maxLevel||1, riders:S.riders||0, mapW:S.mapW||BASE_COLS, mapH:S.mapH||BASE_ROWS, redev:!!S.redev, modernOn:S.modernOn!==false, savedAt:Date.now() });
 }
 function saveGame(manual){
   if(!S.started) return false;
@@ -766,6 +800,8 @@ function sanitize(d){
     }
   }
   st.riders=(Number.isInteger(d.riders)&&d.riders>=0)?d.riders:0;
+  st.redev=d.redev===true; st.modernOn=d.modernOn!==false;
+  st.studentId=(typeof d.studentId==='string'&&/^\d{4}$/.test(d.studentId))?d.studentId:'';
   st.maxLevel=(Number.isInteger(d.maxLevel)&&d.maxLevel>=1&&d.maxLevel<=LEVELS.length)?d.maxLevel:1;
   st.trees=st.trees.filter(t=>!st.facilities.some(f=>{const e=FAC[f.type];return t.x>=f.x&&t.x<f.x+e.w&&t.y>=f.y&&t.y<f.y+e.h;}));
   return st;
@@ -779,11 +815,44 @@ function rr(g,x,y,w,h,r){ r=Math.max(0,Math.min(r,w/2,h/2)); g.beginPath(); g.mo
 function fillRR(g,x,y,w,h,r,c){ rr(g,x,y,w,h,r); g.fillStyle=c; g.fill(); }
 function circle(g,x,y,r,c){ g.beginPath(); g.arc(x,y,Math.max(0,r),0,Math.PI*2); g.fillStyle=c; g.fill(); }
 function ring(g,x,y,r,c,lw){ g.beginPath(); g.arc(x,y,Math.max(0,r),0,Math.PI*2); g.strokeStyle=c; g.lineWidth=lw; g.stroke(); }
-function block(g,x,y,w,h,top,side,r,d){ r=r==null?6:r; d=d==null?8:d; fillRR(g,x+3,y+5,w,h,r,'rgba(30,45,70,.18)'); fillRR(g,x,y,w,h,r,side); fillRR(g,x,y,w,h-d,r,top); }
-function lot(g,x,y,w,h){ rr(g,x+2,y+2,w-4,h-4,9); g.fillStyle='#eef1f6'; g.fill(); g.strokeStyle='#d0d8e4'; g.lineWidth=1.5; g.stroke(); }
+/* 도시 재개발(세련된 외형) 스타일: MODERN이 true이면 건물·바닥·도로·나무를 세련되게 그려요 */
+let MODERN=false;
+function hexMix(a,b,t){
+  if(typeof a!=='string'||!/^#[0-9a-f]{6}$/i.test(a)) return a;
+  const pa=parseInt(a.slice(1),16), pb=parseInt(b.slice(1),16), m=(sh)=>Math.round(((pa>>sh)&255)*(1-t)+((pb>>sh)&255)*t);
+  return `rgb(${m(16)},${m(8)},${m(0)})`;
+}
+function block(g,x,y,w,h,top,side,r,d){
+  r=r==null?6:r; d=d==null?8:d;
+  if(!MODERN){ fillRR(g,x+3,y+5,w,h,r,'rgba(30,45,70,.18)'); fillRR(g,x,y,w,h,r,side); fillRR(g,x,y,w,h-d,r,top); return; }
+  const rm=Math.min(r,3), th=h-d;
+  fillRR(g,x+9,y+13,w,h,rm,'rgba(10,20,35,.22)'); fillRR(g,x+5,y+8,w,h,rm,'rgba(10,20,35,.22)');
+  fillRR(g,x,y,w,h,rm,hexMix(side,'#222b3a',.7));
+  if(d>=4){ g.fillStyle='rgba(255,232,160,.6)'; for(let i=x+3;i<x+w-4;i+=6) g.fillRect(i,y+th+1.5,3,d-3); }
+  const gr=g.createLinearGradient(x,y,x+w,y+th); gr.addColorStop(0,hexMix(top,'#e4eef8',.6)); gr.addColorStop(.55,hexMix(top,'#8fa6c2',.6)); gr.addColorStop(1,hexMix(top,'#34445e',.68));
+  rr(g,x,y,w,th,rm); g.fillStyle=gr; g.fill();
+  g.save(); rr(g,x,y,w,th,rm); g.clip();
+  g.strokeStyle='rgba(255,255,255,.15)'; g.lineWidth=1; g.beginPath();
+  for(let i=x+8;i<x+w;i+=8){ g.moveTo(i,y); g.lineTo(i,y+th); } for(let j=y+8;j<y+th;j+=8){ g.moveTo(x,j); g.lineTo(x+w,j); } g.stroke();
+  g.fillStyle='rgba(255,255,255,.17)'; g.beginPath(); g.moveTo(x,y+th*.55); g.lineTo(x+w*.42,y); g.lineTo(x+w*.6,y); g.lineTo(x,y+th*.88); g.closePath(); g.fill();
+  g.restore();
+  rr(g,x+.5,y+.5,w-1,th-1,rm); g.strokeStyle='rgba(255,255,255,.5)'; g.lineWidth=1; g.stroke();
+}
+function lot(g,x,y,w,h){
+  if(!MODERN){ rr(g,x+2,y+2,w-4,h-4,9); g.fillStyle='#eef1f6'; g.fill(); g.strokeStyle='#d0d8e4'; g.lineWidth=1.5; g.stroke(); return; }
+  rr(g,x+2,y+2,w-4,h-4,4); g.fillStyle='#c9cfd8'; g.fill();
+  g.save(); rr(g,x+2,y+2,w-4,h-4,4); g.clip(); g.strokeStyle='rgba(255,255,255,.4)'; g.lineWidth=1; g.beginPath();
+  for(let i=x+12;i<x+w;i+=10){ g.moveTo(i,y); g.lineTo(i,y+h); } for(let j=y+12;j<y+h;j+=10){ g.moveTo(x,j); g.lineTo(x+w,j); } g.stroke(); g.restore();
+  rr(g,x+2,y+2,w-4,h-4,4); g.strokeStyle='#8f99a8'; g.lineWidth=1.5; g.stroke();
+  rr(g,x+4.5,y+4.5,w-9,h-9,3); g.strokeStyle='rgba(80,200,220,.45)'; g.lineWidth=1; g.stroke();
+}
 function bolt(g,cx,cy,s,c){ g.beginPath(); g.moveTo(cx+s*.2,cy-s); g.lineTo(cx-s*.55,cy+s*.15); g.lineTo(cx-s*.05,cy+s*.15); g.lineTo(cx-s*.2,cy+s); g.lineTo(cx+s*.6,cy-s*.2); g.lineTo(cx+s*.1,cy-s*.2); g.closePath(); g.fillStyle=c; g.fill(); }
 function label(g,x,y,text,bg,size){
-  g.font=`bold ${size||10}px ${FONT}`; const w=g.measureText(text).width+12, h=(size||10)+8;
+  g.font=`bold ${size||10}px ${FONT}`;
+  if(MODERN){ const tw=g.measureText(text).width, w=tw+18, h=(size||10)+8;
+    fillRR(g,x-w/2,y-h/2,w,h,4,'rgba(22,28,40,.88)'); circle(g,x-w/2+6,y,2.4,bg);
+    g.fillStyle='#ffffff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(text,x+3,y+.5); return; }
+  const w=g.measureText(text).width+12, h=(size||10)+8;
   fillRR(g,x-w/2,y-h/2,w,h,h/2,bg); g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(text,x,y+.5);
 }
 
@@ -1459,9 +1528,65 @@ function drawCinema(g,x,y,w,h,t,f){
 const DRAW={health:drawHealth,biolab:drawBiolab,amuse:drawAmuse,cityhall:drawCityHall,court:drawCourt,stop:drawStop,h2:drawH2,cpark:drawCityPark,bookstore:drawBookstore,parking:drawParking,gym:drawGym,mall:drawMall,police:drawPolice,fire:drawFire,bio:drawBio,farm:drawFarm,school:drawSchool,elem:drawElem,middle:drawMiddle,univ:drawUniv,hospital:drawHospital,cinema:drawCinema,car:drawCarHub,robot:drawRobot,center:drawCenter,factory:drawFactory,uam:drawUAM,house:drawHouse,
   apt:drawApt,flower:drawFlower,fountain:drawFountain,board:drawBoard,tower:drawTower};
 
+/* Premium architectural rendering: visual layer only. */
+const premiumDesign={
+ bio:[ 'BIO', '#cf648d', 'scan'], car:['AUTO','#42a7d1','solar'], robot:['ROBOT','#8b83d5','robot'], center:['SMART','#23a99f','dome'], factory:['FACTORY','#d9a24c','factory'], farm:['FARM','#59b780','farm'], h2:['H₂','#28b6ac','energy'], health:['HEALTH','#db7795','cross'], biolab:['BIO LAB','#806fd1','dome'], uam:['UAM','#448cc7','helipad'], house:['','#75bca1','solar'], apt:['','#5488ba','tower'], elem:['초등학교','#e6aa53','school'], middle:['중학교','#58a8bc','school'], school:['고등학교','#627ec5','school'], univ:['대학교','#817bc4','school'], bookstore:['BOOK','#bb8a65','book'], parking:['P','#879bad','parking'], gym:['GYM','#55a7a1','sport'], mall:['MALL','#b28cc9','mall'], cityhall:['시청','#668ca8','civic'], court:['법원','#9c9b8c','civic'], police:['POLICE','#487fc7','shield'], fire:['119','#e66d60','cross'], hospital:['병원','#e45f68','cross'], cinema:['CINEMA','#9b75c5','cinema'], tower:['','#51b8d2','tower'], stop:['BUS','#38a99c','solar']};
+function premiumBuilding(g,x,y,w,h,t,f,key){
+ const [name,a,kind]=premiumDesign[key];
+ g.save(); g.translate(x,y); g.scale(w/100,h/100); g.beginPath();g.rect(0,0,100,100);g.clip();
+ const rect=(x,y,w,h,c,r=0)=>fillRR(g,x,y,w,h,r,c);
+ const poly=(p,c)=>{g.beginPath();p.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fillStyle=c;g.fill();};
+ const grad=(x,y,X,Y,cs)=>{const z=g.createLinearGradient(x,y,X,Y);cs.forEach((c,i)=>z.addColorStop(i/(cs.length-1),c));return z;};
+ const glass=grad(0,0,85,75,['#f4fcff',a,'#30465c',a]);
+ const tree=(x,y)=>{circle(g,x+2,y+3,4,'#708b75');const z=g.createRadialGradient(x-1,y-2,0,x,y,4);z.addColorStop(0,'#b5e69c');z.addColorStop(1,'#397c57');circle(g,x,y,4,z);};
+ rect(2,2,96,96,'#8fa7a0',5);rect(3,3,93,92,'#e1e8df',4);rect(6,6,88,88,'#c2d8b7',3);rect(10,8,80,83,'#e8eeec',3);
+ for(let i=12;i<90;i+=9){rect(i,9,.45,81,'#cbd6d4');rect(10,i,80,.45,'#cbd6d4');}
+ function mass(X,Y,W,H,D=12,accent=a){
+  poly([[X+5,Y+6],[X+W+8,Y+6],[X+W+8,Y+H+D+5],[X+5,Y+H+D+5]],'rgba(28,53,66,.22)');
+  poly([[X+W,Y],[X+W+5,Y+5],[X+W+5,Y+H+D],[X+W,Y+H+D-3]],'#416477');
+  rect(X,Y+H,W,D,grad(X,Y+H,X,Y+H+D,['#7195a5','#29485c']));
+  for(let i=X+3;i<X+W-2;i+=7){rect(i,Y+H+2,4,Math.max(2,D-5),grad(i,Y+H,i+4,Y+H+D,['#c8eff7','#538aa8']));}
+  rect(X,Y,W,H,'#f5fafb',2);rect(X+2,Y+2,W-4,H-4,grad(X,Y,X+W,Y+H,['#ffffff',accent,accent,'#f0f5f6']),1);
+  for(let i=X+5;i<X+W-2;i+=8)rect(i,Y+3,.7,H-6,'#e0f5fa');
+  poly([[X+2,Y+2],[X+W*.65,Y+2],[X+2,Y+H*.8]],'rgba(255,255,255,.30)');
+  rect(X,Y+H-3,W,3,accent);rect(X+W*.4,Y+H+D-3,W*.2,3,'#e2f6f7');
+ }
+ function solar(X,Y,W,H){rect(X,Y,W,H,'#eef7fa',1);rect(X+1,Y+1,W-2,H-2,'#234c79',1);for(let i=1;i<4;i++)rect(X+i*W/4,Y+1,.7,H-2,'#8bc9eb');rect(X+1,Y+H/2,W-2,.7,'#8bc9eb');}
+ function disk(X,Y,R){circle(g,X+3,Y+4,R,'#8ca7a8');circle(g,X,Y,R,'#f2f8fa');circle(g,X,Y,R-3,glass);ring(g,X,Y,R-6,'#c4f9fa',1.5);circle(g,X,Y,R*.28,a);}
+ if(kind==='farm'){for(let i=0;i<3;i++){let X=13+i*25;mass(X,15,22,54,8);rect(X+3,20,16,43,'#8bcf9b',2);for(let j=0;j<5;j++){rect(X+5,23+j*8,12,4,'#398e65',2);rect(X+5,23+j*8,12,1,'#b9e3a3');}rect(X+10,17,1,49,'#e1f7f2');}solar(32,78,35,8);}
+ else if(kind==='helipad'){mass(12,12,76,65,10);circle(g,50,44,29,'#294b60');ring(g,50,44,25,'#f1c76a',2);ring(g,50,44,20,'#e2f7ff',1);rect(42,31,4,26,'#fff');rect(54,31,4,26,'#fff');rect(42,42,16,4,'#fff');}
+ else if(kind==='dome'){mass(13,28,74,47,10);disk(50,40,30);for(let i=0;i<8;i++){let q=i*Math.PI/4;g.beginPath();g.moveTo(50+Math.cos(q)*8,40+Math.sin(q)*8);g.lineTo(50+Math.cos(q)*26,40+Math.sin(q)*26);g.strokeStyle='#e1f9ff';g.lineWidth=.8;g.stroke();}solar(20,70,20,9);solar(60,70,20,9);}
+ else if(key==='elem'){mass(12,12,76,28,9,'#efad43');mass(12,40,22,22,8,'#f6cf70');rect(43,51,42,31,'#f4d58c',4);rect(47,55,34,23,'#e7b5a2',3);circle(g,57,65,7,'#ed795b');circle(g,57,65,3,'#ffe6a3');rect(69,57,7,17,'#58a9c9',2);rect(67,58,11,3,'#fff');}
+ else if(key==='middle'){mass(12,12,32,49,10,'#32a6a1');mass(44,12,44,25,10,'#71c6bb');rect(49,49,36,34,'#427f9b',3);g.strokeStyle='#fff';g.lineWidth=1;g.strokeRect(52,52,30,28);ring(g,67,66,6,'#fff',1);rect(52,65.5,30,1,'#fff');}
+ else if(key==='school'){mass(12,12,76,28,12,'#506bc0');solar(18,17,27,13);solar(55,17,27,13);rect(13,53,74,31,'#b95548',15);rect(19,58,62,21,'#65a878',10);ring(g,50,68,7,'#fff',1);rect(49.5,58,1,21,'#fff');}
+ else if(key==='univ'){mass(12,12,25,52,11,'#9567b7');mass(63,12,25,52,11,'#9567b7');mass(37,10,26,22,10,'#d5a6dd');rect(39,45,22,36,'#d6e8c4',3);disk(50,61,10);tree(43,77);tree(57,77);}
+ else if(kind==='sport'){mass(12,12,76,54,12,'#318d81');rect(22,20,56,36,'#d8f0e6',17);rect(29,26,42,24,'#56a68b',10);ring(g,50,38,8,'#fff',1);rect(49.5,26,1,24,'#fff');}
+ else if(key==='house'){mass(16,24,68,38,10,'#d49b68');poly([[12,26],[50,8],[88,26],[50,45]],'#ad6549');poly([[12,26],[50,8],[50,45]],'#e3a077');solar(54,23,21,12);rect(15,76,70,10,'#8abf80',3);tree(22,80);}
+ else if(key==='fire'){mass(12,12,76,40,15,'#cf443d');for(let i=0;i<3;i++){rect(17+i*24,48,19,18,'#542f38',2);rect(19+i*24,53,15,9,'#ed6551',2);}rect(34,20,32,14,'#fff',3);g.fillStyle='#bd332e';g.font='bold 12px sans-serif';g.textAlign='center';g.fillText('119',50,31);}
+ else if(key==='biolab'){mass(12,30,76,43,12,'#7855ac');disk(34,35,20);disk(68,35,16);rect(44,54,12,18,'#bba6e5',3);}
+ else if(key==='bookstore'){mass(12,16,76,48,12,'#b77b49');for(let i=0;i<5;i++)rect(20+i*12,23,9,30,['#e7a74c','#a34e50','#668d9a','#7f9b65','#d4b16b'][i],1);}
+ else if(key==='cinema'){mass(12,14,76,52,12,'#513b79');rect(20,22,60,31,'#20283f',3);rect(25,26,50,20,'#c4b7e8',2);for(let i=0;i<6;i++)circle(g,24+i*10,59,2,'#ffd778');}
+ else if(key==='mall'){mass(12,12,76,55,12,'#c17eab');for(let i=0;i<4;i++)rect(18+i*17,22,14,33,['#e9b86a','#77c6c5','#c5a0e0','#e48f9a'][i],3);}
+ else if(key==='h2'){mass(12,12,76,30,9,'#279c91');for(let i=0;i<3;i++){rect(18+i*24,49,15,29,'#e5f4ef',6);rect(20+i*24,55,11,8,'#36b4a0',2);}solar(20,17,60,17);}
+ else if(key==='stop'){rect(10,24,80,37,'#3e7781',4);rect(13,20,74,30,glass,4);rect(18,65,64,8,'#d8b98a',2);rect(15,49,4,30,a);rect(81,49,4,30,a);}
+ 
+ else if(kind==='factory'){mass(12,12,58,57,12);for(let i=0;i<3;i++)solar(17+i*16,20,14,34);mass(73,25,14,35,9);disk(80,17,7);rect(18,76,45,6,'#334c60',2);for(let i=0;i<5;i++)rect(20+i*8,77,5,4,'#efc66e');}
+ else if(kind==='tower'){mass(14,34,72,42,12);mass(25,12,50,52,17);mass(35,7,30,33,14);solar(40,12,20,16);}
+ else if(kind==='energy'||kind==='parking'||kind==='solar'){mass(12,12,76,38,10);solar(19,18,62,25);for(let i=0;i<3;i++){rect(16+i*24,65,19,20,'#8fa5ac',2);rect(20+i*24,67,11,15,'#eaf5f8',3);rect(22+i*24,70,7,5,a,1);}if(key==='house'){rect(36,65,28,20,'#8bc7a0',3);tree(50,75);}}
+ else {mass(12,13,76,56,13);if(kind==='civic'){mass(25,8,50,36,10);for(let i=0;i<5;i++)rect(25+i*11,54,5,18,'#f3f7f5');}else if(kind==='cross'){rect(36,22,28,28,'#f8fcff',6);rect(46,26,8,20,a,1);rect(40,32,20,8,a,1);}else if(kind==='robot'){disk(50,38,21);rect(39,29,22,15,'#f0faff',4);circle(g,45,36,3,'#26576c');circle(g,55,36,3,'#26576c');}else if(kind==='scan'){disk(50,37,22);for(let i=0;i<4;i++)ring(g,50,37,5+i*4,'#f0fcff',1);}else if(kind==='shield'){poly([[35,23],[65,23],[63,43],[50,54],[37,43]],'#f1f8ff');poly([[40,27],[60,27],[58,41],[50,48],[42,41]],a);}else{rect(23,22,54,26,'#e7f5fa',3);for(let i=0;i<4;i++)rect(27+i*13,26,10,18,a,1);}}
+ tree(7,12);tree(93,12);tree(7,87);tree(93,87);
+ if(name){g.font='bold 7px sans-serif';g.textAlign='center';g.textBaseline='middle';let z=Math.min(78,g.measureText(name).width+10);rect(50-z/2,86,z,9,a,2);g.fillStyle='#fff';g.fillText(name,50,90.5);}
+ g.restore();
+}
+for(const key of Object.keys(premiumDesign)){const original=DRAW[key]; if(original) DRAW[key]=function(g,x,y,w,h,t,f){if(!MODERN)return original(g,x,y,w,h,t,f);return premiumBuilding(g,x,y,w,h,t,f,key);};}
+
 /* 나무 */
 const TREE_COL=[['#78c46e','#58a854'],['#93d47c','#6bb85f'],['#6fc19a','#4ea47e']];
 function drawTreeAt(g,cx,cy,v){
+  if(MODERN){ fillRR(g,cx-11,cy-7,22,22,3,'#8e98a7'); fillRR(g,cx-9,cy-5,18,18,2,'#6b5a4a');
+    g.fillStyle='rgba(10,20,35,.25)'; g.beginPath(); g.ellipse(cx+4,cy+8,11,6,0,0,Math.PI*2); g.fill();
+    const c=[['#4f9a62','#3c7d4e'],['#5aa36a','#438a55'],['#468f6e','#356f55']][v]||['#4f9a62','#3c7d4e'];
+    circle(g,cx,cy+2,10,c[1]); circle(g,cx-1,cy,9,c[0]); ring(g,cx-1,cy,6,'rgba(255,255,255,.12)',1); circle(g,cx-4,cy-3,2.5,'rgba(255,255,255,.22)'); return; }
   g.fillStyle='rgba(30,45,70,.18)'; g.beginPath(); g.ellipse(cx+3,cy+9,14,7,0,0,Math.PI*2); g.fill();
   const c=TREE_COL[v]||TREE_COL[0];
   circle(g,cx,cy+3,13,c[1]); circle(g,cx-2,cy,12,c[0]); circle(g,cx-6,cy-4,4,'rgba(255,255,255,.28)');
@@ -1470,8 +1595,10 @@ function drawTreeAt(g,cx,cy,v){
 /* ───────── 지도 그리기 ───────── */
 function tileRange(v){ return [Math.max(0,Math.floor(v.x0/TILE)),Math.max(0,Math.floor(v.y0/TILE)),Math.min(COLS-1,Math.floor(v.x1/TILE)),Math.min(ROWS-1,Math.floor(v.y1/TILE))]; }
 function drawGround(g,v){
-  g.fillStyle='#bde2a3'; g.fillRect(0,0,WORLD_W,WORLD_H);
   const [x0,y0,x1,y1]=tileRange(v);
+  if(MODERN){ g.fillStyle='#a3c88c'; g.fillRect(0,0,WORLD_W,WORLD_H); g.fillStyle='#afd298';
+    for(let y=y0;y<=y1;y++) if(y%2===0) g.fillRect(x0*TILE,y*TILE,(x1-x0+1)*TILE,TILE); return; }
+  g.fillStyle='#bde2a3'; g.fillRect(0,0,WORLD_W,WORLD_H);
   for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
     if(S.roads[idx(x,y)]||water[idx(x,y)]) continue;
     const h=hash(x,y), px=x*TILE, py=y*TILE;
@@ -1520,9 +1647,9 @@ function drawRoads(g,v){
     if(!S.roads[idx(x,y)]) continue;
     const px=x*TILE, py=y*TILE;
     const u=+isRoad(x,y-1), r=+isRoad(x+1,y), d=+isRoad(x,y+1), l=+isRoad(x-1,y);
-    g.fillStyle='#e7eaf0'; g.fillRect(px,py,TILE,TILE);
+    g.fillStyle=MODERN?'#d3d7de':'#e7eaf0'; g.fillRect(px,py,TILE,TILE);
     const L=l?0:7, R=r?0:7, U=u?0:7, D=d?0:7;
-    g.fillStyle='#7f899b'; g.fillRect(px+L,py+U,TILE-L-R,TILE-U-D);
+    g.fillStyle=MODERN?'#4c5565':'#7f899b'; g.fillRect(px+L,py+U,TILE-L-R,TILE-U-D);
     g.fillStyle='rgba(255,255,255,.85)';
     const n=u+r+d+l;
     if(n>=3){
@@ -1911,6 +2038,104 @@ function drawH2(g,x,y,w,h,t,f){
   for(let k=0;k<3;k++){ const p=((t/1600)+k/3)%1; circle(g,x+38+p*10,y+30-p*22,3+p*4,`rgba(200,235,255,${(1-p)*.7})`); }
   label(g,x+31,y+h-10,'수소충전소','#138c7e',9);
 }
+/* ───────── 랭킹 (Google 스프레드시트 연동) ─────────
+   ▼ 선생님: Apps Script 웹 앱 주소(https://script.google.com/macros/s/…/exec)를 아래 따옴표 안에 붙여 넣으세요. */
+const RANKING_URL = 'https://script.google.com/macros/s/AKfycbyRL5C5f0jHc5801K0aXUIqrHzS3UuZoZdWvYCm9B3rupQVmEktBc0Xo33WoZiNToKl/exec';
+function rankStats(){
+  // ① 융합 시설 발전 점수 (시설 1종마다 최대 4점: 연구 1 + 건설 1 + Lv.2 1 + Lv.3 1 → 10종 × 4 = 40점)
+  let fusion=0, research=0, built=0;
+  for(const t of FAC_ORDER){
+    const r=S.researched.includes(t), lv=S.facilities.filter(f=>f.type===t).reduce((m,f)=>Math.max(m,facLv(f)),0);
+    if(r){ fusion++; research++; } if(lv>0){ fusion++; built++; } if(lv>=2) fusion++; if(lv>=3) fusion++;
+  }
+  const publicKinds=PUBLIC_TYPES.filter(t=>S.facilities.some(f=>f.type===t)).length;
+  return { fusion, fusionMax:FAC_ORDER.length*4, research, built, publicKinds, publicMax:PUBLIC_TYPES.length, expanded:mapW>=COLS, pop:population(), money:Math.floor(S.money), level:lvInfo().lv };
+}
+function cmpRank(a,b){ return (b.fusion-a.fusion)||(b.publicKinds-a.publicKinds)||((b.expanded?1:0)-(a.expanded?1:0))||(b.pop-a.pop)||(b.money-a.money); }
+let lastSubmitKey='', lastSubmitAt=0, rankScope='class', rankBusy=false;
+async function submitScore(silent,force){
+  if(!RANKING_URL||!S.started||!S.studentId) return false;
+  const st=rankStats(), body={sid:S.studentId,city:S.cityName,...st,ver:1}, key=JSON.stringify(body);
+  if(!force&&key===lastSubmitKey) return true;
+  const ctrl=new AbortController(), timer=setTimeout(()=>ctrl.abort(),12000);
+  try{
+    const r=await fetch(RANKING_URL,{method:'POST',body:key,signal:ctrl.signal});
+    const j=await r.json(); clearTimeout(timer);
+    if(j&&j.ok){ lastSubmitKey=key; lastSubmitAt=Date.now(); return true; }
+    if(!silent) toast('랭킹 기록에 실패했어요: '+((j&&j.error)||'알 수 없는 오류'),'bad'); return false;
+  }catch(e){
+    clearTimeout(timer);
+    try{ await fetch(RANKING_URL,{method:'POST',mode:'no-cors',body:key}); lastSubmitKey=key; lastSubmitAt=Date.now(); return true; }   // 응답을 못 읽는 환경에서도 기록은 보냄
+    catch(e2){ if(!silent) toast('랭킹 서버에 연결하지 못했어요. 인터넷 연결을 확인하세요.','bad'); return false; }
+  }
+}
+function classPrefix(){ const s=S.studentId||''; return s.length>=4?s.slice(0,-2):''; }
+function classLabel(){ const s=S.studentId||''; if(s.length===5) return `${s[0]}학년 ${parseInt(s.slice(1,3),10)}반`; if(s.length===4) return `${s[0]}학년 ${s[1]}반`; return '우리 반'; }
+function renderRankMine(){
+  const st=rankStats();
+  $('rankMine').innerHTML=`<div><small>① 융합 시설 발전</small><b>${st.fusion} / ${st.fusionMax}</b><small>연구 ${st.research} · 건설 ${st.built}</small></div>
+    <div><small>② 공공 시설 종류</small><b>${st.publicKinds} / ${st.publicMax}</b></div>
+    <div><small>③ 땅 확장</small><b>${st.expanded?'완료 ✔':'아직'}</b></div>
+    <div><small>④ 인구</small><b>${fmt(st.pop)}명</b></div>
+    <div><small>⑤ 보유금</small><b>${fmt(st.money)}금</b></div>`;
+}
+async function loadRanking(){
+  if(rankBusy) return; rankBusy=true;
+  renderRankMine();
+  const body=$('rankBody'), status=$('rankStatus');
+  if(!RANKING_URL){ body.innerHTML='<div class="rank-msg">아직 랭킹 서버가 연결되지 않았어요.<br>선생님이 구글 스프레드시트 주소를 게임 파일에 넣으면 반 친구들과 순위를 비교할 수 있어요.</div>'; status.textContent=''; rankBusy=false; return; }
+  body.innerHTML='<div class="rank-msg">순위를 불러오는 중이에요…</div>'; status.textContent='내 점수 올리는 중…';
+  await submitScore(true,true);
+  try{
+    const ctrl=new AbortController(), timer=setTimeout(()=>ctrl.abort(),12000);
+    const q=rankScope==='class'&&classPrefix()?`&cls=${encodeURIComponent(classPrefix())}`:'';
+    const r=await fetch(`${RANKING_URL}?action=rank${q}&t=${Date.now()}`,{signal:ctrl.signal}); const j=await r.json(); clearTimeout(timer);
+    if(!j||!j.ok) throw new Error((j&&j.error)||'error');
+    const list=(j.list||[]).slice().sort(cmpRank);
+    status.textContent=`${lastSubmitAt?'내 점수 등록 완료 · ':''}${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})} 기준`;
+    if(!list.length){ body.innerHTML='<div class="rank-msg">아직 등록된 도시가 없어요. 첫 번째 주인공이 되어 보세요!</div>'; rankBusy=false; return; }
+    const medal=['🥇','🥈','🥉'];
+    body.innerHTML=`<table class="rank-table"><thead><tr><th>순위</th><th>학번</th><th style="text-align:left">도시 이름</th><th>① 융합 발전</th><th>② 공공 시설</th><th>③ 땅 확장</th><th>④ 인구</th><th>⑤ 보유금</th></tr></thead><tbody>${
+      list.map((r,i)=>`<tr class="${r.sid===S.studentId?'me':''}"><td>${i<3?`<span class="medal">${medal[i]}</span>`:i+1}</td><td>${esc(String(r.sid))}</td><td class="city">${esc(String(r.city||''))}</td><td>${r.fusion}/${FAC_ORDER.length*4}</td><td>${r.publicKinds}/${PUBLIC_TYPES.length}</td><td>${r.expanded?'✔':'-'}</td><td>${fmt(r.pop)}명</td><td>${fmt(r.money)}금</td></tr>`).join('')}</tbody></table>`;
+    const me=list.findIndex(r=>r.sid===S.studentId);
+    if(me>=0) status.textContent=`내 순위 ${me+1}위 / ${list.length}명 · `+status.textContent;
+  }catch(e){ body.innerHTML='<div class="rank-msg">순위를 불러오지 못했어요.<br>인터넷 연결을 확인하고 새로고침을 눌러 보세요.</div>'; status.textContent=''; }
+  rankBusy=false;
+}
+function openRanking(){
+  if(!S.started) return;
+  $('rankTabClass').textContent=classLabel();
+  $('rankModal').hidden=false; loadRanking();
+}
+/* ───────── 도시 재개발 (외형만 세련되게) ───────── */
+const REDEV_COST=200000;
+function applyStyle(){
+  MODERN=!!(S.redev&&S.modernOn!==false);
+  const b=$('redevBtn'); if(b){ b.textContent=S.redev?(MODERN?'🏙 세련된 도시 ON':'🧸 아기자기 도시'):'🏙 도시 재개발 (200,000금)'; b.classList.toggle('on',MODERN); b.title=S.redev?'눌러서 세련된 외형 ↔ 아기자기한 외형을 바꿔요 (무료)':'200,000금으로 도시 건물을 세련된 외형으로 바꿔요'; }
+  buildSidebar(); refreshCards(); renderLab(); renderInfo();
+}
+function openRedev(){
+  if(S.redev){ S.modernOn=!(S.modernOn!==false); applyStyle(); saveGame(false); toast(MODERN?'세련된 도시 모습으로 바꿨어요.':'아기자기한 도시 모습으로 바꿨어요.','good'); return; }
+  if(S.money<REDEV_COST){ toast(`도시를 재개발하려면 ${fmt(REDEV_COST)}금이 필요해요. 지금 ${fmt(REDEV_COST-S.money)}금이 부족해요.`,'bad'); return; }
+  openModal('도시를 재개발할까요?',`<p><b>${fmt(REDEV_COST)}금</b>을 써서 도시의 모든 건물을 유리와 금속으로 된 <b>세련된 외형</b>으로 바꿔요.</p><p>바닥은 화강암 광장, 도로는 진한 아스팔트, 나무는 화단에 심은 가로수로 바뀌어요. 바뀌는 건 <b>외형뿐</b>이고 수익·인구·레벨은 그대로예요.</p><p class="note">재개발한 뒤에는 버튼을 눌러 세련된 모습과 아기자기한 모습을 무료로 오갈 수 있어요.<br>보유 자금 ${fmt(S.money)}금 → ${fmt(S.money-REDEV_COST)}금</p>`,[
+    {label:'취소'},
+    {label:`${fmt(REDEV_COST)}금으로 재개발`,cls:'primary',onClick:doRedev}
+  ]);
+}
+function doRedev(){
+  if(S.redev) return;
+  if(!spend(REDEV_COST)){ toast('자금이 부족해서 재개발하지 못했어요.','bad'); return; }
+  S.redev=true; S.modernOn=true; applyStyle(); saveGame(false);
+  const box=$('levelUp');
+  box.innerHTML=`<div class="lu-card"><div class="lu-eyebrow">도시 재개발 완료!</div><div class="lu-title">세련된 미래 도시</div>
+    <div class="lu-sub">유리 외벽과 금속 장식이 빛나는 세련된 도시로 다시 태어났어요.</div>
+    <div class="lu-bonus">외형만 바뀌고 수익·인구·레벨은 그대로예요</div><div style="height:12px"></div>
+    <button class="btn primary" id="luOk">도시 둘러보기</button></div>`;
+  box.hidden=false; $('luOk').onclick=()=>{ box.hidden=true; };
+  const cols=['#5ec8d8','#9aa6b8','#3d6fd8','#f2c14e','#ffffff'];
+  for(let i=0;i<70;i++){ const c=document.createElement('i'); c.className='confetti'; c.style.left=(Math.random()*100)+'%'; c.style.background=cols[i%cols.length]; c.style.setProperty('--dx',((Math.random()*2-1)*120)+'px'); c.style.animationDelay=(Math.random()*.4)+'s'; box.appendChild(c); setTimeout(()=>c.remove(),2400); }
+  toast(`${fmt(REDEV_COST)}금으로 도시를 재개발했어요!`,'good');
+}
 /* ───────── 땅 넓히기 ───────── */
 function expanded(){ return mapW>=COLS&&mapH>=ROWS; }
 function refreshExpandBtn(){ const b=$('expandBtn'); if(!b) return; b.hidden=expanded(); }
@@ -2124,6 +2349,7 @@ $('zoomOut').onclick=()=>zoomAt(cw/2,ch/2,1/1.25);
 $('zoomFit').onclick=fitAll;
 document.addEventListener('keydown',e=>{
   if(!$('modal').hidden) return;
+  if(!$('rankModal').hidden){ if(e.key==='Escape') $('rankModal').hidden=true; return; }
   if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')) return;
   if(e.key==='Escape'){ if(mode.kind!=='none') setMode({kind:'none'}); else if(selId!==null){ selId=null; deleteConfirm=false; renderInfo(); } }
   if((e.key==='u'||e.key==='U')&&selId!==null){ upgradeFac(selId); }
@@ -2255,7 +2481,7 @@ function setBuildBtn(btn,type,done,building){
 }
 function refreshDecor(){ for(const id in decorRefs) decorRefs[id].classList.toggle('active',mode.kind==='decor'&&mode.tool===id); }
 function refreshStats(){
-  $('cityName').textContent=S.cityName;
+  $('cityName').textContent=S.cityName; { const l=$('cityLabel'); if(l) l.textContent=S.studentId?`학번 ${S.studentId} · 도시 이름 (클릭해서 변경)`:'도시 이름 (클릭해서 변경)'; }
   $('countVal').textContent=`${S.facilities.length}개`;
   $('popVal').textContent=`${fmt(population())}명 / ${fmt(housingCap())}명`;
   $('popVal').parentElement.classList.toggle('short',housesNeeded()>0);
@@ -2506,7 +2732,7 @@ function exportPNG(){
     g.fillStyle=grd; g.fillRect(0,0,EW,head);
     g.textBaseline='middle'; g.textAlign='left';
     g.fillStyle='rgba(255,255,255,.85)'; g.font=`bold 15px ${FONT}`; g.fillText('MY FUTURE CITY — 나만의 미래 도시',28,24);
-    g.fillStyle='#fff'; g.font=`900 32px ${FONT}`; g.fillText(S.cityName,28,58);
+    g.fillStyle='#fff'; g.font=`900 32px ${FONT}`; g.fillText(S.cityName+(S.studentId?`  (${S.studentId})`:''),28,58);
     g.textAlign='right'; g.font=`bold 16px ${FONT}`;
     g.fillText(`Lv.${lvInfo().lv} ${lvInfo().name}  |  융합 시설 ${fusionCount()}개  |  주거 ${houseCount()}곳  |  인구 ${fmt(population())}명  |  보유 자금 ${fmt(S.money)}금  |  연구 완료 ${S.researched.length}/${FAC_ORDER.length}`,EW-28,40);
     g.font=`13px ${FONT}`; g.fillStyle='rgba(255,255,255,.85)'; g.fillText(new Date().toLocaleString('ko-KR'),EW-28,64);
@@ -2519,7 +2745,13 @@ function exportPNG(){
   }catch(e){ toast('이미지를 저장하지 못했어요.','bad'); }
 }
 $('pngBtn').onclick=exportPNG;
+$('rankBtn').onclick=openRanking;
+$('rankClose').onclick=()=>{ $('rankModal').hidden=true; };
+$('rankModal').addEventListener('click',e=>{ if(e.target===$('rankModal')) $('rankModal').hidden=true; });
+$('rankRefresh').onclick=()=>loadRanking();
+document.querySelectorAll('.rank-tab').forEach(b=>b.onclick=()=>{ rankScope=b.dataset.scope; document.querySelectorAll('.rank-tab').forEach(x=>x.classList.toggle('on',x===b)); loadRanking(); });
 $('expandBtn').onclick=openExpand;
+$('redevBtn').onclick=openRedev;
 $('rangeBtn').onclick=()=>{ showRange=!showRange; $('rangeBtn').classList.toggle('on',showRange); $('rangeBtn').textContent=showRange?'관리 범위 숨기기':'관리 범위 보기'; };
 
 /* ───────── 알림 / 창 ───────── */
@@ -2534,6 +2766,22 @@ function openModal(title,body,buttons,onOpen){
   $('modal').hidden=false; if(onOpen) onOpen();
 }
 const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SID_RE=/^\d{4}$/;   // 학번 4자리 (예: 2315 = 2학년 3반 15번)
+function startInfoModal(title,sid,city,cta,onDone,cancelable){
+  const body=`<label class="field-label" for="sidInput">학번</label><input id="sidInput" inputmode="numeric" maxlength="4" placeholder="예: 2315 (2학년 3반 15번)" value="${esc(sid||'')}">
+    <div class="field-err" id="sidErr"></div>
+    <label class="field-label" for="nameInput">도시 이름</label><input id="nameInput" maxlength="20" placeholder="예: 써니 미래도시" value="${esc(city||'')}">
+    <p class="note">학번과 도시 이름은 반 랭킹에 표시돼요. 게임은 이 컴퓨터의 이 브라우저에 저장돼요.</p>`;
+  const submit=()=>{
+    const v=($('sidInput').value||'').trim();
+    if(!SID_RE.test(v)){ $('sidErr').textContent='학번을 숫자 4자리로 입력하세요. (예: 2315)'; $('sidInput').focus(); return false; }
+    onDone(v,($('nameInput').value||'').trim().slice(0,20)||'나의 미래도시');
+  };
+  const btns=[{label:cta,cls:'primary',onClick:submit}]; if(cancelable) btns.unshift({label:'취소'});
+  openModal(title,body,btns,()=>{ const a=$('sidInput'), b=$('nameInput'); (sid?b:a).focus();
+    a.addEventListener('input',()=>{ a.value=a.value.replace(/\D/g,''); $('sidErr').textContent=''; });
+    for(const el of [a,b]) el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ if(submit()!==false) $('modal').hidden=true; } }); });
+}
 function nameModal(title,initial,cta,onDone,cancelable){
   const body=`<p>학생이 직접 지은 도시 이름이 상단과 도시 이미지에 표시돼요.</p><input id="nameInput" maxlength="20" placeholder="예: 써니 미래도시" value="${esc(initial||'')}"><p class="note">게임은 이 컴퓨터의 이 브라우저에만 저장돼요. 다른 컴퓨터나 다른 브라우저에서는 저장 내용이 보이지 않아요.</p>`;
   const submit=()=>{ const v=($('nameInput').value||'').trim().slice(0,20)||'나의 미래도시'; onDone(v); };
@@ -2543,10 +2791,10 @@ function nameModal(title,initial,cta,onDone,cancelable){
 function startGame(st){
   S=st; mapW=S.mapW||BASE_COLS; mapH=S.mapH||BASE_ROWS; refreshExpandBtn(); if(cw>10) fitDefault(); S.maxLevel=Math.max(S.maxLevel||1,levelForPop(population())); S.started=true; lastTick=performance.now(); dispMoney=S.money; clearAgents(); $('levelUp').hidden=true;
   labType='bio'; labSel=[]; labFeedback=null; labJust=null; selId=null; deleteConfirm=false; floats=[];
-  setMode({kind:'none'}); renderLab(); renderInfo(); refreshStats(); refreshCards(); saveGame(false);
+  setMode({kind:'none'}); applyStyle(); refreshStats(); saveGame(false);
 }
-$('cityChip').onclick=()=>{ if(!S.started) return; nameModal('도시 이름 바꾸기',S.cityName,'바꾸기',v=>{ S.cityName=v; refreshStats(); saveGame(false); },true); };
-$('saveBtn').onclick=()=>saveGame(true);
+$('cityChip').onclick=()=>{ if(!S.started) return; startInfoModal('학번 · 도시 이름 바꾸기',S.studentId,S.cityName,'바꾸기',(sid,v)=>{ S.studentId=sid; S.cityName=v; refreshStats(); saveGame(false); submitScore(false,true); },true); };
+$('saveBtn').onclick=()=>{ saveGame(true); submitScore(false,true); };
 /* 전체 화면 */
 function isFull(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
 function updateFsBtn(){ $('fsBtn').textContent=isFull()?'⛶ 전체 화면 끄기':'⛶ 전체 화면'; $('fsBtn').classList.toggle('on',isFull()); }
@@ -2581,6 +2829,7 @@ function init(){
   setInterval(economyTick,200);
   setInterval(maintainAgents,300);
   setInterval(()=>saveGame(false),30000);
+  setInterval(()=>submitScore(true,false),180000);   // 3분마다 랭킹 자동 갱신
   window.addEventListener('beforeunload',()=>saveGame(false));
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveGame(false); });
   requestAnimationFrame(frame);
@@ -2588,12 +2837,13 @@ function init(){
   const continueBtn=$('continueStartBtn');
   if(saved){
     continueBtn.disabled=false;
-    $('startSaveInfo').textContent=`저장된 도시: ${saved.cityName} · 시설 ${saved.facilities.length}개`;
-    continueBtn.onclick=()=>{ startGame(saved); $('startScreen').hidden=true; toast(`${saved.cityName}에 다시 오신 걸 환영해요!`,'good'); };
+    $('startSaveInfo').textContent=`저장된 도시: ${saved.studentId?saved.studentId+' · ':''}${saved.cityName} · 시설 ${saved.facilities.length}개`;
+    continueBtn.onclick=()=>{ startGame(saved); $('startScreen').hidden=true; toast(`${saved.cityName}에 다시 오신 걸 환영해요!`,'good');
+      if(!S.studentId) startInfoModal('랭킹에 쓸 학번을 입력하세요','',S.cityName,'확인',(sid,v)=>{ S.studentId=sid; S.cityName=v; refreshStats(); saveGame(false); submitScore(false,true); },false); else submitScore(false,true); };
   }
   $('newStartBtn').onclick=()=>{
-    nameModal('나만의 미래 도시 이름 짓기','','도시 건설 시작',v=>{
-      startGame(newState(v)); $('startScreen').hidden=true;
+    startInfoModal('학번과 도시 이름을 입력하세요','','','도시 건설 시작',(sid,v)=>{
+      const st=newState(v); st.studentId=sid; startGame(st); $('startScreen').hidden=true; submitScore(false,true);
       toast('보유 자금 500금으로 시작해요. 왼쪽에서 시설을 골라 연구해 보세요!','good');
     },true);
   };
