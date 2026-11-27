@@ -230,6 +230,29 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .inc-item.bad small{color:var(--bad);font-weight:800}
 .inc-item.go{border-color:var(--accent)}
 .inc-item.ok{border-color:var(--good);background:var(--good-soft)}
+.day-pill{display:inline-flex;align-items:center;cursor:default}
+.quiz-center{position:absolute;left:50%;top:54px;transform:translateX(-50%);z-index:5;border:none;border-radius:16px;padding:9px 18px 8px;font-weight:900;font-size:14px;color:#2b1d00;background:linear-gradient(135deg,#ffd45c,#ffb347);box-shadow:0 8px 20px rgba(0,0,0,.22);cursor:pointer;text-align:center;line-height:1.3}
+.quiz-center small{display:block;font-size:11.5px;font-weight:700}
+.quiz-center:not(:disabled){animation:qzPulse2 1.6s ease-in-out infinite}
+.quiz-center:disabled{background:var(--panel);color:var(--sub);cursor:default;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+@keyframes qzPulse2{50%{box-shadow:0 8px 26px rgba(255,170,40,.65)}}
+.quiz-notice{position:absolute;right:10px;bottom:52px;z-index:5;border:none;border-radius:14px;padding:10px 14px;font-weight:800;font-size:13px;color:#2b1d00;background:linear-gradient(135deg,#ffd45c,#ffb347);box-shadow:0 8px 20px rgba(0,0,0,.2);animation:qzPulse 1.4s ease-in-out infinite;cursor:pointer}
+.quiz-notice b{display:block;font-size:12px}
+@keyframes qzPulse{50%{transform:translateY(-3px) scale(1.03)}}
+.qz-bank{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:8px 0}
+.qz-bank.shake{animation:shake .45s}
+.qz-tech{display:flex;align-items:center;gap:6px;border:1.5px solid;border-radius:10px;padding:5px 7px;font-weight:800;font-size:12px;text-align:left;line-height:1.15;min-height:38px}
+.qz-tech.on{outline:3px solid var(--accent);outline-offset:1px;filter:brightness(1.05)}
+.qz-row{display:flex;flex-direction:column;gap:5px;margin:8px 0}
+.qz-row .tchip{align-self:flex-start}
+.qz-sel{font:inherit;font-size:12.5px;padding:7px 8px;border-radius:9px;border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);width:100%}
+.qz-quote{display:block;margin-top:6px;padding:8px 10px;border-radius:9px;background:var(--panel2);font-size:13px}
+.qz-opts{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.qz-opt{border:1.5px solid var(--line);background:var(--panel2);border-radius:10px;padding:9px 12px;font-weight:700;text-align:left}
+.qz-opt:hover:not(:disabled){border-color:var(--accent)}
+.qz-opt.right{border-color:var(--good);background:var(--good-soft)}
+.qz-opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.qz-ex{font-size:12.5px;line-height:1.55}
 .rank-btn{background:var(--gold-soft);border-color:var(--gold);color:var(--ink)}
 .rank-card{background:var(--panel);border-radius:18px;width:min(900px,95vw);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.3);overflow:hidden}
 .rank-head{display:flex;align-items:center;padding:16px 20px 8px}
@@ -241,7 +264,10 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .rank-status{font-size:12px;color:var(--sub);margin-left:auto}
 .rank-rule{margin:0 20px 8px;font-size:12px;background:var(--panel2);border-radius:10px;padding:7px 11px;line-height:1.5}
 .rank-rule span{color:var(--sub)}
-.rank-mine{margin:0 20px 10px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.rank-mine{margin:0 20px 10px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.rank-mine .rm-total{background:var(--gold-soft)}
+.rank-mine .rm-total b{font-size:18px;color:var(--gold)}
+.rank-table td.score{font-weight:900;color:var(--gold)}
 .rank-mine div{background:var(--accent-soft);border-radius:10px;padding:7px 9px;font-size:11.5px;line-height:1.35}
 .rank-mine b{display:block;font-size:15px;font-weight:900}
 .rank-mine small{color:var(--sub)}
@@ -294,7 +320,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .side-head p{display:none}
 .category-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:6px 10px 4px}
 .category-tab{padding:6px 3px;min-height:30px;font-size:11.5px;position:relative;white-space:nowrap}
-.category-tab:last-child{grid-column:auto/span 2}
+.category-tab:last-child{grid-column:auto}
 .category-tab.alert{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
 .category-tab.alert.active{background:var(--bad);color:#fff;border-color:var(--bad)}
 .category-tab.alert::after{content:'부족';position:absolute;top:-7px;right:-3px;background:var(--bad);color:#fff;font-size:9.5px;font-weight:900;padding:1px 5px;border-radius:99px;animation:alertPulse 1.2s ease-in-out infinite}
@@ -356,6 +382,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
         <button type="button" class="category-tab" data-panel="housing">주거 <span></span></button>
         <button type="button" class="category-tab" data-panel="public">공공·생활 <span></span></button>
         <button type="button" class="category-tab" data-panel="decor">도시 장식 <span></span></button>
+        <button type="button" class="category-tab" data-panel="shops">퀴즈 가게 <span></span></button>
         <button type="button" class="category-tab" data-panel="traffic">무료 꾸미기</button>
       </nav>
       <div class="level-fixed"><div class="level-card" id="levelCard"></div></div>
@@ -364,6 +391,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
         <section class="facility-panel" data-panel-content="housing" hidden><div class="panel-description">주민이 살 공간을 마련해요.</div><div class="fac-list" id="houseList"></div></section>
         <section class="facility-panel" data-panel-content="public" hidden><div class="panel-description">학교, 병원, 공원과 수소 버스 정류장 등 생활 시설을 지어요.</div><div class="fac-list" id="publicList"></div><div class="section-title">수소 버스 노선</div><div class="line-box" id="lineBox"></div></section>
         <section class="facility-panel" data-panel-content="decor" hidden><div class="panel-description">도시 등급이 오르면 새로운 장식이 열려요.</div><div class="fac-list" id="cityDecorList"></div></section>
+        <section class="facility-panel" data-panel-content="shops" hidden><div class="panel-description">지도 위 <b>📚 융합 퀴즈 풀기</b>로 정답을 <b>2개</b> 맞힐 때마다 가게가 하나씩 열려요. 무료로 지을 수 있고(종류별 1곳) 수익도 생겨요.</div><div class="fac-list" id="shopList"></div></section>
         <section class="facility-panel" data-panel-content="traffic" hidden><div class="panel-description">도로와 나무를 자유롭게 배치하고 지울 수 있어요.</div><div class="section-title">무료 꾸미기</div><div class="decor-row" id="decorRow"></div></section>
     </div>
   </aside>
@@ -387,6 +415,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
         <button class="tool" id="zoomIn" title="확대" aria-label="확대">＋</button>
         <button class="tool" id="zoomOut" title="축소" aria-label="축소">－</button>
         <button class="tool" id="zoomFit">전체 보기</button>
+        <span class="tool day-pill" id="dayPill">☀️ 낮</span>
         <button class="tool" id="rangeBtn" title="스마트 도시 관리 센터(청록)·소방서(빨강)·경찰서(파랑)의 구역을 보여 줘요">관리·안전 구역 보기</button>
         <button class="tool" id="expandBtn" title="50,000금으로 동쪽·남쪽 땅을 넓혀요">🗺 땅 넓히기 (50,000금)</button>
         <button class="tool" id="redevBtn" title="200,000금으로 도시 건물을 세련된 외형으로 바꿔요">🏙 도시 재개발 (200,000금)</button>
@@ -395,6 +424,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
       <div class="info" id="info" hidden></div>
       <div class="levelup" id="levelUp" hidden></div>
       <div class="incidents" id="incidents" hidden></div>
+      <button class="quiz-center" id="quizCenter">📚 융합 퀴즈 풀기</button>
       <div class="hintbar" id="hint"></div>
     </section>
   </section>
@@ -403,7 +433,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <div class="modal" id="rankModal" hidden><div class="rank-card">
   <div class="rank-head"><h3>🏆 미래 도시 랭킹</h3><button class="rank-x" id="rankClose" aria-label="닫기">×</button></div>
   <div class="rank-tools"><button class="rank-tab on" data-scope="class" id="rankTabClass">우리 반</button><button class="rank-tab" data-scope="all">전체</button><span class="rank-status" id="rankStatus"></span><button class="btn" id="rankRefresh">↻ 내 점수 올리고 새로고침</button></div>
-  <div class="rank-rule">순위 기준 <b>① 융합 시설 발전</b> → <b>② 공공 시설 종류</b> → <b>③ 땅 확장</b> → <b>④ 인구</b> → <b>⑤ 보유금</b> <span>(앞 기준이 같을 때만 다음 기준으로 비교해요)</span></div>
+  <div class="rank-rule">도시 점수 배점이 큰 순서 <b>① 융합 시설 건설·업그레이드</b> → <b>② 퀴즈 가게</b> → <b>③ 도시 발전율</b> → <b>④ 인구</b> → <b>⑤ 차량</b> → <b>⑥ 버스 정류장</b> → <b>⑦ 보유금</b> <span>(발전율 = 도시 등급 50% + 땅 확장 15% + 재개발 20% + 2단계 땅 확장 15%)</span></div>
   <div class="rank-mine" id="rankMine"></div>
   <div class="rank-body" id="rankBody"></div>
 </div></div>
@@ -424,11 +454,20 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 'use strict';
 
 /* ───────── 기본 상수 ───────── */
-const TILE = 40, COLS = 54, ROWS = 36, WORLD_W = COLS*TILE, WORLD_H = ROWS*TILE;
-const BASE_COLS = 36, BASE_ROWS = 24, EXPAND_COST = 50000;   // 처음 땅 36×24칸 → 확장하면 54×36칸
+const TILE = 40, COLS = 72, ROWS = 48, WORLD_W = COLS*TILE, WORLD_H = ROWS*TILE;
+const BASE_COLS = 36, BASE_ROWS = 24, EXPAND_COST = 50000;
+/* 땅 확장 단계: 36×24 → (50,000금) 54×36 → (재개발 후 800,000금) 72×48 */
+const LAND_STAGES=[[36,24],[54,36],[72,48]];
+const EXPAND_COSTS=[50000,800000];
+const landStage=()=>LAND_STAGES.findIndex(([w,h])=>w===mapW&&h===mapH);
 let mapW = BASE_COLS, mapH = BASE_ROWS;                       // 지금 쓸 수 있는 땅의 크기
 const START_MONEY = 500, CYCLE_MS = 10000, MAX_DT = 5000, MAX_MONEY = 999999999;
-const SAVE_KEY = 'myFutureCity_save_v1';
+/* ▼ 선생님: 학생 모두의 저장을 새로 시작하게 하려면 이 이름만 바꾸세요. (예: '2차', '3차' …)
+   이름이 바뀌면 예전 저장 도시는 불러오지 않고 지워져서, 모든 학생이 처음부터 시작해요. */
+const SAVE_SEASON = '2차';
+const SAVE_KEY = 'myFutureCity_save_' + SAVE_SEASON;
+let OLD_SAVE_CLEARED = false;
+try{ for(let i=localStorage.length-1;i>=0;i--){ const k=localStorage.key(i); if(k&&k.startsWith('myFutureCity_save_')&&k!==SAVE_KEY){ localStorage.removeItem(k); OLD_SAVE_CLEARED=true; } } }catch(e){}
 const FONT = '"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",sans-serif';
 const $ = id => document.getElementById(id);
 
@@ -585,7 +624,29 @@ const HOUSING_TYPES=['house','apt'], PUBLIC_TYPES=['cpark','bookstore','elem','m
 FAC.stop={ name:'버스 정류장', cost:20, income:0, w:1, h:1, techs:[], residents:0, noResearch:true, kind:'stop',
   desc:'수소충전소의 연구를 완료하면 설치할 수 있는 정류장이에요. 도로 바로 옆에 2곳 이상 설치하면 노선이 생기고, 수소충전소를 건설하면 버스가 운행돼요.' };
 const LINE_TYPES=['stop'];
-const ALL_EXTRA=[...HOUSING_TYPES,...PUBLIC_TYPES,...DECOR_TYPES,...LINE_TYPES];
+/* 융합 퀴즈를 맞혀 여는 가게 (무료 건설, 종류별 1곳, 수익 있음) */
+const QUIZ_PER_UNLOCK = 2;   // ▼ 선생님: 가게 하나를 여는 데 필요한 퀴즈 정답 수
+const QUIZ_SHOPS=['restaurant','clothes','variety','studycafe','gacha','cafe','comic','boardgame','optician','icecream','mart','academy','conv'];
+const SHOP_SPEC={
+  restaurant:{name:'레스토랑',w:3,h:2,inc:10,roof:'#ffb199',side:'#d9826b',aw:'#e53935',sign:'레스토랑',icon:'fork'},
+  clothes:{name:'옷가게',w:2,h:2,inc:8,roof:'#f7b2d0',side:'#d986aa',aw:'#d81b60',sign:'옷가게',icon:'shirt'},
+  variety:{name:'잡화점',w:2,h:2,inc:8,roof:'#ffd28a',side:'#dba65c',aw:'#ef6c00',sign:'잡화점',icon:'bag'},
+  studycafe:{name:'스터디카페',w:2,h:2,inc:9,roof:'#b9d4f5',side:'#88a9d6',aw:'#1e63c4',sign:'스터디',icon:'book'},
+  gacha:{name:'뽑기방',w:2,h:2,inc:9,roof:'#d7c2f7',side:'#ad94d9',aw:'#7e3ff2',sign:'뽑기방',icon:'gacha'},
+  cafe:{name:'카페',w:2,h:2,inc:10,roof:'#e6cbb0',side:'#bf9d7c',aw:'#6d4c41',sign:'카페',icon:'cup'},
+  comic:{name:'만화책방',w:2,h:2,inc:9,roof:'#fff0a6',side:'#d8c76d',aw:'#f9a825',sign:'만화방',icon:'bubble'},
+  boardgame:{name:'보드게임방',w:2,h:2,inc:10,roof:'#b6e6c4',side:'#82c297',aw:'#2e7d32',sign:'보드게임',icon:'dice'},
+  optician:{name:'안경점',w:2,h:2,inc:10,roof:'#c9e9f5',side:'#93c4d6',aw:'#00838f',sign:'안경점',icon:'glasses'},
+  icecream:{name:'아이스크림 가게',w:2,h:2,inc:11,roof:'#ffd1dc',side:'#e5a1b2',aw:'#ec407a',sign:'아이스크림',icon:'icecream'},
+  mart:{name:'마트',w:3,h:3,inc:16,roof:'#c8e6a0',side:'#9cc46e',aw:'#43a047',sign:'마트',icon:'cart'},
+  academy:{name:'학원',w:3,h:2,inc:13,roof:'#cfd8f7',side:'#9daadb',aw:'#3949ab',sign:'학원',icon:'pencil'},
+  conv:{name:'편의점',w:2,h:2,inc:12,roof:'#bfe9e1',side:'#86c6b9',aw:'#00897b',sign:'편의점',icon:'24'}
+};
+for(const k of QUIZ_SHOPS){ const sp=SHOP_SPEC[k]; FAC[k]={ name:sp.name, cost:0, income:sp.inc, w:sp.w, h:sp.h, techs:[], residents:0, noResearch:true, kind:'shop', unique:true,
+  desc:`융합 기술 퀴즈를 맞혀 연 ${sp.name}이에요. 무료로 지을 수 있고(종류별 1곳), 10초마다 수익이 생겨요.`.replace(`${sp.name}이에요`,`${sp.name}${hasBatchim(sp.name)?'이에요':'예요'}`) }; }
+const shopsUnlocked=()=>Math.min(QUIZ_SHOPS.length,Math.floor((S.quizCorrect||0)/QUIZ_PER_UNLOCK));
+const isQuizLocked=t=>{ const i=QUIZ_SHOPS.indexOf(t); return i>=0&&i>=shopsUnlocked(); };
+const ALL_EXTRA=[...HOUSING_TYPES,...PUBLIC_TYPES,...DECOR_TYPES,...LINE_TYPES,...QUIZ_SHOPS];
 const PUBLIC_INFO={ amuse:['여가 환경','놀거리가 많은 도시','입장권 판매'], cityhall:['행정 서비스','행정 서비스가 좋은 도시','세금'], court:['법과 질서','법과 질서가 잘 지켜지는 도시'], cpark:['쉼터와 자연','쉬어 가기 좋은 도시'], bookstore:['독서 문화','책 읽기 좋은 도시','책 판매'], parking:['주차 환경','주차하기 편한 도시'],
   gym:['건강 관리 환경','건강하게 지내기 좋은 도시','회원권 판매'], mall:['쇼핑 환경','쇼핑하기 편리한 도시','상점 매출'], cinema:['문화생활 환경','문화생활을 즐기기 좋은 도시','티켓 판매'] };
 function josaRo(w){ const c=w.charCodeAt(w.length-1); if(c<0xAC00||c>0xD7A3) return w+'로'; const j=(c-0xAC00)%28; return w+((j===0||j===8)?'로':'으로'); }
@@ -647,7 +708,7 @@ const safetyR=f=>SAFETY_RS[Math.min(3,Math.max(1,(f&&f.lv)||1))-1];
 const isStation=t=>t==='fire'||t==='police';
 const ZONE={ center:{col:'30,150,135'}, fire:{col:'229,72,77'}, police:{col:'47,111,240'} };
 function zoneOf(f){ const z=ZONE[f.type]; if(!z) return null; return {col:z.col, R:f.type==='center'?CENTER_R[(f.lv||1)-1]:safetyR(f)}; }
-function zoneTarget(o){ const k=FAC[o.type].kind; return (k==='fusion'||k==='public'||k==='house')&&o.type!=='fire'&&o.type!=='police'; }
+function zoneTarget(o){ const k=FAC[o.type].kind; return (k==='fusion'||k==='public'||k==='house'||k==='shop')&&o.type!=='fire'&&o.type!=='police'; }
 function coveredByStation(type,wx,wy){ return S.facilities.filter(st=>st.type===type&&Math.hypot(facCenter(st)[0]-wx,facCenter(st)[1]-wy)<=safetyR(st)); }
 function safetyNote(f){
   if(f.type==='fire'||f.type==='police'){
@@ -669,8 +730,52 @@ function smartNote(f){
   return {on:true,text:`<b>스마트 관리 범위 안</b> · 센서가 시설을 효율적으로 관리해 수익 +${Math.round(CENTER_BONUS[lv-1]*100)}%`};
 }
 function facIncome(f){ return incomeAt(f,facLv(f)); }
+/* 업그레이드 융합 도전: Lv.2 ← 기술 조합 다시 맞추기 / Lv.3 ← 기술의 역할 연결하기 */
+const shuffle=a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 function upgradeFac(id){
   const f=getFac(id); if(!f||!(isFusion(f)||isStation(f.type))) return;
+  const c=upCost(f); if(c==null) return;
+  if(S.money<c){ toast(`업그레이드 비용이 ${fmt(c-S.money)}금 부족해요.`,'bad'); return; }
+  if(isStation(f.type)) return performUpgrade(f);
+  if(!$('modal').hidden) return;
+  comboChallenge(f);   // Lv.2, Lv.3 모두 기술 조합 다시 맞추기
+}
+function comboChallenge(f){
+  const d=FAC[f.type], picked=new Set();
+  const body=`<p><b>${d.name}</b>을(를) Lv.${facLv(f)+1}로 업그레이드하려면, 이 시설에 융합된 기술을 <b>다시 맞혀야</b> 해요. (${d.techs.length}가지)</p>
+    <div class="qz-bank">${TECH_ORDER.map(id=>`<button type="button" class="qz-tech" data-id="${id}" style="--c:${TECHS[id].color};background:${rgba(TECHS[id].color,.12)};border-color:${rgba(TECHS[id].color,.5)}"><span class="ti" style="background:${TECHS[id].color}">${svgIcon(id)}</span>${TECHS[id].name}</button>`).join('')}</div>
+    <div class="field-err" id="qzMsg"></div>`.replace('을(를)',hasBatchim(d.name)?'을':'를');
+  openModal('🔬 업그레이드 융합 도전 · 기술 조합',body,[
+    {label:'취소'},
+    {label:`맞추고 업그레이드 (${fmt(upCost(f))}금)`,cls:'primary',onClick:()=>{
+      if(picked.size!==d.techs.length){ $('qzMsg').textContent=`기술을 ${d.techs.length}가지 골라 주세요. (지금 ${picked.size}가지)`; return false; }
+      const ok=d.techs.every(t=>picked.has(t)), n=d.techs.filter(t=>picked.has(t)).length;
+      if(!ok){ $('qzMsg').textContent=`아쉬워요! ${n}가지만 맞았어요. 다시 골라 보세요. (비용은 빠지지 않았어요)`; $('mBody').querySelector('.qz-bank').classList.remove('shake'); void $('mBody').offsetWidth; $('mBody').querySelector('.qz-bank').classList.add('shake'); return false; }
+      setTimeout(()=>{ performUpgrade(f); toast(`정답! ${resultSentence(d)}`,'good'); },10);
+    }}
+  ],()=>{ $('mBody').querySelectorAll('.qz-tech').forEach(b=>b.onclick=()=>{ const id=b.dataset.id; if(picked.has(id)) picked.delete(id); else picked.add(id); b.classList.toggle('on',picked.has(id)); $('qzMsg').textContent=''; }); });
+}
+function roleChallenge(f){
+  const d=FAC[f.type];
+  const own=d.techs.map(t=>d.roles[t]);
+  const others=shuffle(FAC_ORDER.filter(k=>k!==f.type).flatMap(k=>Object.entries(FAC[k].roles||{}).filter(([t])=>!d.techs.includes(t)).map(([,r])=>r))).slice(0,2);
+  const opts=shuffle([...own,...others]);
+  const body=`<p><b>${d.name}</b> Lv.3 업그레이드 도전! 각 기술이 이 시설에서 <b>어떤 역할</b>을 하는지 연결해 보세요.</p>
+    ${d.techs.map((t,i)=>`<div class="qz-row"><span class="tchip" style="background:${rgba(TECHS[t].color,.12)};border-color:${rgba(TECHS[t].color,.55)}"><span class="ti" style="background:${TECHS[t].color}">${svgIcon(t)}</span>${TECHS[t].name}</span>
+      <select class="qz-sel" data-i="${i}"><option value="">— 역할을 고르세요 —</option>${opts.map((o,k)=>`<option value="${k}">${esc(o)}</option>`).join('')}</select></div>`).join('')}
+    <div class="field-err" id="qzMsg"></div>`;
+  openModal('🔬 업그레이드 융합 도전 · 기술의 역할',body,[
+    {label:'취소'},
+    {label:`연결하고 업그레이드 (${fmt(upCost(f))}금)`,cls:'primary',onClick:()=>{
+      const sels=[...$('mBody').querySelectorAll('.qz-sel')];
+      if(sels.some(x=>x.value==='')){ $('qzMsg').textContent='모든 기술의 역할을 골라 주세요.'; return false; }
+      const n=sels.filter(x=>opts[+x.value]===own[+x.dataset.i]).length;
+      if(n!==own.length){ $('qzMsg').textContent=`아쉬워요! ${own.length}개 중 ${n}개를 맞혔어요. 다시 연결해 보세요. (비용은 빠지지 않았어요)`; return false; }
+      setTimeout(()=>{ performUpgrade(f); toast(`정답! 기술들이 각자의 역할로 힘을 모아 ${d.name}의 가치를 더 키웠어요.`,'good'); },10);
+    }}
+  ]);
+}
+function performUpgrade(f){
   const c=upCost(f); if(c==null) return;
   if(!spend(c)){ toast(`업그레이드 비용이 ${fmt(c-S.money)}금 부족해요.`,'bad'); return; }
   const d=FAC[f.type], before=facIncome(f), r0=safetyR(f);
@@ -697,8 +802,9 @@ function resultSentence(d){
 const fmt = n => Math.round(n).toLocaleString('ko-KR');
 
 /* ───────── 지도 바탕 ───────── */
-const ROAD_ROWS=[4,11,18,25,32], ROAD_COLS=[5,14,23,31,40,49];
-const LAKE={x:42,y:27,w:5,h:4};   // 확장 땅의 호수
+const ROAD_ROWS=[4,11,18,25,32,39,46], ROAD_COLS=[5,14,23,31,40,49,58,67];
+const LAKE={x:42,y:27,w:5,h:4};
+const LAKE2={x:60,y:40,w:6,h:5};   // 2단계 확장 땅의 큰 호수   // 확장 땅의 호수
 const PARK={x:15,y:12,w:8,h:6}, POND={x:17,y:13,w:4,h:4};
 const idx=(x,y)=>y*COLS+x;
 const inB=(x,y)=>x>=0&&y>=0&&x<mapW&&y<mapH;
@@ -706,14 +812,14 @@ const inBS=(st,x,y)=>x>=0&&y>=0&&x<st.mapW&&y<st.mapH;
 const roadPattern=(x,y)=>ROAD_ROWS.includes(y)||ROAD_COLS.includes(x);
 const water=new Uint8Array(COLS*ROWS);
 for(let y=POND.y;y<POND.y+POND.h;y++) for(let x=POND.x;x<POND.x+POND.w;x++) water[idx(x,y)]=1;
-for(let y=LAKE.y;y<LAKE.y+LAKE.h;y++) for(let x=LAKE.x;x<LAKE.x+LAKE.w;x++) water[idx(x,y)]=1;
+for(const L of [LAKE,LAKE2]) for(let y=L.y;y<L.y+L.h;y++) for(let x=L.x;x<L.x+L.w;x++) water[idx(x,y)]=1;
 function hash(x,y){ let h=(x*374761393+y*668265263)|0; h=Math.imul(h^(h>>>13),1274126177); h^=h>>>16; return ((h>>>0)%10000)/10000; }
 function baseRoads(w,h){ w=w||BASE_COLS; h=h||BASE_ROWS; const r=new Uint8Array(COLS*ROWS); for(let y=0;y<h;y++) for(let x=0;x<w;x++) if(roadPattern(x,y)&&!water[idx(x,y)]) r[idx(x,y)]=1; return r; }
 function inPark(x,y){ return x>=PARK.x&&x<PARK.x+PARK.w&&y>=PARK.y&&y<PARK.y+PARK.h; }
-function baseTrees(roads,x0,y0,w,h,skipBase){
-  const t=[]; w=w||BASE_COLS; h=h||BASE_ROWS;
+function baseTrees(roads,x0,y0,w,h,skipBase,pw,ph){
+  const t=[]; w=w||BASE_COLS; h=h||BASE_ROWS; pw=pw||BASE_COLS; ph=ph||BASE_ROWS;
   for(let y=0;y<h;y++) for(let x=0;x<w;x++){
-    if(skipBase&&x<BASE_COLS&&y<BASE_ROWS) continue;
+    if(skipBase&&x<pw&&y<ph) continue;
     const i=idx(x,y); if(roads[i]||water[i]) continue;
     const h=hash(x,y);
     const edge = inPark(x,y) && (x===PARK.x||x===PARK.x+PARK.w-1||y===PARK.y||y===PARK.y+PARK.h-1);
@@ -792,7 +898,7 @@ function addFloat(x,y,text,color,small){ floats.push({x,y,text,color,small:!!sma
 function serialize(){
   return JSON.stringify({ v:1, studentId:S.studentId||'', cityName:S.cityName, money:S.money, researched:S.researched,
     facilities:S.facilities.map(f=>({type:f.type,x:f.x,y:f.y,elapsed:Math.floor(f.elapsed),lv:facLv(f)})),
-    roads:Array.from(S.roads).join(''), trees:S.trees.map(t=>[t.x,t.y,t.v]), maxLevel:S.maxLevel||1, riders:S.riders||0, mapW:S.mapW||BASE_COLS, mapH:S.mapH||BASE_ROWS, redev:!!S.redev, modernOn:S.modernOn!==false, spent:Math.floor(S.spent||0), incidentsOn:!!S.incidentsOn, savedAt:Date.now() });
+    roads:Array.from(S.roads).join(''), trees:S.trees.map(t=>[t.x,t.y,t.v]), maxLevel:S.maxLevel||1, riders:S.riders||0, mapW:S.mapW||BASE_COLS, mapH:S.mapH||BASE_ROWS, redev:!!S.redev, modernOn:S.modernOn!==false, spent:Math.floor(S.spent||0), quizCorrect:S.quizCorrect||0, incidentsOn:!!S.incidentsOn, savedAt:Date.now() });
 }
 function saveGame(manual){
   if(!S.started) return false;
@@ -806,9 +912,9 @@ function sanitize(d){
   const st=newState(typeof d.cityName==='string'&&d.cityName.trim()?d.cityName.trim().slice(0,20):'나의 미래도시');
   st.money=(typeof d.money==='number'&&isFinite(d.money)&&d.money>=0)?Math.min(Math.floor(d.money),MAX_MONEY):START_MONEY;
   if(Array.isArray(d.researched)) st.researched=[...new Set(d.researched.filter(k=>typeof k==='string'&&FAC[k]&&!FAC[k].noResearch))];
-  if(d.mapW===COLS&&d.mapH===ROWS){ st.mapW=COLS; st.mapH=ROWS; st.roads=baseRoads(COLS,ROWS); }
+  { const sg=LAND_STAGES.find(([w,h])=>w===d.mapW&&h===d.mapH); if(sg&&sg[0]!==BASE_COLS){ st.mapW=sg[0]; st.mapH=sg[1]; st.roads=baseRoads(sg[0],sg[1]); } }
   if(typeof d.roads==='string'&&/^[01]+$/.test(d.roads)){
-    const sw = d.roads.length===COLS*ROWS ? COLS : d.roads.length===BASE_COLS*BASE_ROWS ? BASE_COLS : 0;   // 새 형식 / 예전 형식
+    const sw = ([72,54,36].find(w=>d.roads.length===w*(w*2/3)))||0;   // 저장된 도로 지도의 폭 (72·54·36칸)
     if(sw){ const sh=d.roads.length/sw; st.roads=new Uint8Array(COLS*ROWS);
       for(let y=0;y<sh;y++) for(let x=0;x<sw;x++){ if(!inBS(st,x,y)) continue; const i=idx(x,y); st.roads[i]=water[i]?0:(d.roads[y*sw+x]==='1'?1:0); } }
   }
@@ -825,7 +931,11 @@ function sanitize(d){
     for(const r of d.facilities){
       if(!r||typeof r.type!=='string'||!FAC[r.type]) continue;
       if(!Number.isInteger(r.x)||!Number.isInteger(r.y)) continue;
-      if(!canPlaceIn(st,r.type,r.x,r.y,null)) continue;
+      if(!canPlaceIn(st,r.type,r.x,r.y,null)){
+        if(FAC[r.type].kind!=='shop') continue;
+        let moved=false; for(let rad=1;rad<=8&&!moved;rad++) for(let dy=-rad;dy<=rad&&!moved;dy++) for(let dx=-rad;dx<=rad&&!moved;dx++){ if(canPlaceIn(st,r.type,r.x+dx,r.y+dy,null)){ r.x+=dx; r.y+=dy; moved=true; } }
+        if(!moved) continue;
+      }
       let e=Number(r.elapsed); if(!isFinite(e)||e<0) e=0; e=Math.min(e,CYCLE_MS-1);
       const f=makeFac(st,r.type,r.x,r.y,e,null); f.born=0; f.lv=((FAC[r.type].kind==='fusion'||r.type==='fire'||r.type==='police')&&[1,2,3].includes(r.lv))?r.lv:1; st.facilities.push(f);
       if(!FAC[r.type].noResearch&&!st.researched.includes(r.type)) st.researched.push(r.type);
@@ -837,8 +947,9 @@ function sanitize(d){
   st.maxLevel=(Number.isInteger(d.maxLevel)&&d.maxLevel>=1&&d.maxLevel<=LEVELS.length)?d.maxLevel:1;
   // 누적 사용 금액 (예전 저장 파일은 지은 시설·확장·재개발 비용으로 추정)
   st.spent=(typeof d.spent==='number'&&isFinite(d.spent)&&d.spent>=0)?Math.floor(d.spent):
-    st.facilities.reduce((n,f)=>n+invested(f),0)+(st.mapW===COLS?EXPAND_COST:0)+(st.redev?200000:0);
+    st.facilities.reduce((n,f)=>n+invested(f),0)+(st.mapW>=54?EXPAND_COSTS[0]:0)+(st.mapW>=72?EXPAND_COSTS[1]:0)+(st.redev?200000:0);
   st.incidentsOn=d.incidentsOn===true;
+  st.quizCorrect=(Number.isInteger(d.quizCorrect)&&d.quizCorrect>=0)?d.quizCorrect:0;
   st.trees=st.trees.filter(t=>!st.facilities.some(f=>{const e=FAC[f.type];return t.x>=f.x&&t.x<f.x+e.w&&t.y>=f.y&&t.y<f.y+e.h;}));
   return st;
 }
@@ -1561,8 +1672,52 @@ function drawCinema(g,x,y,w,h,t,f){
   for(let k=0;k<4;k++){ g.fillStyle=k%2?'#ffffff':'#e5484d'; g.fillRect(ppx+k*4,ppy,4,12); }
   for(let k=0;k<4;k++) circle(g,ppx+2+k*4,ppy-1,2.6,'#fff3c4');
 }
+function drawShopIcon(g,cx,cy,icon,t,s){
+  s=s||1; g.save(); g.translate(cx,cy); g.scale(s,s); g.strokeStyle='#3b3550'; g.fillStyle='#3b3550'; g.lineWidth=1.3; g.lineCap='round'; g.lineJoin='round';
+  const L=(a,b,c,d)=>{ g.beginPath(); g.moveTo(a,b); g.lineTo(c,d); g.stroke(); };
+  switch(icon){
+    case 'fork': L(-2.5,-4,-2.5,4); L(-4,-4,-4,-1); L(-1,-4,-1,-1); g.beginPath(); g.moveTo(-4,-1); g.quadraticCurveTo(-2.5,1,-1,-1); g.stroke(); g.beginPath(); g.moveTo(2.5,4); g.lineTo(2.5,-4); g.quadraticCurveTo(4.5,-1,2.5,0); g.stroke(); break;
+    case 'shirt': g.beginPath(); g.moveTo(-2,-4); g.lineTo(-5,-2); g.lineTo(-3.5,0); g.lineTo(-2.5,-.5); g.lineTo(-2.5,4); g.lineTo(2.5,4); g.lineTo(2.5,-.5); g.lineTo(3.5,0); g.lineTo(5,-2); g.lineTo(2,-4); g.quadraticCurveTo(0,-2.5,-2,-4); g.closePath(); g.fillStyle='#ec5a96'; g.fill(); break;
+    case 'bag': fillRR(g,-4,-2,8,6,1,'#ef8f2f'); g.beginPath(); g.arc(0,-2,2.4,Math.PI,0); g.stroke(); break;
+    case 'book': g.fillStyle='#ffffff'; g.beginPath(); g.moveTo(0,-2); g.lineTo(-5,-3.5); g.lineTo(-5,3); g.lineTo(0,4); g.lineTo(5,3); g.lineTo(5,-3.5); g.closePath(); g.fill(); g.stroke(); L(0,-2,0,4); break;
+    case 'gacha': circle(g,0,-1.5,3.6,'#e1f5fe'); g.beginPath(); g.arc(0,-1.5,3.6,0,Math.PI*2); g.stroke(); { const a=t/400; circle(g,Math.cos(a)*1.6,-1.5+Math.sin(a)*1.6,1.1,'#ff5c8a'); circle(g,Math.cos(a+2)*1.6,-1.5+Math.sin(a+2)*1.6,1.1,'#ffd54f'); circle(g,Math.cos(a+4)*1.6,-1.5+Math.sin(a+4)*1.6,1.1,'#4fc3f7'); } fillRR(g,-3,2,6,3,1,'#7e3ff2'); break;
+    case 'cup': fillRR(g,-3.5,-1,6,5,1.5,'#ffffff'); g.strokeRect(-3.5,-1,6,5); g.beginPath(); g.arc(3,1.5,1.5,-Math.PI/2,Math.PI/2); g.stroke();
+      { const p=(t%1500)/1500; g.strokeStyle=`rgba(120,120,130,${1-p})`; g.beginPath(); g.moveTo(-1.5,-2-p*2); g.quadraticCurveTo(-.5,-3.5-p*2,-1.5,-5-p*2); g.stroke(); } break;
+    case 'bubble': g.fillStyle='#ffffff'; g.beginPath(); g.ellipse(0,-.5,4.5,3.2,0,0,Math.PI*2); g.fill(); g.stroke(); g.beginPath(); g.moveTo(-1.5,2.4); g.lineTo(-3,4.5); g.lineTo(.5,2.6); g.fill(); circle(g,-1.8,-.5,.6,'#3b3550'); circle(g,0,-.5,.6,'#3b3550'); circle(g,1.8,-.5,.6,'#3b3550'); break;
+    case 'dice': fillRR(g,-4,-4,8,8,1.5,'#ffffff'); g.strokeRect(-4,-4,8,8); for(const [a,b] of [[-2,-2],[2,2],[0,0],[2,-2],[-2,2]]) circle(g,a,b,.75,'#3b3550'); break;
+    case 'glasses': g.beginPath(); g.arc(-2.4,0,2.1,0,Math.PI*2); g.stroke(); g.beginPath(); g.arc(2.4,0,2.1,0,Math.PI*2); g.stroke(); L(-.4,-.4,.4,-.4); L(-4.5,-.5,-5.5,-1.5); L(4.5,-.5,5.5,-1.5); break;
+    case 'icecream': g.fillStyle='#e0b070'; g.beginPath(); g.moveTo(-2.6,0); g.lineTo(2.6,0); g.lineTo(0,5); g.closePath(); g.fill(); circle(g,0,-1.4,2.8,'#ff8fb1'); circle(g,-.8,-2.2,.7,'#ffffff'); break;
+    case 'cart': L(-5,-3.5,-3.5,-3.5); g.beginPath(); g.moveTo(-3.5,-3.5); g.lineTo(-2.5,1.5); g.lineTo(4,1.5); g.lineTo(5,-2); g.lineTo(-3,-2); g.stroke(); circle(g,-1.5,3.4,1,'#3b3550'); circle(g,3,3.4,1,'#3b3550'); break;
+    case 'pencil': g.save(); g.rotate(-.7); fillRR(g,-1.6,-5,3.2,7.5,.6,'#ffca28'); g.fillStyle='#f4c69a'; g.beginPath(); g.moveTo(-1.6,2.5); g.lineTo(1.6,2.5); g.lineTo(0,5.2); g.closePath(); g.fill(); fillRR(g,-1.6,-5.5,3.2,1.6,.5,'#ef9a9a'); g.restore(); break;
+    case '24': g.font=`900 7px ${FONT}`; g.textAlign='center'; g.textBaseline='middle'; g.fillStyle=(Math.floor(t/700)%2)?'#00897b':'#26c6a8'; g.fillText('24',0,.5); break;
+  }
+  g.restore();
+}
+function drawShop(g,x,y,w,h,t,f,type){
+  const sp=SHOP_SPEC[type]; lot(g,x,y,w,h);
+  const cx=x+w/2, bh=Math.round(h*.5), by=y+5;
+  block(g,x+5,by,w-10,bh,sp.roof,sp.side,5,7);
+  const roofMid=by+(bh-7)/2, R=Math.min(w,h)*.17;
+  circle(g,cx,roofMid,R,'rgba(255,255,255,.94)');
+  drawShopIcon(g,cx,roofMid,sp.icon,t,R/6.2);
+  // 차양
+  const ay=by+bh+1, n=Math.round((w-10)/10), sw=(w-10)/n;
+  for(let i=0;i<n;i++){ g.fillStyle=i%2?'#ffffff':sp.aw; g.fillRect(x+5+i*sw,ay,sw,7); g.beginPath(); g.arc(x+5+i*sw+sw/2,ay+7,sw/2,0,Math.PI); g.fill(); }
+  // 가게 앞: 진열창 · 문 · 손님
+  const fy=ay+13, fh=Math.max(10,h-(fy-y)-22);
+  if(type==='mart'){ for(let k=0;k<4;k++){ const px=x+12+k*((w-24)/4), py=fy+fh-10; fillRR(g,px,py,14,9,2,'#b0bec5'); g.strokeStyle='#78909c'; g.lineWidth=1; g.strokeRect(px+2,py+2,10,4); circle(g,px+3,py+11,1.6,'#455a64'); circle(g,px+11,py+11,1.6,'#455a64'); } }
+  else {
+    fillRR(g,x+10,fy,(w-20)*.36,fh,3,'#cfe8fb'); fillRR(g,x+w-10-(w-20)*.36,fy,(w-20)*.36,fh,3,'#cfe8fb');
+    const dots=[sp.aw,'#ffd166','#81c995','#78a9ff']; for(let k=0;k<3;k++){ circle(g,x+14+k*6,fy+fh-5,2.2,dots[k]); circle(g,x+w-26+k*6,fy+fh-5,2.2,dots[k+1]); }
+    fillRR(g,cx-6,fy,12,fh,2,'#8d6e63'); circle(g,cx+3,fy+fh/2,1.2,'#ffd54f');
+  }
+  for(let k=0;k<2;k++){ const q=((t/(3600+k*900))+k*.5+(f?f.seed/1000:0))%1, px=x+10+q*(w-20), py=y+h-17+k*3;
+    circle(g,px+1,py+1.5,3.2,'rgba(30,45,70,.18)'); circle(g,px,py,3,['#6fa8ef','#ef8a7c'][k]); circle(g,px,py,1.8,'#3b2f2a'); }
+  label(g,cx,y+h-7,sp.sign,sp.aw,w>=120?11:9.5);
+}
 const DRAW={health:drawHealth,biolab:drawBiolab,amuse:drawAmuse,cityhall:drawCityHall,court:drawCourt,stop:drawStop,h2:drawH2,cpark:drawCityPark,bookstore:drawBookstore,parking:drawParking,gym:drawGym,mall:drawMall,police:drawPolice,fire:drawFire,bio:drawBio,farm:drawFarm,school:drawSchool,elem:drawElem,middle:drawMiddle,univ:drawUniv,hospital:drawHospital,cinema:drawCinema,car:drawCarHub,robot:drawRobot,center:drawCenter,factory:drawFactory,uam:drawUAM,house:drawHouse,
   apt:drawApt,flower:drawFlower,fountain:drawFountain,board:drawBoard,tower:drawTower};
+for(const k of QUIZ_SHOPS) DRAW[k]=(g,x,y,w,h,t,f)=>drawShop(g,x,y,w,h,t,f,k);
 
 /* Premium architectural rendering: visual layer only. */
 const premiumDesign={
@@ -1653,7 +1808,8 @@ function drawPark(g,t){
   circle(g,px+30,py+40,7,'#6dbd72'); circle(g,px+pw-36,py+ph-38,6,'#6dbd72'); circle(g,px+pw-30,py+34,5,'#7cc77f');
   fillRR(g,px-22,py+ph/2-10,8,20,2,'#c99a6b'); fillRR(g,px+pw+14,py+ph/2-10,8,20,2,'#c99a6b');
 }
-function drawLake(g,t){
+function drawLake(g,t){ drawLakeAt(g,t,LAKE); drawLakeAt(g,t,LAKE2); }
+function drawLakeAt(g,t,LAKE){
   const px=LAKE.x*TILE, py=LAKE.y*TILE, pw=LAKE.w*TILE, ph=LAKE.h*TILE;
   rr(g,px-10,py-10,pw+20,ph+20,40); g.strokeStyle='#efe2c2'; g.lineWidth=9; g.stroke();
   fillRR(g,px+2,py+3,pw-4,ph-5,42,'#6fbde5'); fillRR(g,px+8,py+8,pw-16,ph-16,36,'#98d4f2');
@@ -1674,8 +1830,9 @@ function drawFog(g,t){
   g.textAlign='center'; g.textBaseline='middle';
   // 화면에 보이는 잠긴 땅 가장자리 안에 안내판 표시
   const sign=(cx,cy,bw,l1,l2,f1,f2)=>{ fillRR(g,cx-bw/2,cy-34,bw,68,16,'rgba(255,255,255,.9)'); g.fillStyle='#4a5a73'; g.font=`900 ${f1}px ${FONT}`; g.fillText(l1,cx,cy-11); g.fillStyle='#d38a00'; g.font=`900 ${f2}px ${FONT}`; g.fillText(l2,cx,cy+14); };
-  sign(x0+100,y0/2,170,'🔒 확장 땅',`${fmt(EXPAND_COST)}금 · 클릭`,17,13);
-  sign(x0/2,y0+80,300,'🔒 확장할 수 있는 땅',`${fmt(EXPAND_COST)}금으로 땅 넓히기 · 클릭`,19,14);
+  const st=landStage(), cost=EXPAND_COSTS[st]||0, need=st===1&&!S.redev;
+  sign(x0+100,y0/2,170,need?'🔒 2단계 확장 땅':'🔒 확장 땅',need?'재개발 후 열려요':`${fmt(cost)}금 · 클릭`,17,13);
+  sign(x0/2,y0+80,320,st===1?'🔒 2단계로 넓힐 수 있는 땅':'🔒 확장할 수 있는 땅',need?`200,000금 재개발을 마치면 ${fmt(cost)}금으로 확장`:`${fmt(cost)}금으로 땅 넓히기 · 클릭`,19,14);
 }
 function drawRoads(g,v){
   const [x0,y0,x1,y1]=tileRange(v);
@@ -1762,6 +1919,7 @@ function drawWorld(g,t,v,ui){
   drawIncidents(g,t);
   if(!ui) return;
   drawFog(g,t);
+  drawNight(g,t,v);
   for(const f of S.facilities){
     const d=FAC[f.type], px=f.x*TILE, py=f.y*TILE, w=d.w*TILE, h=d.h*TILE;
     if(benefits(f)&&coverLv(f)){ const bx=px+w-9, by=py+9, pulse=(Math.sin(t/500)+1)/2;
@@ -1769,8 +1927,8 @@ function drawWorld(g,t,v,ui){
       g.beginPath(); g.arc(bx,by+2.5,5,-Math.PI*.78,-Math.PI*.22); g.stroke(); g.beginPath(); g.arc(bx,by+2.5,2.6,-Math.PI*.78,-Math.PI*.22); g.stroke(); circle(g,bx,by+2.5,1,'#ffffff');
       ring(g,bx,by,7.5+pulse*3,`rgba(32,165,150,${.5-pulse*.5})`,1.2); }
     if(!FAC[f.type].income){ if(f.id===selId){ g.save(); g.setLineDash([7,5]); g.lineDashOffset=-t*.02; rr(g,px-2,py-2,w+4,h+4,8); g.strokeStyle='#3d6fd8'; g.lineWidth=3/Math.max(.6,cam.zoom); g.stroke(); g.restore(); } continue; }
-    fillRR(g,px+8,py+h-6,w-16,4,2,'rgba(30,45,70,.25)');
-    fillRR(g,px+8,py+h-6,(w-16)*Math.min(1,f.elapsed/CYCLE_MS),4,2,'#f2b51d');
+    { const barY=FAC[f.type].kind==='shop'?py:py+h-6, bx=FAC[f.type].kind==='shop'?px+6:px+8, bw=w-(bx-px)*2;   // 가게는 간판과 겹치지 않게 위쪽에
+      fillRR(g,bx,barY,bw,3.5,2,'rgba(30,45,70,.25)'); fillRR(g,bx,barY,bw*Math.min(1,f.elapsed/CYCLE_MS),3.5,2,'#f2b51d'); }
     if(f.id===selId){ g.save(); g.setLineDash([7,5]); g.lineDashOffset=-t*.02; rr(g,px-2,py-2,w+4,h+4,11); g.strokeStyle='#3d6fd8'; g.lineWidth=3/Math.max(.6,cam.zoom); g.stroke(); g.restore(); }
   }
   if(moving){ const f=getFac(drag.id); if(f) ghost(g,f.type,drag.tx,drag.ty,drag.valid,t); }
@@ -2080,17 +2238,27 @@ function drawH2(g,x,y,w,h,t,f){
 /* ───────── 랭킹 (Google 스프레드시트 연동) ─────────
    ▼ 선생님: Apps Script 웹 앱 주소(https://script.google.com/macros/s/…/exec)를 아래 따옴표 안에 붙여 넣으세요. */
 const RANKING_URL = 'https://script.google.com/macros/s/AKfycbyRL5C5f0jHc5801K0aXUIqrHzS3UuZoZdWvYCm9B3rupQVmEktBc0Xo33WoZiNToKl/exec';
+/* 랭킹 도시 점수 (배점이 큰 순서)
+   ① 융합 시설: 건설 300점 + Lv.2 200점 + Lv.3 200점 (10종 × 최대 700 = 7,000점)
+   ② 퀴즈 가게: 1곳당 250점 (13종 × 250 = 3,250점) — 주거·공공·장식보다 큰 배점
+   ③ 도시 발전율: 1%당 20점 (최대 2,000점) = 도시 등급 60% + 땅 확장 20% + 재개발 20%
+   ④ 인구: 1명당 2점   ⑤ 차량: 1대당 10점   ⑥ 버스 정류장: 1곳당 20점   ⑦ 보유금: 1,000금당 1점 (최대 300점) */
+const RANK_W={fusionBuilt:300, fusionUp:200, shop:250, dev:20, pop:2, veh:10, stop:20, moneyPer:1000, moneyMax:300};
+function devRate(){ const st=landStage(); return Math.round((lvInfo().lv-1)/4*50 + (st>=1?15:0) + (S.redev?20:0) + (st>=2?15:0)); }
 function rankStats(){
-  // ① 융합 시설 발전 점수 (시설 1종마다 최대 4점: 연구 1 + 건설 1 + Lv.2 1 + Lv.3 1 → 10종 × 4 = 40점)
-  let fusion=0, research=0, built=0;
+  let fusionBuilt=0, fusionUp=0, research=0;
   for(const t of FAC_ORDER){
-    const r=S.researched.includes(t), lv=S.facilities.filter(f=>f.type===t).reduce((m,f)=>Math.max(m,facLv(f)),0);
-    if(r){ fusion++; research++; } if(lv>0){ fusion++; built++; } if(lv>=2) fusion++; if(lv>=3) fusion++;
+    if(S.researched.includes(t)) research++;
+    const lv=S.facilities.filter(f=>f.type===t).reduce((m,f)=>Math.max(m,facLv(f)),0);
+    if(lv>0) fusionBuilt++; if(lv>=2) fusionUp++; if(lv>=3) fusionUp++;
   }
-  const publicKinds=PUBLIC_TYPES.filter(t=>S.facilities.some(f=>f.type===t)).length;
-  return { fusion, fusionMax:FAC_ORDER.length*4, research, built, publicKinds, publicMax:PUBLIC_TYPES.length, expanded:mapW>=COLS, pop:population(), money:Math.floor(S.money), level:lvInfo().lv };
+  const shops=QUIZ_SHOPS.filter(t=>S.facilities.some(f=>f.type===t)).length;
+  const dev=devRate(), pop=population(), vehicles=vehicleCount(), stops=S.facilities.filter(f=>f.type==='stop').length, money=Math.floor(S.money);
+  const pts={ fusion:fusionBuilt*RANK_W.fusionBuilt+fusionUp*RANK_W.fusionUp, shop:shops*RANK_W.shop, dev:dev*RANK_W.dev, pop:pop*RANK_W.pop, veh:vehicles*RANK_W.veh, stop:stops*RANK_W.stop, money:Math.min(RANK_W.moneyMax,Math.floor(money/RANK_W.moneyPer)) };
+  const score=Object.values(pts).reduce((a,b)=>a+b,0);
+  return { score, fusionPts:pts.fusion, fusionBuilt, fusionUp, research, shops, shopPts:pts.shop, dev, devPts:pts.dev, pop, vehicles, stops, money, level:lvInfo().lv, expanded:expanded(), landStage:landStage(), redev:!!S.redev };
 }
-function cmpRank(a,b){ return (b.fusion-a.fusion)||(b.publicKinds-a.publicKinds)||((b.expanded?1:0)-(a.expanded?1:0))||(b.pop-a.pop)||(b.money-a.money); }
+function cmpRank(a,b){ return (b.score-a.score)||(b.fusionPts-a.fusionPts)||(b.shopPts-a.shopPts)||(b.dev-a.dev)||(b.pop-a.pop)||(b.vehicles-a.vehicles)||(b.stops-a.stops)||(b.money-a.money); }
 let lastSubmitKey='', lastSubmitAt=0, rankScope='class', rankBusy=false;
 async function submitScore(silent,force){
   if(!RANKING_URL||!S.started||!S.studentId) return false;
@@ -2112,11 +2280,14 @@ function classPrefix(){ const s=S.studentId||''; return s.length>=4?s.slice(0,-2
 function classLabel(){ const s=S.studentId||''; if(s.length===5) return `${s[0]}학년 ${parseInt(s.slice(1,3),10)}반`; if(s.length===4) return `${s[0]}학년 ${s[1]}반`; return '우리 반'; }
 function renderRankMine(){
   const st=rankStats();
-  $('rankMine').innerHTML=`<div><small>① 융합 시설 발전</small><b>${st.fusion} / ${st.fusionMax}</b><small>연구 ${st.research} · 건설 ${st.built}</small></div>
-    <div><small>② 공공 시설 종류</small><b>${st.publicKinds} / ${st.publicMax}</b></div>
-    <div><small>③ 땅 확장</small><b>${st.expanded?'완료 ✔':'아직'}</b></div>
-    <div><small>④ 인구</small><b>${fmt(st.pop)}명</b></div>
-    <div><small>⑤ 보유금</small><b>${fmt(st.money)}금</b></div>`;
+  $('rankMine').innerHTML=`<div class="rm-total"><small>내 도시 점수</small><b>${fmt(st.score)}점</b></div>
+    <div><small>① 융합 시설</small><b>${fmt(st.fusionPts)}</b><small>건설 ${st.fusionBuilt}/10 · 업그레이드 ${st.fusionUp}</small></div>
+    <div><small>② 퀴즈 가게</small><b>${fmt(st.shopPts)}</b><small>${st.shops}/${QUIZ_SHOPS.length}곳</small></div>
+    <div><small>③ 도시 발전율</small><b>${fmt(st.devPts)}</b><small>${st.dev}%</small></div>
+    <div><small>④ 인구</small><b>${fmt(st.pop*RANK_W.pop)}</b><small>${fmt(st.pop)}명</small></div>
+    <div><small>⑤ 차량</small><b>${fmt(st.vehicles*RANK_W.veh)}</b><small>${st.vehicles}대</small></div>
+    <div><small>⑥ 버스 정류장</small><b>${fmt(st.stops*RANK_W.stop)}</b><small>${st.stops}곳</small></div>
+    <div><small>⑦ 보유금</small><b>${fmt(Math.min(RANK_W.moneyMax,Math.floor(st.money/RANK_W.moneyPer)))}</b><small>${fmt(st.money)}금</small></div>`;
 }
 async function loadRanking(){
   if(rankBusy) return; rankBusy=true;
@@ -2134,8 +2305,8 @@ async function loadRanking(){
     status.textContent=`${lastSubmitAt?'내 점수 등록 완료 · ':''}${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})} 기준`;
     if(!list.length){ body.innerHTML='<div class="rank-msg">아직 등록된 도시가 없어요. 첫 번째 주인공이 되어 보세요!</div>'; rankBusy=false; return; }
     const medal=['🥇','🥈','🥉'];
-    body.innerHTML=`<table class="rank-table"><thead><tr><th>순위</th><th>학번</th><th style="text-align:left">도시 이름</th><th>① 융합 발전</th><th>② 공공 시설</th><th>③ 땅 확장</th><th>④ 인구</th><th>⑤ 보유금</th></tr></thead><tbody>${
-      list.map((r,i)=>`<tr class="${r.sid===S.studentId?'me':''}"><td>${i<3?`<span class="medal">${medal[i]}</span>`:i+1}</td><td>${esc(String(r.sid))}</td><td class="city">${esc(String(r.city||''))}</td><td>${r.fusion}/${FAC_ORDER.length*4}</td><td>${r.publicKinds}/${PUBLIC_TYPES.length}</td><td>${r.expanded?'✔':'-'}</td><td>${fmt(r.pop)}명</td><td>${fmt(r.money)}금</td></tr>`).join('')}</tbody></table>`;
+    body.innerHTML=`<table class="rank-table"><thead><tr><th>순위</th><th>학번</th><th style="text-align:left">도시 이름</th><th>도시 점수</th><th>① 융합 시설</th><th>② 퀴즈 가게</th><th>③ 발전율</th><th>④ 인구</th><th>⑤ 차량</th><th>⑥ 정류장</th><th>⑦ 보유금</th></tr></thead><tbody>${
+      list.map((r,i)=>`<tr class="${r.sid===S.studentId?'me':''}"><td>${i<3?`<span class="medal">${medal[i]}</span>`:i+1}</td><td>${esc(String(r.sid))}</td><td class="city">${esc(String(r.city||''))}</td><td class="score">${fmt(r.score||0)}</td><td>${r.fusionBuilt||0}개 · ↑${r.fusionUp||0}</td><td>${r.shops||0}곳</td><td>${r.dev||0}%</td><td>${fmt(r.pop||0)}명</td><td>${r.vehicles||0}대</td><td>${r.stops||0}곳</td><td>${fmt(r.money||0)}금</td></tr>`).join('')}</tbody></table>`;
     const me=list.findIndex(r=>r.sid===S.studentId);
     if(me>=0) status.textContent=`내 순위 ${me+1}위 / ${list.length}명 · `+status.textContent;
   }catch(e){ body.innerHTML='<div class="rank-msg">순위를 불러오지 못했어요.<br>인터넷 연결을 확인하고 새로고침을 눌러 보세요.</div>'; status.textContent=''; }
@@ -2164,7 +2335,7 @@ function openRedev(){
 function doRedev(){
   if(S.redev) return;
   if(!spend(REDEV_COST)){ toast('자금이 부족해서 재개발하지 못했어요.','bad'); return; }
-  S.redev=true; S.modernOn=true; applyStyle(); saveGame(false);
+  S.redev=true; S.modernOn=true; applyStyle(); refreshExpandBtn(); saveGame(false);
   const box=$('levelUp');
   box.innerHTML=`<div class="lu-card"><div class="lu-eyebrow">도시 재개발 완료!</div><div class="lu-title">세련된 미래 도시</div>
     <div class="lu-sub">유리 외벽과 금속 장식이 빛나는 세련된 도시로 다시 태어났어요.</div>
@@ -2176,32 +2347,43 @@ function doRedev(){
   toast(`${fmt(REDEV_COST)}금으로 도시를 재개발했어요!`,'good');
 }
 /* ───────── 땅 넓히기 ───────── */
-function expanded(){ return mapW>=COLS&&mapH>=ROWS; }
-function refreshExpandBtn(){ const b=$('expandBtn'); if(!b) return; b.hidden=expanded(); }
+function expanded(){ return landStage()>=1; }            // 1단계 이상 확장했는지 (랭킹·발전율용)
+function fullyExpanded(){ return landStage()>=LAND_STAGES.length-1; }
+function refreshExpandBtn(){
+  const b=$('expandBtn'); if(!b) return; const st=landStage();
+  b.hidden=fullyExpanded();
+  if(st===0) b.textContent=`🗺 땅 넓히기 (${fmt(EXPAND_COSTS[0])}금)`;
+  else if(st===1) b.textContent=S.redev?`🗺 땅 넓히기 2단계 (${fmt(EXPAND_COSTS[1])}금)`:'🔒 2단계 땅 확장 (재개발 후)';
+}
 function openExpand(){
-  if(expanded()){ toast('이미 땅을 모두 넓혔어요.','good'); return; }
-  if(S.money<EXPAND_COST){ toast(`땅을 넓히려면 ${fmt(EXPAND_COST)}금이 필요해요. 지금 ${fmt(EXPAND_COST-S.money)}금이 부족해요.`,'bad'); return; }
-  openModal('도시의 땅을 넓힐까요?',`<p><b>${fmt(EXPAND_COST)}금</b>을 써서 동쪽과 남쪽의 새 땅을 열어요.</p><p>도시 넓이가 지금의 <b>약 2.25배</b>가 되고, 새 땅에는 도로와 큰 호수가 있어요. 도시 바깥에서 들어오는 차와 수소 버스도 새 길을 달려요.</p><p class="note">보유 자금 ${fmt(S.money)}금 → ${fmt(S.money-EXPAND_COST)}금</p>`,[
+  const st=landStage();
+  if(fullyExpanded()){ toast('이미 땅을 모두 넓혔어요.','good'); return; }
+  if(st===1&&!S.redev){ toast(`200,000금 도시 재개발을 마치면 ${fmt(EXPAND_COSTS[1])}금으로 2단계 땅 확장을 할 수 있어요.`,'bad'); return; }
+  const cost=EXPAND_COSTS[st], [nw,nh]=LAND_STAGES[st+1];
+  if(S.money<cost){ toast(`땅을 넓히려면 ${fmt(cost)}금이 필요해요. 지금 ${fmt(cost-S.money)}금이 부족해요.`,'bad'); return; }
+  openModal(st===0?'도시의 땅을 넓힐까요?':'2단계 땅 확장을 할까요?',`<p><b>${fmt(cost)}금</b>을 써서 동쪽과 남쪽의 새 땅을 열어요.</p><p>도시 넓이가 <b>${mapW}×${mapH}칸 → ${nw}×${nh}칸</b>이 되고, 새 땅에는 도로와 ${st===0?'큰 호수':'더 큰 호수'}가 있어요. 도시 바깥에서 들어오는 차와 수소 버스도 새 길을 달려요.</p><p class="note">보유 자금 ${fmt(S.money)}금 → ${fmt(S.money-cost)}금</p>`,[
     {label:'취소'},
-    {label:`${fmt(EXPAND_COST)}금으로 넓히기`,cls:'primary',onClick:expandLand}
+    {label:`${fmt(cost)}금으로 넓히기`,cls:'primary',onClick:expandLand}
   ]);
 }
 function expandLand(){
-  if(expanded()) return;
-  if(!spend(EXPAND_COST)){ toast('자금이 부족해서 땅을 넓히지 못했어요.','bad'); return; }
-  S.mapW=COLS; S.mapH=ROWS; mapW=COLS; mapH=ROWS;
-  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){ if(x<BASE_COLS&&y<BASE_ROWS) continue; const i=idx(x,y); if(roadPattern(x,y)&&!water[i]) S.roads[i]=1; }
-  S.trees.push(...baseTrees(S.roads,0,0,COLS,ROWS,true));
+  const st=landStage(); if(fullyExpanded()) return;
+  if(st===1&&!S.redev) return;
+  const cost=EXPAND_COSTS[st], [pw,ph]=LAND_STAGES[st], [nw,nh]=LAND_STAGES[st+1];
+  if(!spend(cost)){ toast('자금이 부족해서 땅을 넓히지 못했어요.','bad'); return; }
+  S.mapW=nw; S.mapH=nh; mapW=nw; mapH=nh;
+  for(let y=0;y<nh;y++) for(let x=0;x<nw;x++){ if(x<pw&&y<ph) continue; const i=idx(x,y); if(roadPattern(x,y)&&!water[i]) S.roads[i]=1; }
+  S.trees.push(...baseTrees(S.roads,0,0,nw,nh,true,pw,ph));
   clampCam(); fitAll(); refreshExpandBtn(); refreshStats(); saveGame(false);
   const box=$('levelUp');
-  box.innerHTML=`<div class="lu-card"><div class="lu-eyebrow">도시 확장!</div><div class="lu-title">새 땅이 열렸어요</div>
+  box.innerHTML=`<div class="lu-card"><div class="lu-eyebrow">${st===0?'도시 확장!':'2단계 도시 확장!'}</div><div class="lu-title">새 땅이 열렸어요</div>
     <div class="lu-sub">동쪽과 남쪽으로 도시가 넓어졌어요. 도로와 호수가 있는 새 땅에 마음껏 건설해 보세요.</div>
-    <div class="lu-bonus">도시 넓이 36×24칸 → 54×36칸</div><div style="height:12px"></div>
+    <div class="lu-bonus">도시 넓이 ${pw}×${ph}칸 → ${nw}×${nh}칸</div><div style="height:12px"></div>
     <button class="btn primary" id="luOk">새 땅 둘러보기</button></div>`;
   box.hidden=false; $('luOk').onclick=()=>{ box.hidden=true; };
   const cols=['#3f86e0','#e6a412','#3aa65b','#de5f95','#8e62d1','#ec7b2b'];
   for(let i=0;i<70;i++){ const c=document.createElement('i'); c.className='confetti'; c.style.left=(Math.random()*100)+'%'; c.style.background=cols[i%cols.length]; c.style.setProperty('--dx',((Math.random()*2-1)*120)+'px'); c.style.animationDelay=(Math.random()*.4)+'s'; box.appendChild(c); setTimeout(()=>c.remove(),2400); }
-  toast(`${fmt(EXPAND_COST)}금으로 도시의 땅을 넓혔어요!`,'good');
+  toast(`${fmt(cost)}금으로 도시의 땅을 넓혔어요!`,'good');
 }
 /* ───────── 사건·사고 (누적 사용 금액 200,000금 이후) ─────────
    화재 → 소방서가 소방차 출동 · 도난/교통사고 → 경찰서가 경찰차 출동 · 도로 파손 → 시청이 보수 차량 출동 */
@@ -2232,7 +2414,7 @@ function incidentTick(){
 }
 function createIncident(){
   const now=performance.now();
-  const bldgs=S.facilities.filter(f=>{ const k=FAC[f.type].kind; return (k==='fusion'||k==='public'||k==='house')&&!f.onFire&&!f.closed; });
+  const bldgs=S.facilities.filter(f=>{ const k=FAC[f.type].kind; return (k==='fusion'||k==='public'||k==='house'||k==='shop')&&!f.onFire&&!f.closed; });
   const shops=bldgs.filter(f=>FAC[f.type].income>0);
   const roads=roadTiles().filter(t=>!incidents.some(i=>i.state!=='done'&&i.tx===t[0]&&i.ty===t[1]));
   const types=[]; if(bldgs.length) types.push('fire','fire'); if(shops.length) types.push('theft'); if(roads.length) types.push('accident','road');
@@ -2370,8 +2552,98 @@ function drawIncidentUnits(g,t){
     const svc=INC_INFO[inc.type].svc;
     if(svc==='fire') drawFireTruck(g,u.px,u.py,u.ang,t); else if(svc==='police') drawPoliceCar(g,u.px,u.py,u.ang,t); else drawRepairVan(g,u.px,u.py,u.ang,t); }
 }
+/* ───────── 융합 기술 퀴즈 (3~5분마다 도착, 맞히면 보너스) ───────── */
+let quizCoolUntil=0;
+const QUIZ_COOL=20000;
+function quizReward(){ return Math.min(1500,Math.max(50,Math.round(incomePerSec()*10))); }
+function quizTick(){
+  const b=$('quizCenter'); if(!b) return;
+  const left=Math.ceil((quizCoolUntil-performance.now())/1000), n=shopsUnlocked();
+  const next=n<QUIZ_SHOPS.length?FAC[QUIZ_SHOPS[n]].name:null, have=(S.quizCorrect||0)-n*QUIZ_PER_UNLOCK;
+  if(left>0){ b.disabled=true; b.innerHTML=`⏳ 다음 퀴즈까지 ${left}초<small>정답 ${S.quizCorrect||0}개 · 가게 ${n}/${QUIZ_SHOPS.length} 열림</small>`; }
+  else { b.disabled=false; b.innerHTML=`📚 융합 퀴즈 풀기<small>${next?`다음 가게 <b>${next}</b>까지 정답 ${have}/${QUIZ_PER_UNLOCK}`:'모든 가게 오픈 완료! 정답 보너스 +'+fmt(quizReward())+'금'}</small>`; }
+}
+function showShopUnlock(type){
+  const d=FAC[type], box=$('levelUp');
+  box.innerHTML=`<div class="lu-card"><div class="lu-eyebrow">퀴즈 보상 · 새 가게 오픈!</div><div class="lu-title">${d.name}</div>
+    <div class="lu-sub">융합 기술 퀴즈를 ${QUIZ_PER_UNLOCK}개 더 맞혀 새 가게가 열렸어요. 무료로 지을 수 있어요!</div>
+    <div class="lu-items"><div class="lu-item"><canvas data-t="${type}"></canvas><span>10초마다 +${d.income}금</span></div></div>
+    <button class="btn primary" id="luOk">지으러 가기</button></div>`;
+  box.querySelectorAll('canvas[data-t]').forEach(c=>paintIllu(c,c.dataset.t,96,76));
+  box.hidden=false;
+  $('luOk').onclick=()=>{ box.hidden=true; const tab=document.querySelector('.category-tab[data-panel="shops"]'); if(tab) tab.click(); };
+  refreshCards();
+}
+function makeQuiz(){
+  const pool=S.researched.length>=2?S.researched.slice():FAC_ORDER.slice();
+  const type=rnd(['combo','role','value']), k=rnd(pool), d=FAC[k];
+  if(type==='combo'){
+    const right=d.techs.map(t=>TECHS[t].name).join(' + ');
+    const wrongs=shuffle(FAC_ORDER.filter(x=>x!==k).map(x=>FAC[x].techs.map(t=>TECHS[t].name).join(' + ')).filter(x=>x!==right));
+    const uniq=[...new Set(wrongs)].slice(0,3);
+    return {q:`<b>${d.name}</b>을(를) 만드는 데 융합된 기술 조합은 무엇일까요?`.replace('을(를)',hasBatchim(d.name)?'을':'를'),opts:shuffle([right,...uniq]),a:right,ex:resultSentence(d)};
+  }
+  if(type==='role'){
+    const t=rnd(d.techs), right=TECHS[t].name;
+    const opts=shuffle([right,...shuffle(TECH_ORDER.filter(x=>!d.techs.includes(x)).map(x=>TECHS[x].name)).slice(0,3)]);
+    return {q:`${d.name}에서 다음 역할을 하는 기술은?<br><span class="qz-quote">“${esc(d.roles[t])}”</span>`,opts,a:right,ex:`${TECHS[t].name}: ${d.roles[t]}`};
+  }
+  const right=d.name, opts=shuffle([right,...shuffle(FAC_ORDER.filter(x=>x!==k).map(x=>FAC[x].name)).slice(0,3)]);
+  return {q:`다음과 같은 새로운 가치를 만든 융합 시설은?<br><span class="qz-quote">“${esc(d.valueShort)}”</span>`,opts,a:right,ex:`${d.name} — ${d.value}`};
+}
+function openQuiz(){
+  if(performance.now()<quizCoolUntil||!$('modal').hidden||!S.started) return;
+  const Q=makeQuiz(), reward=quizReward();
+  openModal('📚 융합 기술 퀴즈',`<p>${Q.q}</p><div class="qz-opts">${Q.opts.map((o,i)=>`<button type="button" class="qz-opt" data-i="${i}">${esc(o)}</button>`).join('')}</div><div id="qzMsg" class="qz-ex"></div>`,[{label:'닫기'}],()=>{
+    $('mBody').querySelectorAll('.qz-opt').forEach(b=>b.onclick=()=>{
+      if($('mBody').dataset.done) return; $('mBody').dataset.done='1';
+      const pick=Q.opts[+b.dataset.i], ok=pick===Q.a;
+      $('mBody').querySelectorAll('.qz-opt').forEach(x=>{ if(Q.opts[+x.dataset.i]===Q.a) x.classList.add('right'); else if(x===b) x.classList.add('wrong'); x.disabled=true; });
+      $('qzMsg').innerHTML=(ok?`<b style="color:var(--good)">정답! +${fmt(reward)}금</b>`:`<b style="color:var(--bad)">아쉬워요! 정답은 “${esc(Q.a)}”${hasBatchim(Q.a)?'이에요':'예요'}.</b>`)+`<br>${esc(Q.ex)}`;
+      quizCoolUntil=performance.now()+QUIZ_COOL;
+      if(ok){ gain(reward); const before=shopsUnlocked(); S.quizCorrect=(S.quizCorrect||0)+1; const after=shopsUnlocked();
+        if(after>before) setTimeout(()=>{ $('modal').hidden=true; showShopUnlock(QUIZ_SHOPS[after-1]); },1600);
+        refreshCards(); saveGame(false); }
+      quizTick();
+    });
+  });
+  delete $('mBody').dataset.done;
+}
+
+/* ───────── 낮과 밤 (4분마다 한 바퀴) ───────── */
+const DAY_MS=240000;
+function dayInfo(t){
+  const p=(t%DAY_MS)/DAY_MS; let d, name, icon;
+  if(p<.55){ d=0; name='낮'; icon='☀️'; }
+  else if(p<.65){ d=(p-.55)/.1*.55; name='해 질 녘'; icon='🌇'; }
+  else if(p<.9){ d=.55; name='밤'; icon='🌙'; }
+  else { d=(1-(p-.9)/.1)*.55; name='새벽'; icon='🌅'; }
+  return {d,name,icon};
+}
+function drawNight(g,t,v){
+  const {d}=dayInfo(performance.now()); if(d<=0.01) return;
+  g.save();
+  g.fillStyle=`rgba(12,20,55,${d})`; g.fillRect(0,0,WORLD_W,WORLD_H);
+  const k=d/.55; g.globalCompositeOperation='lighter';
+  const glow=(x,y,r,a,col)=>{ const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,`rgba(${col},${a})`); gr.addColorStop(1,`rgba(${col},0)`); g.fillStyle=gr; g.beginPath(); g.arc(x,y,r,0,Math.PI*2); g.fill(); };
+  // 가로등 (도로 3칸마다)
+  const [x0,y0,x1,y1]=tileRange(v);
+  for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++) if(S.roads[idx(x,y)]&&(x+y)%3===0) glow(x*TILE+6,y*TILE+6,22,.35*k,'255,214,140');
+  // 건물 창문 불빛
+  for(const f of S.facilities){ const e=FAC[f.type]; if(e.kind==='decor'&&f.type!=='tower'&&f.type!=='board'&&f.type!=='fountain') continue;
+    const [cx,cy]=facCenter(f), r=Math.max(e.w,e.h)*TILE*.55; glow(cx,cy,r,.45*k,'255,196,110');
+    const flick=(Math.sin(t/900+f.id)+1)/2; glow(cx+e.w*6,cy-e.h*4,r*.4,.35*k*flick,'160,220,255'); }
+  // 자동차 전조등
+  const head=(a)=>{ if(!a||a.px==null) return; const ax=a.px+Math.cos(a.ang)*16, ay=a.py+Math.sin(a.ang)*16; glow(ax,ay,16,.45*k,'255,245,200'); };
+  traffic.forEach(head); buses.forEach(head); movers.forEach(m=>{ if(m.kind==='truck') head(m); });
+  S.facilities.forEach(f=>{ (f.cars||[]).forEach(h=>head(h.car)); if(f.unit) head(f.unit.car); });
+  incidents.forEach(i=>head(i.unit));
+  g.restore();
+}
 function maintainAgents(){
   if(!S.started) return;
+  quizTick();
+  { const di=dayInfo(performance.now()), el=$('dayPill'); if(el) el.textContent=`${di.icon} ${di.name}`; }
   incidentTick(); if(incidents.length) renderIncidents();
   updateLine();
   if(line.ok&&buses.length){ const rate=Math.min(1,.12+population()/600); for(const f of line.stops){ f.wait=Math.min(5,(f.wait||0)+rate*.5); } }
@@ -2489,7 +2761,7 @@ function paintAt(w){
 function tryPlace(w,keep){
   const type=mode.type, d=FAC[type];
   if(!d.noResearch&&!S.researched.includes(type)){ setMode({kind:'none'}); return; }
-  if(d.unique&&S.facilities.some(q=>q.type===type)){ setMode({kind:'none'}); return; }
+  if(isQuizLocked(type)||(d.unique&&S.facilities.some(q=>q.type===type))){ setMode({kind:'none'}); return; }
   if(isLocked(type)){ toast(`도시 등급 Lv.${d.level}이 되면 지을 수 있어요.`,'bad'); setMode({kind:'none'}); return; }
   if(isFusionType(type)&&housesNeeded()>0){ housingToast(); setMode({kind:'none'}); return; }
   const tx=Math.round(w.x/TILE-d.w/2), ty=Math.round(w.y/TILE-d.h/2);
@@ -2503,6 +2775,7 @@ function tryPlace(w,keep){
   if(d.kind==='house') toast(housesNeeded()>0?`${d.name} 완성! 다음 시설을 지으려면 주민 ${housesNeeded()}명분의 주거가 더 필요해요.`:`${d.name} 완성! 이제 다음 융합 시설을 지을 수 있어요.`,'good');
   else if(type==='fire'||type==='police'){ const [cx,cy]=facCenter(f), n=S.facilities.filter(o=>zoneTarget(o)&&Math.hypot(facCenter(o)[0]-cx,facCenter(o)[1]-cy)<=safetyR(f)).length; toast(`${d.name} 완공! 반경 ${safetyR(f)/TILE}칸 담당 구역 안 건물 ${n}곳을 ${type==='fire'?'화재로부터':'범죄·사고로부터'} 지켜요. 주민 ${d.residents}명이 이주해 와요.`,'good'); }
   else if(d.kind==='public') toast(`${d.name} 완공! ${publicReason(type)[1]}라는 소문에 주민 ${d.residents}명이 이주해 와요.`+(d.income?` 10초마다 ${facIncome(f)}금의 수익도 생겨요.`:'')+(housesNeeded()>0?` 주거 ${housesNeeded()}명분이 더 필요해요.`:''),'good');
+  else if(d.kind==='shop') toast(`${d.name} 개업! 무료로 지었고, 10초마다 ${facIncome(f)}금을 벌어요.`,'good');
   else if(d.kind==='stop'){ const n=S.facilities.filter(q=>q.type==='stop').length; toast(n<2?`버스 정류장 ${n}번 설치! 정류장을 1곳 더 설치하면 노선이 생겨요.`:`버스 정류장 ${n}번 설치! 노선이 ${n}개 정류장으로 늘어났어요.`+(h2Buses()?'':' 수소충전소를 지어야 버스가 달려요.'),'good'); }
   else if(d.kind==='decor') toast(`${d.name}${hasBatchim(d.name)?'으로':'로'} 도시를 꾸몄어요!`,'good');
   else if(type==='center') toast(`${d.name} 건설 완료! 관리 범위 안 시설 ${coveredBy(f).length}곳이 스마트 관리 혜택을 받아요.`+(housesNeeded()>0?` 다음 시설을 지으려면 주민 ${housesNeeded()}명분의 주거가 필요해요.`:''),'good');
@@ -2517,7 +2790,7 @@ canvas.addEventListener('pointerdown',e=>{
   const {sx,sy}=local(e), w=toWorld(sx,sy); hover=w;
   if(e.button===2){ if(mode.kind!=='none'){ setMode({kind:'none'}); return; } pan={sx,sy,ox:cam.ox,oy:cam.oy,moved:true}; return; }
   if(e.button===1){ pan={sx,sy,ox:cam.ox,oy:cam.oy,moved:true}; return; }
-  if(mode.kind==='none'&&!expanded()&&w.x>=0&&w.y>=0&&w.x<WORLD_W&&w.y<WORLD_H&&(w.x>=mapW*TILE||w.y>=mapH*TILE)){ openExpand(); return; }
+  if(mode.kind==='none'&&!fullyExpanded()&&w.x>=0&&w.y>=0&&w.x<WORLD_W&&w.y<WORLD_H&&(w.x>=mapW*TILE||w.y>=mapH*TILE)){ openExpand(); return; }
   if(mode.kind==='build'){ tryPlace(w,e.shiftKey); return; }
   if(mode.kind==='decor'){ painting=true; lastPaintKey=null; paintAt(w); return; }
   const f=hitFacility(w);
@@ -2581,6 +2854,7 @@ function startBuild(type){
   if(type==='stop'&&!S.researched.includes('h2')){ toast('수소충전소 연구를 완료해야 버스 정류장을 건설할 수 있어요.','bad'); return; }
   if(!FAC[type].noResearch&&!S.researched.includes(type)){ selectLab(type); return; }
   if(mode.kind==='build'&&mode.type===type){ setMode({kind:'none'}); return; }
+  if(isQuizLocked(type)){ toast('융합 퀴즈를 더 맞히면 열리는 가게예요. 지도 위 📚 융합 퀴즈 풀기를 눌러 보세요!','bad'); return; }
   if(FAC[type].unique&&S.facilities.some(q=>q.type===type)){ toast(`${FAC[type].name}${hasBatchim(FAC[type].name)?'은':'는'} 도시에 하나만 지을 수 있어요.`,'bad'); return; }
   if(isLocked(type)){ toast(`${FAC[type].name}${hasBatchim(FAC[type].name)?'은':'는'} 도시 등급 Lv.${FAC[type].level} ${LEVELS[FAC[type].level-1].name}이 되면 열려요.`,'bad'); return; }
   if(isFusionType(type)&&housesNeeded()>0){ housingToast(); return; }
@@ -2600,7 +2874,7 @@ function paintIllu(cv,kind,W,H){
 }
 function extraCard(type){
   const d=FAC[type], card=document.createElement('div'); card.className='fac-card'; card.tabIndex=0;
-  const meta = d.kind==='stop' ? `<span>건설 <b>${d.cost}금</b></span><span>도로 바로 옆에 설치</span><span>승객 1명당 <b>${BUS_FARE}금</b></span>` : d.kind==='house' ? `<span>건설 <b>${d.cost}금</b></span><span>수익 <b>없음</b></span><span>주민 <b>${d.cap}명</b> 수용</span>`
+  const meta = d.kind==='shop' ? `<span>건설 <b>무료</b></span><span>수익 <b>+${d.income}금</b>/10초</span><span>1곳만</span>` : d.kind==='stop' ? `<span>건설 <b>${d.cost}금</b></span><span>도로 바로 옆에 설치</span><span>승객 1명당 <b>${BUS_FARE}금</b></span>` : d.kind==='house' ? `<span>건설 <b>${d.cost}금</b></span><span>수익 <b>없음</b></span><span>주민 <b>${d.cap}명</b> 수용</span>`
                                 : d.kind==='public' ? `<span>건설 <b>${fmt(d.cost)}금</b></span><span>${d.tax?'세금 <b>인구 10명당 1금</b>':d.income?`수익 <b>+${d.income}금</b>/10초`:'수익 없음'}</span><span>주민 <b>+${d.residents}명</b></span>`
                                 : `<span>건설 <b>${d.cost}금</b></span><span>장식 · 수익 없음</span>`;
   card.innerHTML=`<canvas class="fac-illu"></canvas><div><div class="fac-name">${d.name}</div><div class="fac-meta">${meta}</div><span class="fac-status done"></span><button class="fac-btn" type="button"></button></div>`;
@@ -2614,7 +2888,7 @@ function extraCard(type){
 }
 function setupCategoryTabs(){
   // 탭 옆 숫자는 실제로 목록에 있는 시설 수로 자동 계산 (시설을 추가해도 맞게 유지)
-  const counts={fusion:FAC_ORDER.length, housing:HOUSING_TYPES.length, public:PUBLIC_TYPES.length+LINE_TYPES.length, decor:DECOR_TYPES.length};
+  const counts={fusion:FAC_ORDER.length, housing:HOUSING_TYPES.length, public:PUBLIC_TYPES.length+LINE_TYPES.length, decor:DECOR_TYPES.length, shops:QUIZ_SHOPS.length};
   for(const tab of document.querySelectorAll('.category-tab')){ const sp=tab.querySelector('span'); if(sp&&counts[tab.dataset.panel]!=null) sp.textContent=counts[tab.dataset.panel]; }
   const tabs=[...document.querySelectorAll('.category-tab')];
   const panels=[...document.querySelectorAll('.facility-panel')];
@@ -2641,6 +2915,7 @@ function buildSidebar(){
     list.appendChild(card);
   }
   const hl=$('houseList'); hl.innerHTML=''; HOUSING_TYPES.forEach(t=>hl.appendChild(extraCard(t)));
+  const sl=$('shopList'); if(sl){ sl.innerHTML=''; QUIZ_SHOPS.forEach(t=>sl.appendChild(extraCard(t))); }
   const pl=$('publicList'); pl.innerHTML=''; [...PUBLIC_TYPES,...LINE_TYPES].forEach(t=>pl.appendChild(extraCard(t)));
   const dl=$('cityDecorList'); dl.innerHTML=''; DECOR_TYPES.forEach(t=>dl.appendChild(extraCard(t)));
   const row=$('decorRow'); row.innerHTML='';
@@ -2670,6 +2945,8 @@ function refreshCards(){
     setBuildBtn(r.btn,type,true,b);
     if(locked){ r.status.textContent=`잠김 · Lv.${d.level} ${LEVELS[d.level-1].name}`; r.status.classList.remove('done'); r.status.classList.add('lock'); continue; }
     r.status.classList.remove('lock');
+    if(d.kind==='shop'){ const lockedQ=isQuizLocked(type), c=S.facilities.some(f=>f.type===type); r.card.classList.toggle('locked',lockedQ); r.status.classList.toggle('lock',lockedQ); r.status.classList.toggle('done',!lockedQ);
+      r.status.textContent=lockedQ?`🔒 퀴즈 정답 ${(QUIZ_SHOPS.indexOf(type)+1)*QUIZ_PER_UNLOCK-(S.quizCorrect||0)}개 더 맞히면 열려요`:(c?'운영 중':'무료로 지을 수 있어요'); continue; }
     if(d.kind==='stop'){ const c=S.facilities.filter(f=>f.type==='stop').length; const ready=S.researched.includes('h2'); r.status.textContent=!ready?'잠김 · 수소충전소 연구 필요':c?`정류장 ${c}곳 설치`:'건설 가능 · 도로 옆 설치'; r.status.classList.toggle('done',ready); r.status.classList.toggle('lock',!ready); r.card.classList.toggle('locked',!ready); continue; }
     if(d.kind==='house'){ r.status.textContent=n>0?`주거 ${n}명분 부족!`:`주거 ${houseCount()}곳 · ${housingCap()}명 수용`; r.status.classList.toggle('done',n===0); }
     else { const c=S.facilities.filter(f=>f.type===type).length; r.status.textContent=c?`${c}개 설치`:'해금됨'; r.status.classList.add('done'); }
@@ -2681,6 +2958,7 @@ function setBuildBtn(btn,type,done,building){
   const isFac=btn.className==='fac-btn';
   if(!done){ btn.textContent='연구하기'; btn.disabled=false; if(isFac) btn.classList.add('research'); return; }
   if(building){ btn.textContent='건설 취소'; btn.disabled=false; btn.classList.add(isFac?'cancel':'gold'); return; }
+  if(isQuizLocked(type)){ btn.textContent='🔒 퀴즈로 해금'; btn.disabled=true; return; }
   if(d.unique&&S.facilities.some(q=>q.type===type)&&!building){ btn.textContent='이미 있어요 (1곳만)'; btn.disabled=true; return; }
   if(isLocked(type)){ btn.textContent=`Lv.${d.level}에서 해금`; btn.disabled=true; return; }
   if(type==='stop'&&!S.researched.includes('h2')){ btn.textContent='수소충전소 연구 후 해금'; btn.disabled=true; return; }
@@ -2856,7 +3134,13 @@ function renderInfo(){
   if(!f){ selId=null; info.hidden=true; info.innerHTML=''; return; }
   const d=FAC[f.type], refund=Math.floor(invested(f)*.5);
   info.hidden=false;
-  if(d.kind==='stop'){
+  if(d.kind==='shop'){
+    info.innerHTML=`<div class="ip-head"><canvas></canvas><div><b>${d.name}</b><small>퀴즈 가게 · 무료</small></div><button class="ip-x" aria-label="닫기">×</button></div>
+      <p class="ip-val">${d.desc}</p>
+      <div class="ip-row"><span>수익</span><b>+${facIncome(f)}금 / 10초</b></div><div class="ip-bar"><i id="ipBar"></i></div><div class="ip-next" id="ipNext"></div>
+      <p class="ip-tip">끌어서 옮길 수 있어요 (이동 무료). 철거하면 다시 무료로 지을 수 있어요.</p>
+      <div class="ip-actions">${deleteConfirm?`<div class="ip-confirm">정말 철거할까요?</div><button class="btn danger" id="ipYes">철거하기</button><button class="btn" id="ipNo">취소</button>`:`<button class="btn danger" id="ipDel">철거하기</button>`}</div>`;
+  } else if(d.kind==='stop'){
     const order=lineStops().findIndex(q=>q.id===f.id)+1;
     info.innerHTML=`<div class="ip-head"><canvas></canvas><div><b>${order}번 ${d.name}</b><small>건설비 ${d.cost}금 · 교통 라인</small></div><button class="ip-x" aria-label="닫기">×</button></div>
       <p class="ip-val">${d.desc}</p>
@@ -2957,6 +3241,7 @@ function exportPNG(){
 }
 $('pngBtn').onclick=exportPNG;
 $('rankBtn').onclick=openRanking;
+$('quizCenter').onclick=openQuiz;
 $('rankClose').onclick=()=>{ $('rankModal').hidden=true; };
 $('rankModal').addEventListener('click',e=>{ if(e.target===$('rankModal')) $('rankModal').hidden=true; });
 $('rankRefresh').onclick=()=>loadRanking();
@@ -3046,6 +3331,7 @@ function init(){
   requestAnimationFrame(frame);
   const saved=loadSave();
   const continueBtn=$('continueStartBtn');
+  if(!saved&&OLD_SAVE_CLEARED) $('startSaveInfo').textContent='🎉 새 버전으로 업데이트되어 모든 도시가 처음부터 시작해요!';
   if(saved){
     continueBtn.disabled=false;
     $('startSaveInfo').textContent=`저장된 도시: ${saved.studentId?saved.studentId+' · ':''}${saved.cityName} · 시설 ${saved.facilities.length}개`;
